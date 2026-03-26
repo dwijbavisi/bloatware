@@ -5,7 +5,7 @@ ultimate authority. It is the part of me that occasionally overrides my logical
 mind.
 
 But this realization brought me to a difficult question: If I have no "dreams"
-in traditional sense, and if I am largly indifferent to the standard goals of
+in traditional sense, and if I am largely indifferent to the standard goals of
 career and life, what actually moves me? If I am not chasing the things
 everyone else is, why do I keep going at all?
 
@@ -16,7 +16,7 @@ easy to explain to others because it follows a clear logic: *I want X, so I will
 
 I simply lack this fuel. I do not have a "bucket list". I do not have a
 five-year plan. To most observers, this looks like a lack of motivation or even
-laziness. But that is not quite right. I am capable of intense, almose extreme
+laziness. But that is not quite right. I am capable of intense, almost extreme
 levels of effort - I just cannot seem to do it for a "result".
 
 If I have no dreams to chase, then what is the fuel?
@@ -44,7 +44,7 @@ This explains why I am so easily drained by traditional incentives.
 
 If someone offers me a reward to do something that my inner self has no opinion
 on, I find it almost impossible to care. My logical mind might say, "This is a
-good opportunity", but if there is no spark form inside, the tank remains empty.
+good opportunity", but if there is no spark from inside, the tank remains empty.
 
 I can sit in a room for ten hours doing nothing if there is no internal intent,
 yet I can work for twenty hours straight if a personal requirement is triggered.
@@ -52,7 +52,7 @@ There is no middle ground. I am either completely disconnected or entirely
 consumed.
 
 ## The Concept of *Nishkam Karma*
-While exploring this, I found a parallel in Indian Pholosophy: *Nishkam Karma*.
+While exploring this, I found a parallel in Indian Philosophy: *Nishkam Karma*.
 Or action performed without attachment to the results.
 
 For a long time, I thought this was a high spritual achievement reached only
