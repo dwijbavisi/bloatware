@@ -55,7 +55,7 @@ them go. I am okay with the fact that I have forgotten how to play certain songs
 
 For someone like me - an introvert - the ability to quit is just as important
 as the ability to start. I am not looking for a well-rounded life filled with
-consistent habits. I am just looking for the freedom to drop whatever is not
+consistent habits. I am just looking for the freedom to drop whatever is no
 longer true to my inner self.
 
 **TLDR;** I do not have a collection of hobbies; I have a collection of
