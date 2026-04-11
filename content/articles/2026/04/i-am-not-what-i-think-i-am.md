@@ -23,7 +23,7 @@ puppet? This brings up the idea of *Astikta*.
 Ancient Indian philosophicies like Jainism, Hinduism and Buddhism are very
 different from how people see them today. They were never about what you believe;
 they were about what you ask. Being an *Astik* has nothing to do with whether
-I believe in a god or the *Vedas*. It is about a dis-belief" in anything that
+I believe in a god or the *Vedas*. It is about a "dis-belief" in anything that
 cannot be proven or tested.
 
 There is a big difference between truth and belief. Belief is a story I choose
