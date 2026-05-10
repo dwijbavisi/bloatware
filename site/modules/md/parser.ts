@@ -308,6 +308,15 @@ function tokenizeBlocks(lines: string[]): RawBlock[] {
                     // Continuation line for the last item
                     rawItems[rawItems.length - 1].push(l.trim());
                     i++;
+                } else if (l.trim() === "") {
+                    // Blank line — look ahead: if next non-blank is another list item, skip it
+                    let j = i + 1;
+                    while (j < lines.length && lines[j].trim() === "") j++;
+                    if (j < lines.length && /^- /.test(lines[j])) {
+                        i = j; // skip blank(s), continue to next item
+                    } else {
+                        break;
+                    }
                 } else {
                     break;
                 }
@@ -329,6 +338,15 @@ function tokenizeBlocks(lines: string[]): RawBlock[] {
                 } else if (rawItems.length > 0 && l.trim() !== "" && !/^(- |\d+\. |#{1,6} |> |```|-{3,}|\$\$)/.test(l)) {
                     rawItems[rawItems.length - 1].push(l.trim());
                     i++;
+                } else if (l.trim() === "") {
+                    // Blank line — look ahead: if next non-blank is another ordered item, skip it
+                    let j = i + 1;
+                    while (j < lines.length && lines[j].trim() === "") j++;
+                    if (j < lines.length && /^\d+\. /.test(lines[j])) {
+                        i = j; // skip blank(s), continue to next item
+                    } else {
+                        break;
+                    }
                 } else {
                     break;
                 }

@@ -8,11 +8,10 @@ import { Layout } from "./Layout";
 
 interface IndexTemplateProps {
     latestArticles: ContentItem[];
-    keyPages: ContentItem[];
     introNodes: BlockNode[];
 }
 
-export function IndexTemplate({ latestArticles, keyPages, introNodes }: IndexTemplateProps): JSX.Element {
+export function IndexTemplate({ latestArticles, introNodes }: IndexTemplateProps): JSX.Element {
     return (
         <Layout title="bloatware-site" pageTitle="Index" currentRoute="/" showPageTitle={false}>
             {introNodes.length > 0 && (
@@ -23,22 +22,11 @@ export function IndexTemplate({ latestArticles, keyPages, introNodes }: IndexTem
 
             <section>
                 <h2>Latest Articles</h2>
-                <ul>
+                <ul className="article-list">
                     {latestArticles.map((item) => (
                         <li key={item.route}>
                             <a href={relativeRouteHref("/", item.route)}>{item.title}</a>
                             {item.date ? <span className="meta"> {formatDate(item.date)}</span> : null}
-                        </li>
-                    ))}
-                </ul>
-            </section>
-
-            <section>
-                <h2>Key Pages</h2>
-                <ul>
-                    {keyPages.map((item) => (
-                        <li key={item.route}>
-                            <a href={relativeRouteHref("/", item.route)}>{item.title}</a>
                         </li>
                     ))}
                 </ul>

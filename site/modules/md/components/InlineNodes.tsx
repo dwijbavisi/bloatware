@@ -20,14 +20,18 @@ export function renderInlineNode(node: InlineNode, key: string | number): React.
         case "bold":
             return (
                 <strong key={key}>
+                    <span className="md-marker">**</span>
                     {(node as BoldNode).children.map((c, i) => renderInlineNode(c, i))}
+                    <span className="md-marker">**</span>
                 </strong>
             );
 
         case "italic":
             return (
                 <em key={key}>
+                    <span className="md-marker">*</span>
                     {(node as ItalicNode).children.map((c, i) => renderInlineNode(c, i))}
+                    <span className="md-marker">*</span>
                 </em>
             );
 
@@ -35,13 +39,21 @@ export function renderInlineNode(node: InlineNode, key: string | number): React.
             const n = node as LinkNode;
             return (
                 <a key={key} href={n.href}>
+                    <span className="md-marker">[</span>
                     {n.children.map((c, i) => renderInlineNode(c, i))}
+                    <span className="md-marker">]</span>
                 </a>
             );
         }
 
         case "inline-code":
-            return <code key={key}>{(node as InlineCodeNode).value}</code>;
+            return (
+                <code key={key}>
+                    <span className="md-marker">`</span>
+                    {(node as InlineCodeNode).value}
+                    <span className="md-marker">`</span>
+                </code>
+            );
 
         case "math-inline":
             return (

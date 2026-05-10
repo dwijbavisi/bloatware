@@ -4,6 +4,7 @@ import { parse } from "../modules/md/index";
 import type { BlockNode, BlockquoteNode, HeadingNode, InlineNode, LinkNode, ListNode, ParagraphNode, TextNode, BoldNode, ItalicNode, SupNode, SubNode } from "../modules/md/types";
 import { ContentItem, ContentKind, SiteData } from "./lib/types";
 import { relativeRouteHref } from "./lib/paths";
+import { extractToc } from "./lib/toc";
 
 const ARTICLE_ROOT = path.resolve(process.cwd(), "../content/articles");
 const PAGE_ROOT = path.resolve(process.cwd(), "../content/pages");
@@ -91,6 +92,18 @@ function toRoute(kind: ContentKind, slug: string): string {
     return `/${kind === "article" ? "articles" : "pages"}/${slug}/`;
 }
 
+function toCanonicalPath(slug: string): string {
+    const parts = slug.split("/");
+    const last = parts[parts.length - 1];
+    if (
+        last.toLowerCase() === "readme" ||
+        (parts.length >= 2 && last === parts[parts.length - 2])
+    ) {
+        return parts.slice(0, -1).join("/");
+    }
+    return slug;
+}
+
 // ─── Link Resolution ──────────────────────────────────────────────────────────
 
 /**
@@ -165,6 +178,7 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
         const fileText = await fs.readFile(filePath, "utf8");
         const { nodes, metadata } = parse(fileText);
         const slug = relativePath.replace(/\\/g, "/").replace(/\.md$/i, "");
+        const canonicalPath = toCanonicalPath(slug);
 
         const headings = nodes.filter((n) => n.type === "heading") as HeadingNode[];
         const title = inferTitle(headings, filePath);
@@ -175,6 +189,7 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
             kind,
             title,
             slug,
+            canonicalPath,
             route,
             sourcePath: relativePath.replace(/\\/g, "/"),
             summary: deriveSummary(nodes as ParagraphNode[]),
@@ -182,6 +197,8 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
             author: metadata.author,
             conceivedDate: metadata.conceived,
             nodes: resolvedNodes,
+            toc: extractToc(resolvedNodes),
+            children: [],
         });
     }
 
@@ -191,6 +208,16 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
         }
         return a.title.localeCompare(b.title);
     });
+
+    // Wire up direct children based on canonicalPath hierarchy
+    for (const item of items) {
+        item.children = items.filter((other) => {
+            if (other === item) return false;
+            if (!other.canonicalPath.startsWith(item.canonicalPath + "/")) return false;
+            const remainder = other.canonicalPath.slice(item.canonicalPath.length + 1);
+            return !remainder.includes("/");
+        });
+    }
 
     log(`Finished loading ${items.length} ${kind}(s).`);
     return items;

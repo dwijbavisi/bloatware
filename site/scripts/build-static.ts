@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import esbuild from "esbuild";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadSiteData } from "../src/contentLoader";
@@ -53,15 +54,25 @@ async function run(): Promise<void> {
 
     log("Copying static assets...");
     await fs.copyFile(path.resolve(ROOT, "src/styles.css"), path.resolve(DIST, "styles.css"));
+
+    log("Building interaction.ts...");
+    await esbuild.build({
+        entryPoints: [path.resolve(ROOT, "src/interaction.ts")],
+        outfile: path.resolve(DIST, "interaction.js"),
+        bundle: true,
+        format: "iife",
+        platform: "browser",
+        minify: true,
+    });
+
     await copyIfExists(WWW_DIR, DIST);
 
     const latestArticles = siteData.articles.slice(0, 6);
-    const keyPages = siteData.pages.slice(0, 8);
 
     log("Rendering index...");
     await writeRoute(
         "/",
-        documentFromElement(React.createElement(IndexTemplate, { latestArticles, keyPages, introNodes }))
+        documentFromElement(React.createElement(IndexTemplate, { latestArticles, introNodes }))
     );
 
     log("Rendering article list...");
