@@ -1,6 +1,7 @@
 import React from "react";
 import { relativeRouteHref } from "../lib/paths";
 import { ContentItem } from "../lib/types";
+import { MarkdownRenderer } from "../../modules/md/components/Renderer";
 import { Layout } from "./Layout";
 
 interface PagesTemplateProps {
@@ -27,8 +28,8 @@ interface PageDetailTemplateProps {
 
 export function PageDetailTemplate({ item }: PageDetailTemplateProps): JSX.Element {
     return (
-        <Layout title={`${item.title} | bloatware-site`} pageTitle={item.title} currentRoute={item.route}>
-            <article className="prose" dangerouslySetInnerHTML={{ __html: item.html }} />
+        <Layout title={`${item.title} | bloatware-site`} pageTitle={item.title} currentRoute={item.route} showPageTitle={false}>
+            <article className="prose"><MarkdownRenderer nodes={item.nodes} /></article>
         </Layout>
     );
 }

@@ -5,10 +5,11 @@ interface LayoutProps {
     title: string;
     pageTitle: string;
     currentRoute: string;
+    showPageTitle?: boolean;
     children: React.ReactNode;
 }
 
-export function Layout({ title, pageTitle, currentRoute, children }: LayoutProps): JSX.Element {
+export function Layout({ title, pageTitle, currentRoute, showPageTitle = true, children }: LayoutProps): JSX.Element {
     return (
         <html lang="en">
             <head>
@@ -30,7 +31,7 @@ export function Layout({ title, pageTitle, currentRoute, children }: LayoutProps
                     </div>
                 </header>
                 <main className="inner">
-                    <h1>{pageTitle}</h1>
+                    {showPageTitle && <h1>{pageTitle}</h1>}
                     {children}
                 </main>
             </body>

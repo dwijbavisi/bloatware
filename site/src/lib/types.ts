@@ -1,3 +1,5 @@
+import type { BlockNode } from "../../modules/md/types";
+
 export type ContentKind = "article" | "page";
 
 export interface ContentItem {
@@ -8,8 +10,11 @@ export interface ContentItem {
     sourcePath: string;
     summary?: string;
     date?: string;
-    html: string;
+    author?: string;
+    conceivedDate?: string;
+    nodes: BlockNode[];
 }
+
 
 export interface SiteData {
     articles: ContentItem[];

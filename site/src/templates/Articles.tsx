@@ -1,6 +1,8 @@
 import React from "react";
 import { relativeRouteHref } from "../lib/paths";
+import { formatDate } from "../lib/formatDate";
 import { ContentItem } from "../lib/types";
+import { MarkdownRenderer } from "../../modules/md/components/Renderer";
 import { Layout } from "./Layout";
 
 interface ArticlesTemplateProps {
@@ -14,7 +16,7 @@ export function ArticlesTemplate({ items }: ArticlesTemplateProps): JSX.Element 
                 {items.map((item) => (
                     <li key={item.route}>
                         <a href={relativeRouteHref("/articles/", item.route)}>{item.title}</a>
-                        {item.date ? <span className="meta"> {item.date}</span> : null}
+                        {item.date ? <span className="meta"> {formatDate(item.date)}</span> : null}
                     </li>
                 ))}
             </ul>
@@ -28,8 +30,8 @@ interface ArticleDetailTemplateProps {
 
 export function ArticleDetailTemplate({ item }: ArticleDetailTemplateProps): JSX.Element {
     return (
-        <Layout title={`${item.title} | bloatware-site`} pageTitle={item.title} currentRoute={item.route}>
-            <article className="prose" dangerouslySetInnerHTML={{ __html: item.html }} />
+        <Layout title={`${item.title} | bloatware-site`} pageTitle={item.title} currentRoute={item.route} showPageTitle={false}>
+            <article className="prose"><MarkdownRenderer nodes={item.nodes} /></article>
         </Layout>
     );
 }

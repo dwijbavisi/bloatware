@@ -64,7 +64,8 @@ ul {
 
 .prose p,
 .prose li {
-    max-width: 72ch;
+    max-width: 80ch;
+    text-align: justify;
 }
 
 .prose pre {
