@@ -45,7 +45,7 @@ async function run(): Promise<void> {
     log("Parsing readMe.md...");
     const readMePath = path.resolve(ROOT, "../readMe.md");
     const readMeText = await fs.readFile(readMePath, "utf8");
-    const { nodes: introNodes } = parse(readMeText);
+    const { children: introNodes } = parse(readMeText);
     log(`readMe.md parsed — ${introNodes.length} node(s).`);
 
     log("Clearing dist...");
