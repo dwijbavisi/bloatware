@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { parse } from "../modules/md/index";
-import type { BlockNode, BlockquoteNode, HeadingNode, InlineNode, LinkNode, ListNode, ParagraphNode, TextNode, BoldNode, ItalicNode, SupNode, SubNode } from "../modules/md/types";
+import type { BlockNode, BlockquoteNode, HeadingNode, InlineNode, LinkNode, ListNode, ParagraphNode, TextNode, BoldNode, ItalicNode, SuperScriptNode, SubScriptNode } from "../modules/md/types";
 import { ContentItem, ContentKind, SiteData } from "./lib/types";
 import { relativeRouteHref } from "./lib/paths";
 import { extractToc } from "./lib/toc";
@@ -40,10 +40,9 @@ async function findMarkdownFiles(rootDir: string): Promise<string[]> {
 function inlineText(nodes: InlineNode[]): string {
     return nodes
         .map((n) => {
-            if (n.type === "text") return (n as TextNode).value;
-            if (n.type === "inline-code") return n.value;
-            if ("children" in n && Array.isArray((n as BoldNode | ItalicNode).children)) {
-                return inlineText((n as BoldNode).children);
+            if ('content' in n) return n.content;
+            if ("contents" in n && Array.isArray(n.contents)) {
+                return inlineText(n.contents);
             }
             return "";
         })
@@ -82,7 +81,7 @@ function inferDate(published: string | undefined, relativePath: string): string 
 }
 
 function deriveSummary(nodes: ParagraphNode[]): string | undefined {
-    const para = nodes.find((n) => n.type === "paragraph") as ParagraphNode | undefined;
+    const para = nodes.find((n) => n.type === "md-paragraph") as ParagraphNode | undefined;
     if (!para) return undefined;
     const text = inlineText(para.children).trim();
     return text ? text.slice(0, 180) : undefined;
@@ -130,16 +129,16 @@ function resolveMdLinkHref(href: string, fromRoute: string): string {
 
 function resolveLinksInInline(node: InlineNode, fromRoute: string): InlineNode {
     switch (node.type) {
-        case "link": {
+        case "md-link": {
             const n = node as LinkNode;
-            return { ...n, href: resolveMdLinkHref(n.href, fromRoute), children: n.children.map((c) => resolveLinksInInline(c, fromRoute)) };
+            return { ...n, href: resolveMdLinkHref(n.href, fromRoute), contents: n.contents.map((c) => resolveLinksInInline(c, fromRoute)) };
         }
-        case "bold":
-        case "italic":
-        case "sup":
-        case "sub": {
-            const n = node as BoldNode | ItalicNode | SupNode | SubNode;
-            return { ...n, children: n.children.map((c) => resolveLinksInInline(c, fromRoute)) };
+        case "md-bold":
+        case "md-italic":
+        case "md-sup":
+        case "md-sub": {
+            const n = node as BoldNode | ItalicNode | SuperScriptNode | SubScriptNode;
+            return { ...n, contents: n.contents.map((c) => resolveLinksInInline(c, fromRoute)) };
         }
         default:
             return node;
@@ -148,18 +147,18 @@ function resolveLinksInInline(node: InlineNode, fromRoute: string): InlineNode {
 
 function resolveLinksInBlock(node: BlockNode, fromRoute: string): BlockNode {
     switch (node.type) {
-        case "paragraph":
-        case "heading": {
+        case "md-paragraph":
+        case "md-heading": {
             const n = node as ParagraphNode | HeadingNode;
             return { ...n, children: n.children.map((c) => resolveLinksInInline(c, fromRoute)) };
         }
-        case "blockquote": {
+        case "md-blockquote": {
             const n = node as BlockquoteNode;
             return { ...n, children: n.children.map((c) => resolveLinksInBlock(c, fromRoute)) };
         }
-        case "list": {
+        case "md-list": {
             const n = node as ListNode;
-            return { ...n, items: n.items.map((item) => ({ children: item.children.map((c) => resolveLinksInInline(c, fromRoute)) })) };
+            return { ...n, children: n.children.map((item) => ({ type: item.type, contents: item.contents.map((c) => resolveLinksInInline(c, fromRoute)) })) };
         }
         default:
             return node;
@@ -176,11 +175,11 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
         const relativePath = path.relative(rootDir, filePath);
         log(`  parsing: ${relativePath.replace(/\\/g, "/")}`);
         const fileText = await fs.readFile(filePath, "utf8");
-        const { nodes, metadata } = parse(fileText);
+        const { children: nodes, metadata } = parse(fileText);
         const slug = relativePath.replace(/\\/g, "/").replace(/\.md$/i, "");
         const canonicalPath = toCanonicalPath(slug);
 
-        const headings = nodes.filter((n) => n.type === "heading") as HeadingNode[];
+        const headings = nodes.filter((n) => n.type === "md-heading") as HeadingNode[];
         const title = inferTitle(headings, filePath);
         const route = toRoute(kind, slug);
         const resolvedNodes = nodes.map((n) => resolveLinksInBlock(n, route));
@@ -193,9 +192,9 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
             route,
             sourcePath: relativePath.replace(/\\/g, "/"),
             summary: deriveSummary(nodes as ParagraphNode[]),
-            date: inferDate(metadata.published, relativePath),
-            author: metadata.author,
-            conceivedDate: metadata.conceived,
+            date: inferDate(metadata.publication?.published, relativePath),
+            author: metadata.publication?.author,
+            conceivedDate: metadata.publication?.conceived,
             nodes: resolvedNodes,
             toc: extractToc(resolvedNodes),
             children: [],

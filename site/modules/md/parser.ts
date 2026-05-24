@@ -31,7 +31,7 @@ import type {
 // -----------------------------------------------------------------------------
 // Logger instance
 
-const log = new Logger('module:md', { level: LogLevel.debug });
+const log = new Logger('module:md', { level: LogLevel.info });
 
 // -----------------------------------------------------------------------------
 // Paser
@@ -51,8 +51,10 @@ class InlineParser {
     public static parse(input: string, start: number, limit: number): [InlineNode[], number] {
         const nodes: InlineNode[] = [];
         let cursor = start;
+        let oldCursor: number;
 
         while (cursor < limit) {
+            oldCursor = cursor
             if (input.startsWith('\\\n', cursor)) {
                 const [node, next] = this.consumeBr(input, cursor);
                 nodes.push(node); cursor = next;
@@ -80,6 +82,12 @@ class InlineParser {
             } else {
                 const [node, next] = this.consumeText(input, cursor, limit);
                 nodes.push(node); cursor = next;
+            }
+
+            if (oldCursor == cursor) {
+                // If no progress in current iteration,
+                // Do not expect any progress in next iteration too.
+                break
             }
         }
         return [nodes, cursor];
