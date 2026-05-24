@@ -1,25 +1,34 @@
 export type {
-    BlockNode,
     InlineNode,
-    HeadingNode,
-    ParagraphNode,
-    BlockquoteNode,
-    ListNode,
-    ListItem,
-    HrNode,
-    MathBlockNode,
-    CodeBlockNode,
+    BlockNode,
+    // Inline nodes
     TextNode,
     BoldNode,
     ItalicNode,
     LinkNode,
     InlineCodeNode,
-    MathInlineNode,
-    SupNode,
-    SubNode,
+    InlineMathNode,
+    SuperScriptNode,
+    SubScriptNode,
     BrNode,
-    ParsedMetadata,
-    ParseResult,
+    // Block nodes
+    HeadingNode,
+    ParagraphNode,
+    BlockquoteNode,
+    ListNode,
+    ListItemNode,
+    BlockCodeNode,
+    BlockMathNode,
+    HrNode,
+    // Metadata
+    MDMetadata,
+    MDParseResult,
 } from "./types";
 
-export { parse, parseInline } from "./parser";
+export {
+    MDNodeType,
+    MDBlockquoteType,
+    MDListOrderingType,
+} from "./types"
+
+export { parse } from "./parser";

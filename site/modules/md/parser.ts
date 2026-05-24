@@ -1,478 +1,295 @@
+import { Logger, LogLevel } from "../logger";
+
+import { MDNodeType, MDBlockquoteType, MDListOrderingType } from "./types";
 import type {
-    BlockNode,
-    BlockquoteNode,
-    CodeBlockNode,
-    HeadingNode,
     InlineNode,
-    ListItem,
-    ListNode,
-    MathBlockNode,
-    ParsedMetadata,
-    ParseResult,
+    BlockNode,
+    // Inline nodes
+    TextNode,
+    BoldNode,
+    ItalicNode,
+    LinkNode,
+    InlineCodeNode,
+    InlineMathNode,
+    SuperScriptNode,
+    SubScriptNode,
+    BrNode,
+    // Block nodes
+    HeadingNode,
     ParagraphNode,
+    BlockquoteNode,
+    ListNode,
+    ListItemNode,
+    BlockCodeNode,
+    BlockMathNode,
+    HrNode,
+    // Metadata
+    MDMetadata,
+    MDParseResult,
 } from "./types";
 
-function log(msg: string): void {
-    console.log(`[${new Date().toISOString()}] [md/parser] ${msg}`);
-}
+// -----------------------------------------------------------------------------
+// Logger instance
 
-// ─── Inline Parser ────────────────────────────────────────────────────────────
+const log = new Logger('module:md', { level: LogLevel.debug });
 
-/**
- * Parse a flat string into a list of InlineNodes.
- * Processing order matters: longer/higher-priority patterns are matched first.
- */
-export function parseInline(raw: string): InlineNode[] {
-    const nodes: InlineNode[] = [];
-
-    // Replace literal `<<...>>` with angle-bracket equivalents before processing
-    const input = raw.replace(/<<([^>]*)>>/g, "<$1>");
-
-    let remaining = input;
-
-    while (remaining.length > 0) {
-        // Hard line break: backslash at end of a line (before \n or at end)
-        const brMatch = remaining.match(/^(.*?)\\\n([\s\S]*)/);
-        if (brMatch) {
-            if (brMatch[1].length > 0) {
-                nodes.push(...parseInlineSpan(brMatch[1]));
-            }
-            nodes.push({ type: "br" });
-            remaining = brMatch[2];
-            continue;
-        }
-
-        // No more line breaks — parse the rest as a span
-        nodes.push(...parseInlineSpan(remaining));
-        break;
-    }
-
-    return nodes;
-}
+// -----------------------------------------------------------------------------
+// Paser
 
 /**
- * Parse a single line (no `\\\n` line breaks) into InlineNodes.
+ * Handles inline-level markdown parsing.
+ * Provides explicit, dedicated methods for every inline node type.
  */
-function parseInlineSpan(input: string): InlineNode[] {
-    if (input.length === 0) return [];
+class InlineParser {
+    /**
+     * Parses a segment of text into a list of InlineNodes.
+     * @param input Raw document string.
+     * @param start Starting character index.
+     * @param limit Ending character index.
+     * @returns A tuple containing the parsed nodes and the last consumed index.
+     */
+    public static parse(input: string, start: number, limit: number): [InlineNode[], number] {
+        const nodes: InlineNode[] = [];
+        let cursor = start;
 
-    const nodes: InlineNode[] = [];
-    let i = 0;
-
-    while (i < input.length) {
-        // Block-math sentinel should not appear here, but guard anyway
-        if (input.startsWith("$$", i)) {
-            const end = input.indexOf("$$", i + 2);
-            if (end !== -1) {
-                nodes.push({ type: "math-inline", source: input.slice(i + 2, end) });
-                i = end + 2;
-                continue;
-            }
-        }
-
-        // Inline math: $...$
-        if (input[i] === "$" && input[i + 1] !== "$") {
-            const end = input.indexOf("$", i + 1);
-            if (end !== -1) {
-                nodes.push({ type: "math-inline", source: input.slice(i + 1, end) });
-                i = end + 1;
-                continue;
-            }
-        }
-
-        // Inline code: `...`
-        if (input[i] === "`") {
-            const end = input.indexOf("`", i + 1);
-            if (end !== -1) {
-                nodes.push({ type: "inline-code", value: input.slice(i + 1, end) });
-                i = end + 1;
-                continue;
-            }
-        }
-
-        // Bold: **...**
-        if (input.startsWith("**", i)) {
-            const end = input.indexOf("**", i + 2);
-            if (end !== -1) {
-                nodes.push({ type: "bold", children: parseInlineSpan(input.slice(i + 2, end)) });
-                i = end + 2;
-                continue;
-            }
-        }
-
-        // Italic: *...* (not preceded/followed by *)
-        if (input[i] === "*" && input[i + 1] !== "*") {
-            const end = findItalicEnd(input, i + 1);
-            if (end !== -1) {
-                nodes.push({ type: "italic", children: parseInlineSpan(input.slice(i + 1, end)) });
-                i = end + 1;
-                continue;
-            }
-        }
-
-        // Link: [text](href)
-        if (input[i] === "[") {
-            const bracketClose = input.indexOf("]", i + 1);
-            if (bracketClose !== -1 && input[bracketClose + 1] === "(") {
-                const parenClose = input.indexOf(")", bracketClose + 2);
-                if (parenClose !== -1) {
-                    const linkText = input.slice(i + 1, bracketClose);
-                    const href = input.slice(bracketClose + 2, parenClose);
-                    nodes.push({ type: "link", href, children: parseInlineSpan(linkText) });
-                    i = parenClose + 1;
-                    continue;
-                }
-            }
-        }
-
-        // Superscript: ^text^
-        if (input[i] === "^") {
-            const end = input.indexOf("^", i + 1);
-            if (end !== -1) {
-                nodes.push({ type: "sup", children: parseInlineSpan(input.slice(i + 1, end)) });
-                i = end + 1;
-                continue;
-            }
-        }
-
-        // Subscript: ~text~
-        if (input[i] === "~") {
-            const end = input.indexOf("~", i + 1);
-            if (end !== -1) {
-                nodes.push({ type: "sub", children: parseInlineSpan(input.slice(i + 1, end)) });
-                i = end + 1;
-                continue;
-            }
-        }
-
-        // Plain text — consume until the next special character
-        const special = /[\$`*\[^~]/;
-        let j = i + 1;
-        while (j < input.length && !special.test(input[j])) {
-            j++;
-        }
-        nodes.push({ type: "text", value: input.slice(i, j) });
-        i = j;
-    }
-
-    return nodes;
-}
-
-function findItalicEnd(input: string, from: number): number {
-    for (let i = from; i < input.length; i++) {
-        if (input[i] === "*" && input[i + 1] !== "*") {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// ─── Metadata Parser ──────────────────────────────────────────────────────────
-
-function parseMetadata(raw: string): ParsedMetadata {
-    const result: ParsedMetadata = { raw: {} };
-    const lineRe = /^-\s+\*\*(.+?)\*\*:\s*(.+)$/;
-
-    for (const line of raw.split(/\r?\n/)) {
-        const m = line.match(lineRe);
-        if (!m) continue;
-        const key = m[1].toLowerCase().trim();
-        const value = m[2].trim();
-        result.raw[key] = value;
-        if (key === "author") result.author = value;
-        if (key === "published") result.published = value;
-        if (key === "conceived") result.conceived = value;
-    }
-
-    return result;
-}
-
-// ─── Block Parser ─────────────────────────────────────────────────────────────
-
-type RawBlock =
-    | { kind: "heading"; level: number; text: string }
-    | { kind: "blockquote"; lines: string[] }
-    | { kind: "list"; ordered: boolean; rawItems: string[][] }
-    | { kind: "hr" }
-    | { kind: "math-block"; source: string }
-    | { kind: "code-block"; lang: string | undefined; code: string }
-    | { kind: "paragraph"; lines: string[] };
-
-function tokenizeBlocks(lines: string[]): RawBlock[] {
-    const blocks: RawBlock[] = [];
-    let i = 0;
-
-    while (i < lines.length) {
-        const prevI = i;
-        const line = lines[i];
-
-        // Blank line
-        if (line.trim() === "") {
-            i++;
-            continue;
-        }
-
-        // Fenced code block
-        const fenceMatch = line.match(/^```(\w*)$/);
-        if (fenceMatch) {
-            const lang = fenceMatch[1] || undefined;
-            const codeLines: string[] = [];
-            i++;
-            while (i < lines.length && lines[i] !== "```") {
-                codeLines.push(lines[i]);
-                i++;
-            }
-            i++; // consume closing ```
-            log(`  block[${blocks.length}] code-block lang=${lang ?? "none"} (${codeLines.length} line(s))`);
-            blocks.push({ kind: "code-block", lang, code: codeLines.join("\n") });
-            continue;
-        }
-
-        // Block math: any line that starts with $$ opens a math block.
-        // Handles three forms:
-        //   1. Opening $$ alone:    $$\n...content...\n$$
-        //   2. Opening $$ inline:   $$ content...\n...\ncontent $$
-        //   3. Single-line:        $$ content $$
-        if (line.trimStart().startsWith("$$")) {
-            const afterOpen = line.trimStart().slice(2); // content after opening $$
-            const mathLines: string[] = [];
-
-            if (afterOpen.trimEnd().endsWith("$$")) {
-                // Single-line block math: $$ source $$
-                const source = afterOpen.trimEnd().slice(0, -2).trim();
-                if (source) mathLines.push(source);
-                i++;
+        while (cursor < limit) {
+            if (input.startsWith('\\\n', cursor)) {
+                const [node, next] = this.consumeBr(input, cursor);
+                nodes.push(node); cursor = next;
+            } else if (input.startsWith('**', cursor)) {
+                const [node, next] = this.consumeBold(input, cursor, limit);
+                nodes.push(node); cursor = next;
+            } else if (input[cursor] === '*') {
+                const [node, next] = this.consumeItalic(input, cursor, limit);
+                nodes.push(node); cursor = next;
+            } else if (input[cursor] === '[') {
+                const [node, next] = this.consumeLink(input, cursor, limit);
+                nodes.push(node); cursor = next;
+            } else if (input[cursor] === '`') {
+                const [node, next] = this.consumeInlineCode(input, cursor, limit);
+                nodes.push(node); cursor = next;
+            } else if (input[cursor] === '$') {
+                const [node, next] = this.consumeInlineMath(input, cursor, limit);
+                nodes.push(node); cursor = next;
+            } else if (input[cursor] === '^') {
+                const [node, next] = this.consumeSuperScript(input, cursor, limit);
+                nodes.push(node); cursor = next;
+            } else if (input[cursor] === '~') {
+                const [node, next] = this.consumeSubScript(input, cursor, limit);
+                nodes.push(node); cursor = next;
             } else {
-                if (afterOpen.trim()) mathLines.push(afterOpen);
-                i++;
-                while (i < lines.length) {
-                    const ml = lines[i];
-                    if (ml.trim() === "$$") {
-                        i++;
-                        break;
-                    }
-                    if (ml.trimEnd().endsWith("$$")) {
-                        const tail = ml.trimEnd().slice(0, -2).trimEnd();
-                        if (tail) mathLines.push(tail);
-                        i++;
-                        break;
-                    }
-                    mathLines.push(ml);
-                    i++;
-                }
+                const [node, next] = this.consumeText(input, cursor, limit);
+                nodes.push(node); cursor = next;
             }
-
-            log(`  block[${blocks.length}] math-block (${mathLines.length} line(s))`);
-            blocks.push({ kind: "math-block", source: mathLines.join("\n") });
-            continue;
         }
-
-        // Horizontal rule (only standalone --- in content body)
-        if (/^---+$/.test(line.trim())) {
-            log(`  block[${blocks.length}] hr`);
-            blocks.push({ kind: "hr" });
-            i++;
-            continue;
-        }
-
-        // Heading
-        const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
-        if (headingMatch) {
-            log(`  block[${blocks.length}] heading h${headingMatch[1].length}: ${headingMatch[2].slice(0, 60)}`);
-            blocks.push({ kind: "heading", level: headingMatch[1].length, text: headingMatch[2] });
-            i++;
-            continue;
-        }
-
-        // Blockquote
-        if (line.startsWith("> ")) {
-            const quoteLines: string[] = [];
-            while (i < lines.length && lines[i].startsWith("> ")) {
-                quoteLines.push(lines[i].slice(2));
-                i++;
-            }
-            log(`  block[${blocks.length}] blockquote (${quoteLines.length} line(s))`);
-            blocks.push({ kind: "blockquote", lines: quoteLines });
-            continue;
-        }
-
-        // Unordered list
-        if (/^- /.test(line)) {
-            const rawItems: string[][] = [];
-            while (i < lines.length) {
-                const l = lines[i];
-                if (/^- /.test(l)) {
-                    rawItems.push([l.slice(2)]);
-                    i++;
-                } else if (rawItems.length > 0 && l.trim() !== "" && !/^(- |\d+\. |#{1,6} |> |```|-{3,}|\$\$)/.test(l)) {
-                    // Continuation line for the last item
-                    rawItems[rawItems.length - 1].push(l.trim());
-                    i++;
-                } else if (l.trim() === "") {
-                    // Blank line — look ahead: if next non-blank is another list item, skip it
-                    let j = i + 1;
-                    while (j < lines.length && lines[j].trim() === "") j++;
-                    if (j < lines.length && /^- /.test(lines[j])) {
-                        i = j; // skip blank(s), continue to next item
-                    } else {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-            log(`  block[${blocks.length}] unordered-list (${rawItems.length} item(s))`);
-            blocks.push({ kind: "list", ordered: false, rawItems });
-            continue;
-        }
-
-        // Ordered list
-        if (/^\d+\. /.test(line)) {
-            const rawItems: string[][] = [];
-            while (i < lines.length) {
-                const l = lines[i];
-                const ordMatch = l.match(/^\d+\. (.*)/);
-                if (ordMatch) {
-                    rawItems.push([ordMatch[1]]);
-                    i++;
-                } else if (rawItems.length > 0 && l.trim() !== "" && !/^(- |\d+\. |#{1,6} |> |```|-{3,}|\$\$)/.test(l)) {
-                    rawItems[rawItems.length - 1].push(l.trim());
-                    i++;
-                } else if (l.trim() === "") {
-                    // Blank line — look ahead: if next non-blank is another ordered item, skip it
-                    let j = i + 1;
-                    while (j < lines.length && lines[j].trim() === "") j++;
-                    if (j < lines.length && /^\d+\. /.test(lines[j])) {
-                        i = j; // skip blank(s), continue to next item
-                    } else {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-            log(`  block[${blocks.length}] ordered-list (${rawItems.length} item(s))`);
-            blocks.push({ kind: "list", ordered: true, rawItems });
-            continue;
-        }
-
-        // Paragraph — accumulate non-blank lines
-        const paraLines: string[] = [];
-        while (i < lines.length && lines[i].trim() !== "") {
-            // Stop if we hit a block-level marker
-            const l = lines[i];
-            if (/^(#{1,6} |> |- |\d+\. |```|-{3,}|\$\$)/.test(l)) break;
-            paraLines.push(l);
-            i++;
-        }
-        if (paraLines.length > 0) {
-            log(`  block[${blocks.length}] paragraph (${paraLines.length} line(s))`);
-            blocks.push({ kind: "paragraph", lines: paraLines });
-        }
-
-        // Safety guard: if nothing advanced, skip the line to prevent an infinite loop.
-        if (i === prevI) {
-            log(`  WARNING: no block matched line ${i}: ${JSON.stringify(lines[i])} — skipping.`);
-            i++;
-        }
+        return [nodes, cursor];
     }
 
-    return blocks;
+    private static consumeBr(input: string, cursor: number): [BrNode, number] {
+        log.debug("Consuming BrNode");
+        return [{ type: MDNodeType.lineBreak }, cursor + 2];
+    }
+
+    private static consumeBold(input: string, cursor: number, limit: number): [BoldNode, number] {
+        const end = input.indexOf('**', cursor + 2);
+        if (end === -1 || end >= limit) throw new Error("Unclosed bold tag");
+        const [contents] = this.parse(input, cursor + 2, end);
+        log.debug("Consuming BoldNode");
+        return [{ type: MDNodeType.bold, contents }, end + 2];
+    }
+
+    private static consumeItalic(input: string, cursor: number, limit: number): [ItalicNode, number] {
+        const end = input.indexOf('*', cursor + 1);
+        if (end === -1 || end >= limit) throw new Error("Unclosed italic tag");
+        const [contents] = this.parse(input, cursor + 1, end);
+        log.debug("Consuming ItalicNode");
+        return [{ type: MDNodeType.italic, contents }, end + 1];
+    }
+
+    private static consumeLink(input: string, cursor: number, limit: number): [LinkNode, number] {
+        const bracketClose = input.indexOf(']', cursor + 1);
+        const parenClose = input.indexOf(')', bracketClose + 2);
+        if (bracketClose === -1 || parenClose === -1 || parenClose >= limit) throw new Error("Malformed link");
+        const [contents] = this.parse(input, cursor + 1, bracketClose);
+        const href = input.slice(bracketClose + 2, parenClose);
+        log.debug("Consuming LinkNode");
+        return [{ type: MDNodeType.link, href, contents }, parenClose + 1];
+    }
+
+    private static consumeInlineCode(input: string, cursor: number, limit: number): [InlineCodeNode, number] {
+        const end = input.indexOf('`', cursor + 1);
+        if (end === -1 || end >= limit) throw new Error("Unclosed inline code");
+        log.debug("Consuming InlineCodeNode");
+        return [{ type: MDNodeType.inlineCode, content: input.slice(cursor + 1, end) }, end + 1];
+    }
+
+    private static consumeInlineMath(input: string, cursor: number, limit: number): [InlineMathNode, number] {
+        const end = input.indexOf('$', cursor + 1);
+        if (end === -1 || end >= limit) throw new Error("Unclosed inline math");
+        log.debug("Consuming InlineMathNode");
+        return [{ type: MDNodeType.inlineMath, content: input.slice(cursor + 1, end) }, end + 1];
+    }
+
+    private static consumeSuperScript(input: string, cursor: number, limit: number): [SuperScriptNode, number] {
+        const end = input.indexOf('^', cursor + 1);
+        if (end === -1 || end >= limit) throw new Error("Unclosed superscript");
+        const [contents] = this.parse(input, cursor + 1, end);
+        log.debug("Consuming SuperScriptNode");
+        return [{ type: MDNodeType.superScript, contents }, end + 1];
+    }
+
+    private static consumeSubScript(input: string, cursor: number, limit: number): [SubScriptNode, number] {
+        const end = input.indexOf('~', cursor + 1);
+        if (end === -1 || end >= limit) throw new Error("Unclosed subscript");
+        const [contents] = this.parse(input, cursor + 1, end);
+        log.debug("Consuming SubScriptNode");
+        return [{ type: MDNodeType.subScript, contents }, end + 1];
+    }
+
+    private static consumeText(input: string, cursor: number, limit: number): [TextNode, number] {
+        const specials = /[\$`*\[^~\\\n]/;
+        let end = cursor;
+        while (end < limit && !specials.test(input[end])) end++;
+        log.debug("Consuming TextNode");
+        return [{ type: MDNodeType.text, content: input.slice(cursor, end) }, end];
+    }
 }
-
-function buildBlockNodes(rawBlocks: RawBlock[]): BlockNode[] {
-    return rawBlocks.map((raw): BlockNode => {
-        switch (raw.kind) {
-            case "heading":
-                return {
-                    type: "heading",
-                    level: Math.min(6, Math.max(1, raw.level)) as HeadingNode["level"],
-                    children: parseInline(raw.text),
-                };
-
-            case "paragraph":
-                return {
-                    type: "paragraph",
-                    children: parseInline(raw.lines.join("\n")),
-                };
-
-            case "blockquote": {
-                const inner = tokenizeBlocks(raw.lines);
-                return {
-                    type: "blockquote",
-                    children: buildBlockNodes(inner),
-                } as BlockquoteNode;
-            }
-
-            case "list": {
-                const items: ListItem[] = raw.rawItems.map((lineGroup) => ({
-                    children: parseInline(lineGroup.join(" ")),
-                }));
-                return { type: "list", ordered: raw.ordered, items } as ListNode;
-            }
-
-            case "hr":
-                return { type: "hr" };
-
-            case "math-block":
-                return { type: "math-block", source: raw.source } as MathBlockNode;
-
-            case "code-block":
-                return { type: "code-block", lang: raw.lang, code: raw.code } as CodeBlockNode;
-        }
-    });
-}
-
-// ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
- * Parse raw markdown content into a ParseResult containing an AST and
- * structured metadata extracted from the trailing `---` block.
+ * Handles block-level markdown parsing.
+ * Provides explicit, dedicated methods for every block node type.
  */
-export function parse(raw: string): ParseResult {
-    log(`parse() called — input length: ${raw.length} char(s)`);
+class BlockParser {
+    public static parse(input: string): BlockNode[] {
+        const blocks: BlockNode[] = [];
+        let cursor = 0;
+        while (cursor < input.length) {
+            let lineEnd = input.indexOf('\n', cursor);
+            if (lineEnd === -1) lineEnd = input.length;
+            const line = input.slice(cursor, lineEnd).trim();
+            if (line.length === 0) { cursor = lineEnd + 1; continue; }
 
-    // Normalise line endings
-    const normalised = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-    // Split at the last occurrence of \n---\n (or \n--- at EOF)
-    // The final `---` in a file is always the metadata separator.
-    const metaSepRe = /\n---\n([\s\S]*)$/;
-    const metaMatch = normalised.match(metaSepRe);
-
-    let contentRaw: string;
-    let metadataRaw: string;
-
-    if (metaMatch) {
-        contentRaw = normalised.slice(0, normalised.length - metaMatch[0].length);
-        metadataRaw = metaMatch[1];
-        log(`metadata block found (${metadataRaw.trim().split("\n").length} line(s))`);
-    } else {
-        contentRaw = normalised;
-        metadataRaw = "";
-        log("no metadata block found");
+            const [node, next] = this.consumeBlock(input, cursor, lineEnd);
+            blocks.push(node);
+            cursor = next;
+        }
+        return blocks;
     }
 
-    const metadata = parseMetadata(metadataRaw);
-    const lines = contentRaw.split("\n");
-    log(`tokenizing ${lines.length} content line(s)...`);
-    const rawBlocks = tokenizeBlocks(lines);
-    log(`tokenized into ${rawBlocks.length} block(s), building AST...`);
-    const nodes = buildBlockNodes(rawBlocks);
-
-    // Render the metadata section as part of the article too.
-    // The `---` separator becomes an <hr>, followed by the parsed metadata lines.
-    if (metadataRaw.trim()) {
-        const metaLines = metadataRaw.split("\n");
-        log(`tokenizing ${metaLines.length} metadata line(s) for rendering...`);
-        const metaRawBlocks = tokenizeBlocks(metaLines);
-        const metaNodes = buildBlockNodes(metaRawBlocks);
-        nodes.push({ type: "hr" });
-        nodes.push(...metaNodes);
-        log(`appended hr + ${metaNodes.length} metadata node(s) to content`);
+    private static consumeBlock(input: string, start: number, lineEnd: number): [BlockNode, number] {
+        const line = input.slice(start, lineEnd).trim();
+        if (line.startsWith('```')) return this.consumeBlockCode(input, start, lineEnd);
+        if (line.startsWith('$$')) return this.consumeBlockMath(input, start, lineEnd);
+        if (line.startsWith('> ')) return this.consumeBlockquote(input, start);
+        if (line.startsWith('- ') || line.startsWith('+ ') || line.startsWith('* ') || /^\d+\./.test(line)) return this.consumeList(input, start);
+        if (line.startsWith('---') || line.startsWith('***')) return this.consumeHr(input, start, lineEnd);
+        if (line.startsWith('#')) return this.consumeHeading(input, start, lineEnd);
+        return this.consumeParagraph(input, start, lineEnd);
     }
 
-    log(`parse() done — ${nodes.length} top-level node(s)`);
+    private static consumeBlockCode(input: string, start: number, lineEnd: number): [BlockCodeNode, number] {
+        const line = input.slice(start, lineEnd).trim();
+        const lang = line.slice(3).trim() || undefined;
+        const end = input.indexOf('```', lineEnd + 1);
+        if (end === -1) throw new Error("Unclosed code block");
+        log.debug("Consuming BlockCodeNode");
+        return [{ type: MDNodeType.blockCode, lang, content: input.slice(lineEnd + 1, end).trim() }, end + 3];
+    }
 
-    return { nodes, metadata };
+    private static consumeBlockMath(input: string, start: number, lineEnd: number): [BlockMathNode, number] {
+        const end = input.indexOf('$$', lineEnd + 1);
+        if (end === -1) throw new Error("Unclosed math block");
+        log.debug("Consuming BlockMathNode");
+        return [{ type: MDNodeType.blockMath, content: input.slice(lineEnd + 1, end).trim() }, end + 2];
+    }
+
+    private static consumeBlockquote(input: string, start: number): [BlockquoteNode, number] {
+        log.debug("Consuming BlockquoteNode");
+        let cursor = start;
+        let content = "";
+        while (cursor < input.length) {
+            let lineEnd = input.indexOf('\n', cursor);
+            if (lineEnd === -1) lineEnd = input.length;
+            const line = input.slice(cursor, lineEnd);
+            if (!line.trim().startsWith('> ')) break;
+            content += line.trim().slice(2) + '\n';
+            cursor = lineEnd + 1;
+        }
+        return [{ type: MDNodeType.blockquote, severity: MDBlockquoteType.default, children: this.parse(content.trim()) }, cursor];
+    }
+
+    private static consumeList(input: string, start: number): [ListNode, number] {
+        log.debug("Consuming ListNode");
+        let cursor = start;
+        const items: ListItemNode[] = [];
+        const firstLine = input.slice(start, input.indexOf('\n', start) === -1 ? input.length : input.indexOf('\n', start)).trim();
+        let ordering = MDListOrderingType.hyphen;
+        if (firstLine.startsWith('+ ')) ordering = MDListOrderingType.plus;
+        else if (firstLine.startsWith('* ')) ordering = MDListOrderingType.asterisk;
+        else if (/^\d+\./.test(firstLine)) ordering = MDListOrderingType.oneTwoThree;
+
+        while (cursor < input.length) {
+            let lineEnd = input.indexOf('\n', cursor);
+            if (lineEnd === -1) lineEnd = input.length;
+            const line = input.slice(cursor, lineEnd).trim();
+            if (!line.startsWith('- ') && !line.startsWith('+ ') && !line.startsWith('* ') && !/^\d+\./.test(line)) break;
+            const content = line.replace(/^(-\s|\+\s|\*\s|\d+\.\s)/, "");
+            const [children] = InlineParser.parse(content, 0, content.length);
+            items.push({ type: MDNodeType.listItem, contents: children });
+            cursor = lineEnd + 1;
+        }
+        return [{ type: MDNodeType.list, ordering, children: items }, cursor];
+    }
+
+    private static consumeHr(input: string, start: number, lineEnd: number): [HrNode, number] {
+        log.debug("Consuming HrNode");
+        return [{ type: MDNodeType.horizontalRule }, lineEnd + 1];
+    }
+
+    private static consumeHeading(input: string, start: number, lineEnd: number): [HeadingNode, number] {
+        const line = input.slice(start, lineEnd);
+        let level = 0;
+        while (level < line.length && line[level] === '#') level++;
+        const [children] = InlineParser.parse(input, start + level + 1, lineEnd);
+        log.debug("Consuming HeadingNode");
+        switch (level) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                return [{ type: MDNodeType.heading, level: level, children }, lineEnd + 1];
+            default:
+                throw new Error("Invalid heading level")
+        }
+    }
+
+    private static consumeParagraph(input: string, start: number, lineEnd: number): [ParagraphNode, number] {
+        const [children] = InlineParser.parse(input, start, lineEnd);
+        log.debug("Consuming ParagraphNode");
+        return [{ type: MDNodeType.paragraph, children }, lineEnd + 1];
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Main
+
+/**
+ * Main entry point for Markdown parsing.
+ *
+ * @param raw - The raw markdown input string.
+ * @returns A result object containing the parsed AST and metadata.
+ */
+export function parse(raw: string): MDParseResult {
+    log.info(`MarkdownParser: processing document (size: ${raw.length} bytes)`);
+    try {
+        return {
+            children: BlockParser.parse(raw),
+            metadata: {}
+        };
+    } catch (e) {
+        log.error("MarkdownParser: fatal error encountered", { error: e });
+        throw e;
+    }
 }

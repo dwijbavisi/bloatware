@@ -1,123 +1,218 @@
-// ─── Inline Nodes ────────────────────────────────────────────────────────────
+const enum MDNodeType {
+    // Inline Node Types
+    text = 'md-text',
+    bold = 'md-bold',
+    italic = 'md-italic',
+    link = 'md-link',
+    inlineCode = 'md-inline-code',
+    inlineMath = 'md-inline-math',
+    superScript = 'md-sup',
+    subScript = 'md-sub',
+    lineBreak = 'md-br',
 
-export interface TextNode {
-    type: "text";
-    value: string;
+    // Block Node Types
+    heading = 'md-heading',
+    paragraph = 'md-paragraph',
+    blockquote = 'md-blockquote',
+    list = 'md-list',
+    listItem = 'md-list-item',
+    blockCode = 'md-block-code',
+    blockMath = 'md-block-math',
+    horizontalRule = 'md-hr',
 }
 
-export interface BoldNode {
-    type: "bold";
-    children: InlineNode[];
+const enum MDBlockquoteType {
+    // Highlight
+    default = 'md-blockquote-default',
+
+    // Severity based
+    info = 'md-blockquote-info',
+    success = 'md-blockquote-success',
+    warn = 'md-blockquote-warn',
+    error = 'md-blockquote-error',
 }
 
-export interface ItalicNode {
-    type: "italic";
-    children: InlineNode[];
+const enum MDListOrderingType {
+    // Unordered lists
+    hyphen = 'md-list-unordered-hyphen',
+    plus = 'md-list-unordered-plus',
+    asterisk = 'md-list-unordered-asterisk',
+
+    // Ordered lists
+    oneTwoThree = 'md-list-ordered-123',
+    abc = 'md-list-ordered-abc',
+    ABC = 'md-list-ordered-ABC',
+    ivx = 'md-list-ordered-ivx',
+    IVX = 'md-list-ordered-IVX',
 }
 
-export interface LinkNode {
-    type: "link";
+interface _MDNode {
+    type: string;
+}
+
+// -----------------------------------------------------------------------------
+// Inline Nodes
+
+interface TextNode extends _MDNode {
+    type: MDNodeType.text;
+    content: string;
+}
+
+interface BoldNode extends _MDNode {
+    type: MDNodeType.bold;
+    contents: InlineNode[];
+}
+
+interface ItalicNode extends _MDNode {
+    type: MDNodeType.italic;
+    contents: InlineNode[];
+}
+
+interface LinkNode extends _MDNode {
+    type: MDNodeType.link;
     href: string;
-    children: InlineNode[];
+    contents: InlineNode[];
 }
 
-export interface InlineCodeNode {
-    type: "inline-code";
-    value: string;
+interface InlineCodeNode extends _MDNode {
+    type: MDNodeType.inlineCode;
+    content: string;
 }
 
-export interface MathInlineNode {
-    type: "math-inline";
-    source: string;
+interface InlineMathNode extends _MDNode {
+    type: MDNodeType.inlineMath;
+    content: string;
 }
 
-export interface SupNode {
-    type: "sup";
-    children: InlineNode[];
+interface SuperScriptNode extends _MDNode {
+    type: MDNodeType.superScript;
+    contents: InlineNode[];
 }
 
-export interface SubNode {
-    type: "sub";
-    children: InlineNode[];
+interface SubScriptNode extends _MDNode {
+    type: MDNodeType.subScript;
+    contents: InlineNode[];
 }
 
-export interface BrNode {
-    type: "br";
+interface BrNode extends _MDNode {
+    type: MDNodeType.lineBreak;
 }
 
-export type InlineNode =
+type InlineNode =
     | TextNode
     | BoldNode
     | ItalicNode
     | LinkNode
     | InlineCodeNode
-    | MathInlineNode
-    | SupNode
-    | SubNode
+    | InlineMathNode
+    | SuperScriptNode
+    | SubScriptNode
     | BrNode;
 
-// ─── Block Nodes ─────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Block Nodes
 
-export interface HeadingNode {
-    type: "heading";
+interface HeadingNode extends _MDNode {
+    type: MDNodeType.heading;
     level: 1 | 2 | 3 | 4 | 5 | 6;
     children: InlineNode[];
 }
 
-export interface ParagraphNode {
-    type: "paragraph";
+interface ParagraphNode extends _MDNode {
+    type: MDNodeType.paragraph;
     children: InlineNode[];
 }
 
-export interface BlockquoteNode {
-    type: "blockquote";
+interface BlockquoteNode extends _MDNode {
+    type: MDNodeType.blockquote;
+    severity: MDBlockquoteType;
     children: BlockNode[];
 }
 
-export interface ListItem {
-    children: InlineNode[];
+interface ListNode extends _MDNode {
+    type: MDNodeType.list;
+    ordering: MDListOrderingType;
+    children: ListItemNode[];
 }
 
-export interface ListNode {
-    type: "list";
-    ordered: boolean;
-    items: ListItem[];
+interface ListItemNode extends _MDNode {
+    type: MDNodeType.listItem;
+    contents: InlineNode[];
 }
 
-export interface HrNode {
-    type: "hr";
+interface BlockCodeNode extends _MDNode {
+    type: MDNodeType.blockCode;
+    lang?: string;
+    content: string;
 }
 
-export interface MathBlockNode {
-    type: "math-block";
-    source: string;
+interface BlockMathNode extends _MDNode {
+    type: MDNodeType.blockMath;
+    content: string;
 }
 
-export interface CodeBlockNode {
-    type: "code-block";
-    lang: string | undefined;
-    code: string;
+interface HrNode extends _MDNode {
+    type: MDNodeType.horizontalRule;
 }
 
-export type BlockNode =
+type BlockNode =
     | HeadingNode
     | ParagraphNode
     | BlockquoteNode
     | ListNode
-    | HrNode
-    | MathBlockNode
-    | CodeBlockNode;
+    | ListItemNode
+    | BlockCodeNode
+    | BlockMathNode
+    | HrNode;
 
-// ─── Metadata & Result ───────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Metadata
 
-export interface ParsedMetadata {
-    author?: string;
-    published?: string;
-    conceived?: string;
-    raw: Record<string, string>;
+interface MDMetadata {
+    publication?: {
+        author: string;
+        published: string;
+        conceived: string;
+    }
 }
 
-export interface ParseResult {
-    nodes: BlockNode[];
-    metadata: ParsedMetadata;
+interface MDParseResult {
+    children: BlockNode[];
+    metadata: MDMetadata;
+}
+
+// -----------------------------------------------------------------------------
+// exports
+
+export type {
+    InlineNode,
+    BlockNode,
+    // Inline nodes
+    TextNode,
+    BoldNode,
+    ItalicNode,
+    LinkNode,
+    InlineCodeNode,
+    InlineMathNode,
+    SuperScriptNode,
+    SubScriptNode,
+    BrNode,
+    // Block nodes
+    HeadingNode,
+    ParagraphNode,
+    BlockquoteNode,
+    ListNode,
+    ListItemNode,
+    BlockCodeNode,
+    BlockMathNode,
+    HrNode,
+    // Metadata
+    MDMetadata,
+    MDParseResult,
+}
+
+export {
+    MDNodeType,
+    MDBlockquoteType,
+    MDListOrderingType,
 }

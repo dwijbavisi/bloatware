@@ -2,7 +2,7 @@ import type { InlineNode } from "./types";
 
 /**
  * Convert a heading's plain text into a URL-safe id.
- * e.g. "## The Fuel of Intent" → "the-fuel-of-intent"
+ * e.g. "## The Fuel of Intent" --> "the-fuel-of-intent"
  */
 export function slugify(text: string): string {
     return text
@@ -18,10 +18,9 @@ export function slugify(text: string): string {
 export function inlineToText(nodes: InlineNode[]): string {
     return nodes
         .map((n) => {
-            if (n.type === "text") return n.value;
-            if (n.type === "inline-code") return n.value;
-            if ("children" in n && Array.isArray((n as { children: InlineNode[] }).children)) {
-                return inlineToText((n as { children: InlineNode[] }).children);
+            if ('content' in n) return n.content;
+            if ('contents' in n && Array.isArray(n.contents)) {
+                return inlineToText(n.contents);
             }
             return "";
         })

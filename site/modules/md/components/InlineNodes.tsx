@@ -1,84 +1,126 @@
 import React from "react";
+
+import { MDNodeType } from "../types";
 import type {
     TextNode,
     BoldNode,
     ItalicNode,
     LinkNode,
     InlineCodeNode,
-    MathInlineNode,
-    SupNode,
-    SubNode,
+    InlineMathNode,
+    SuperScriptNode,
+    SubScriptNode,
     BrNode,
     InlineNode,
 } from "../types";
 
+import { MDMarker } from "./MDMarker"
+
+function TextNodeComponent({ node, key }: { node: TextNode, key: string | number }): React.ReactNode {
+    return (
+        <>
+            {node.content}
+        </>
+    )
+}
+
+function BoldNodeComponent({ node, key }: { node: BoldNode; key: string | number }): React.ReactNode {
+    return (
+        <strong key={key} className={node.type}>
+            <MDMarker>**</MDMarker>
+            <RenderInline nodes={node.contents} />
+            <MDMarker>**</MDMarker>
+        </strong>
+    )
+}
+
+function ItalicNodeComponent({ node, key }: { node: ItalicNode; key: string | number }): React.ReactNode {
+    return (
+        <em key={key} className={node.type}>
+            <MDMarker>*</MDMarker>
+            <RenderInline nodes={node.contents} />
+            <MDMarker>*</MDMarker>
+        </em>
+    )
+}
+
+function LinkNodeComponent({ node, key }: { node: LinkNode; key: string | number }): React.ReactNode {
+    return (
+        <a key={key} href={node.href} className={node.type}>
+            <MDMarker>[</MDMarker>
+            <RenderInline nodes={node.contents} />
+            <MDMarker>]</MDMarker>
+            <MDMarker>(</MDMarker>
+            {node.href}
+            <MDMarker>)</MDMarker>
+        </a>
+    )
+}
+
+function InlineCodeNodeComponent({ node, key }: { node: InlineCodeNode; key: string | number }): React.ReactNode {
+    return (
+        <code key={key} className={node.type}>
+            <MDMarker>`</MDMarker>
+            {node.content}
+            <MDMarker>`</MDMarker>
+        </code>
+    )
+}
+
+function InlineMathNodeComponent({ node, key }: { node: InlineMathNode; key: string | number }): React.ReactNode {
+    return (
+        <span key={key} className={node.type}>
+            <MDMarker>$</MDMarker>
+            {node.content}
+            <MDMarker>$</MDMarker>
+        </span>
+    )
+}
+
+function SuperScriptNodeComponent({ node, key }: { node: SuperScriptNode; key: string | number }): React.ReactNode {
+    return (
+        <sup key={key} className={node.type}>
+            <MDMarker>^</MDMarker>
+            <RenderInline nodes={node.contents} />
+            <MDMarker>^</MDMarker>
+        </sup>
+    )
+}
+
+function SubScriptNodeComponent({ node, key }: { node: SubScriptNode; key: string | number }): React.ReactNode {
+    return (
+        <sub key={key} className={node.type}>
+            <MDMarker>~</MDMarker>
+            <RenderInline nodes={node.contents} />
+            <MDMarker>~</MDMarker>
+        </sub>
+    )
+}
+
+function BrNodeComponent({ node, key }: { node: BrNode, key: string | number }): React.ReactNode {
+    return <br key={key} className={node.type} />;
+}
+
 export function renderInlineNode(node: InlineNode, key: string | number): React.ReactNode {
     switch (node.type) {
-        case "text":
-            return (node as TextNode).value;
-
-        case "bold":
-            return (
-                <strong key={key}>
-                    <span className="md-marker">**</span>
-                    {(node as BoldNode).children.map((c, i) => renderInlineNode(c, i))}
-                    <span className="md-marker">**</span>
-                </strong>
-            );
-
-        case "italic":
-            return (
-                <em key={key}>
-                    <span className="md-marker">*</span>
-                    {(node as ItalicNode).children.map((c, i) => renderInlineNode(c, i))}
-                    <span className="md-marker">*</span>
-                </em>
-            );
-
-        case "link": {
-            const n = node as LinkNode;
-            return (
-                <a key={key} href={n.href}>
-                    <span className="md-marker">[</span>
-                    {n.children.map((c, i) => renderInlineNode(c, i))}
-                    <span className="md-marker">]</span>
-                </a>
-            );
-        }
-
-        case "inline-code":
-            return (
-                <code key={key}>
-                    <span className="md-marker">`</span>
-                    {(node as InlineCodeNode).value}
-                    <span className="md-marker">`</span>
-                </code>
-            );
-
-        case "math-inline":
-            return (
-                <span key={key} className="math-inline">
-                    {(node as MathInlineNode).source}
-                </span>
-            );
-
-        case "sup":
-            return (
-                <sup key={key}>
-                    {(node as SupNode).children.map((c, i) => renderInlineNode(c, i))}
-                </sup>
-            );
-
-        case "sub":
-            return (
-                <sub key={key}>
-                    {(node as SubNode).children.map((c, i) => renderInlineNode(c, i))}
-                </sub>
-            );
-
-        case "br":
-            return <br key={key} />;
-
+        case MDNodeType.text:
+            return TextNodeComponent({ node: node as TextNode, key })
+        case MDNodeType.bold:
+            return BoldNodeComponent({ node: node as BoldNode, key })
+        case MDNodeType.italic:
+            return ItalicNodeComponent({ node: node as ItalicNode, key })
+        case MDNodeType.link:
+            return LinkNodeComponent({ node: node as LinkNode, key })
+        case MDNodeType.inlineCode:
+            return InlineCodeNodeComponent({ node: node as InlineCodeNode, key })
+        case MDNodeType.inlineMath:
+            return InlineMathNodeComponent({ node: node as InlineMathNode, key })
+        case MDNodeType.superScript:
+            return SuperScriptNodeComponent({ node: node as SuperScriptNode, key })
+        case MDNodeType.subScript:
+            return SubScriptNodeComponent({ node: node as SubScriptNode, key })
+        case MDNodeType.lineBreak:
+            return BrNodeComponent({ node: node as BrNode, key })
         default: {
             const _: never = node;
             return null;
@@ -87,5 +129,5 @@ export function renderInlineNode(node: InlineNode, key: string | number): React.
 }
 
 export function RenderInline({ nodes }: { nodes: InlineNode[] }): JSX.Element {
-    return <>{nodes.map((n, i) => renderInlineNode(n, i))}</>;
+    return <>{nodes.map((node, index) => renderInlineNode(node, index))}</>;
 }

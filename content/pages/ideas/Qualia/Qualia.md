@@ -11,7 +11,7 @@ framework utilizing **Cross-Embedding Relational Verification**.
 By decoupling a private semantic model (S) from a public interface model (P) via
 a neural bridge (V), Qualia enables authentication based on subjective "Proof
 of Knowledge" inherent in human memory. This creates a security gate that is
-linguistically flexible, cryptographically robust (* further research needed),
+linguistically flexible, cryptographically robust (\* further research needed),
 and resistant to modern AI-driven inversion attacks.
 
 
@@ -149,7 +149,7 @@ of the chat agent's instructions or natural language processing vulnerabilities.
 Qualia's architecture moves authentication from secret verification to semantic-based
 identity recognition. By synthesizing multiple semantic queries for proof-of-knowledge,
 the protocol creates a unique, un-reconstructable digital signature that is
-inherently human and cryptographically robust (* further research needed).
+inherently human and cryptographically robust (\* further research needed).
 
 
 ---
