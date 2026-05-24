@@ -17,22 +17,22 @@ const enum LogLevel {
     /**
      * Debug log level. Logs everything; use in debug mode.
      */
-    debug = 'debug',
+    debug = 'debug ',
 
     /**
      * Info log level. Logs information, warning and error messages.
      */
-    info = 'info',
+    info = 'info  ',
 
     /**
      * Warn log level. Logs only warning and error messages.
      */
-    warn = 'warn',
+    warn = 'warn  ',
 
     /**
      * Error log level. Logs only error messages.
      */
-    error = 'error',
+    error = 'error ',
 
     /**
      * Silent log level. Suppress all logs; use in production mode for interal
