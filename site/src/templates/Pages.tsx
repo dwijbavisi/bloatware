@@ -1,7 +1,7 @@
 import React from "react";
 import { relativeRouteHref } from "../lib/paths";
 import { ContentItem } from "../lib/types";
-import { MarkdownRenderer } from "../../modules/md/components/Renderer";
+import { MarkdownRenderer } from "../../modules/md-render";
 import { Layout } from "./Layout";
 
 // ─── Page tree ────────────────────────────────────────────────────────────────

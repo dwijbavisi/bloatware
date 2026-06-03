@@ -4,9 +4,10 @@ import esbuild from "esbuild";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadSiteData } from "../src/contentLoader";
-import { parse } from "../modules/md/index";
+import { parse } from "../modules/md-parser";
 import { IndexTemplate } from "../src/templates/Index";
 import { ArticlesTemplate, ArticleDetailTemplate } from "../src/templates/Articles";
+
 import { PagesTemplate, PageDetailTemplate } from "../src/templates/Pages";
 
 const ROOT = process.cwd();

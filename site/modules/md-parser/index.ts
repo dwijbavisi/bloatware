@@ -1,7 +1,6 @@
 export type {
     InlineNode,
     BlockNode,
-    // Inline nodes
     TextNode,
     BoldNode,
     ItalicNode,
@@ -11,7 +10,6 @@ export type {
     SuperScriptNode,
     SubScriptNode,
     BrNode,
-    // Block nodes
     HeadingNode,
     ParagraphNode,
     BlockquoteNode,
@@ -20,7 +18,6 @@ export type {
     BlockCodeNode,
     BlockMathNode,
     HrNode,
-    // Metadata
     MDMetadata,
     MDParseResult,
 } from "./types";
@@ -29,6 +26,7 @@ export {
     MDNodeType,
     MDBlockquoteType,
     MDListOrderingType,
-} from "./types"
+} from "./types";
 
 export { parse } from "./parser";
+export { slugify, inlineToText } from "./utils";

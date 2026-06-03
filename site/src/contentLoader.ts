@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { parse } from "../modules/md/index";
-import type { BlockNode, BlockquoteNode, HeadingNode, InlineNode, LinkNode, ListNode, ParagraphNode, TextNode, BoldNode, ItalicNode, SuperScriptNode, SubScriptNode } from "../modules/md/types";
+import { parse } from "../modules/md-parser";
+import type { BlockNode, BlockquoteNode, HeadingNode, InlineNode, LinkNode, ListNode, ParagraphNode, TextNode, BoldNode, ItalicNode, SuperScriptNode, SubScriptNode } from "../modules/md-parser";
 import { ContentItem, ContentKind, SiteData } from "./lib/types";
 import { relativeRouteHref } from "./lib/paths";
 import { extractToc } from "./lib/toc";
@@ -223,10 +223,13 @@ async function loadKind(kind: ContentKind, rootDir: string): Promise<ContentItem
 }
 
 export async function loadSiteData(): Promise<SiteData> {
-    const [articles, pages] = await Promise.all([
+    const [articles] = await Promise.all([
         loadKind("article", ARTICLE_ROOT),
-        loadKind("page", PAGE_ROOT)
     ]);
+
+    const [pages] = await Promise.all([
+        loadKind("page", PAGE_ROOT),
+    ])
 
     return { articles, pages };
 }

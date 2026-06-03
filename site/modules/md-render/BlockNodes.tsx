@@ -1,6 +1,5 @@
 import React from "react";
-
-import { MDNodeType, MDListOrderingType } from "../types";
+import { MDNodeType, MDListOrderingType, slugify, inlineToText } from "../md-parser";
 import type {
     HeadingNode,
     ParagraphNode,
@@ -9,20 +8,18 @@ import type {
     ListItemNode,
     BlockCodeNode,
     BlockMathNode,
-    // HrNode,
     InlineNode,
     BlockNode,
-} from "../types";
-
-import { MDMarker } from "./MDMarker"
-
+} from "../md-parser";
+import { MDMarker } from "./MDMarker";
 import { RenderInline, renderInlineNode } from "./InlineNodes";
-import { slugify, inlineToText } from "../utils";
 
 function isOrderedList(ordering: MDListOrderingType): boolean {
-    return ordering !== MDListOrderingType.hyphen
-        && ordering !== MDListOrderingType.plus
-        && ordering !== MDListOrderingType.asterisk;
+    return (
+        ordering !== MDListOrderingType.hyphen &&
+        ordering !== MDListOrderingType.plus &&
+        ordering !== MDListOrderingType.asterisk
+    );
 }
 
 function listMarker(ordering: MDListOrderingType, index: number): string {
@@ -70,7 +67,11 @@ function renderBlockquoteChild(node: BlockNode, key: number): React.ReactNode {
 function HeadingNodeComponent({ node, key }: { node: HeadingNode; key: string | number }): React.ReactNode {
     const marker = "#".repeat(node.level) + " ";
     const id = slugify(inlineToText(node.children));
-    const anchor = <a href={`#${id}`} className="md-heading-anchor" aria-label="Link to section">§</a>;
+    const anchor = (
+        <a href={`#${id}`} className="md-heading-anchor" aria-label="Link to section">
+            §
+        </a>
+    );
     const content = (
         <>
             <MDMarker>{marker}</MDMarker>
@@ -82,13 +83,20 @@ function HeadingNodeComponent({ node, key }: { node: HeadingNode; key: string | 
     const clsName = `${node.type}.${node.level}`;
 
     switch (node.level) {
-        case 1: return <h1 key={key} id={id} className={clsName}>{content}</h1>;
-        case 2: return <h2 key={key} id={id} className={clsName}>{content}</h2>;
-        case 3: return <h3 key={key} id={id} className={clsName}>{content}</h3>;
-        case 4: return <h4 key={key} id={id} className={clsName}>{content}</h4>;
-        case 5: return <h5 key={key} id={id} className={clsName}>{content}</h5>;
-        case 6: return <h6 key={key} id={id} className={clsName}>{content}</h6>;
-        default: return <h2 key={key} id={id} className={clsName}>{content}</h2>;
+        case 1:
+            return <h1 key={key} id={id} className={clsName}>{content}</h1>;
+        case 2:
+            return <h2 key={key} id={id} className={clsName}>{content}</h2>;
+        case 3:
+            return <h3 key={key} id={id} className={clsName}>{content}</h3>;
+        case 4:
+            return <h4 key={key} id={id} className={clsName}>{content}</h4>;
+        case 5:
+            return <h5 key={key} id={id} className={clsName}>{content}</h5>;
+        case 6:
+            return <h6 key={key} id={id} className={clsName}>{content}</h6>;
+        default:
+            return <h2 key={key} id={id} className={clsName}>{content}</h2>;
     }
 }
 
@@ -116,19 +124,23 @@ function ListNodeComponent({ node, key }: { node: ListNode; key: string | number
         </li>
     ));
 
-    return isOrderedList(node.ordering)
-        ? <ol key={key} className={node.type}>{listItems}</ol>
-        : <ul key={key}>{listItems}</ul>;
+    return isOrderedList(node.ordering) ? (
+        <ol key={key} className={node.type}>
+            {listItems}
+        </ol>
+    ) : (
+        <ul key={key}>{listItems}</ul>
+    );
 }
 
 function BlockCodeNodeComponent({ node, key }: { node: BlockCodeNode; key: string | number }): React.ReactNode {
     return (
         <pre key={key} className={node.type}>
-            <MDMarker>```{node.lang || ''}</MDMarker>
-            <code className={node.lang ? `language-${node.lang}` : 'language-pseudo'}>{node.content}</code>
+            <MDMarker>```{node.lang || ""}</MDMarker>
+            <code className={node.lang ? `language-${node.lang}` : "language-pseudo"}>{node.content}</code>
             <MDMarker>```</MDMarker>
         </pre>
-    )
+    );
 }
 
 function BlockMathNodeComponent({ node, key }: { node: BlockMathNode; key: string | number }): React.ReactNode {
@@ -138,13 +150,19 @@ function BlockMathNodeComponent({ node, key }: { node: BlockMathNode; key: strin
             <code>{node.content}</code>
             <MDMarker>$$</MDMarker>
         </pre>
-    )
+    );
 }
 
 function HorizontalRuleNodeComponent({ key }: { key: string | number }): React.ReactNode {
     return <hr key={key} />;
 }
 
+/**
+ * Helper to dispatch rendering of a single block AST node.
+ *
+ * @param node - The block node to render.
+ * @param key - A unique key for list rendering.
+ */
 export function renderBlockNode(node: BlockNode, key: string | number): React.ReactNode {
     switch (node.type) {
         case MDNodeType.heading:
@@ -160,10 +178,8 @@ export function renderBlockNode(node: BlockNode, key: string | number): React.Re
         case MDNodeType.blockMath:
             return BlockMathNodeComponent({ node: node as BlockMathNode, key });
         case MDNodeType.horizontalRule:
-            HorizontalRuleNodeComponent({ key });
-        default: {
-            // const _: never = node;
+            return HorizontalRuleNodeComponent({ key });
+        default:
             return null;
-        }
     }
 }

@@ -2,7 +2,7 @@ import React from "react";
 import { relativeRouteHref } from "../lib/paths";
 import { formatDate } from "../lib/formatDate";
 import { ContentItem } from "../lib/types";
-import { MarkdownRenderer } from "../../modules/md/components/Renderer";
+import { MarkdownRenderer } from "../../modules/md-render";
 import { Layout } from "./Layout";
 
 interface ArticlesTemplateProps {

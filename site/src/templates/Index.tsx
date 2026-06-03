@@ -2,8 +2,8 @@ import React from "react";
 import { ContentItem } from "../lib/types";
 import { relativeRouteHref } from "../lib/paths";
 import { formatDate } from "../lib/formatDate";
-import { MarkdownRenderer } from "../../modules/md/components/Renderer";
-import type { BlockNode } from "../../modules/md/types";
+import { MarkdownRenderer } from "../../modules/md-render";
+import type { BlockNode } from "../../modules/md-parser";
 import { Layout } from "./Layout";
 
 interface IndexTemplateProps {

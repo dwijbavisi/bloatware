@@ -1,4 +1,4 @@
-import type { BlockNode } from "../../modules/md/types";
+import type { BlockNode } from "../../modules/md-parser";
 import type { TocItem } from "./toc";
 
 export type ContentKind = "article" | "page";

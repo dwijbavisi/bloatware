@@ -1,5 +1,6 @@
-import type { BlockNode, HeadingNode } from "../../modules/md/types";
-import { slugify, inlineToText } from "../../modules/md/utils";
+import { MDNodeType } from "../../modules/md-parser";
+import type { BlockNode, HeadingNode } from "../../modules/md-parser";
+import { slugify, inlineToText } from "../../modules/md-parser";
 
 export interface TocItem {
     id: string;
@@ -15,7 +16,7 @@ export { slugify };
  */
 export function extractToc(nodes: BlockNode[]): TocItem[] {
     const items = nodes
-        .filter((n) => n.type === "heading" && (n as HeadingNode).level <= 3)
+        .filter((n) => n.type === MDNodeType.heading && (n as HeadingNode).level <= 3)
         .map((n) => {
             const h = n as HeadingNode;
             const text = inlineToText(h.children);
