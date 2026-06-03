@@ -7,11 +7,11 @@ const _safeError = (console.error ?? console.log).bind(console);
 /**
  * Supported named log levels for the Logger.
  *
- * - debug: Logs everthing; use in debug mode.
+ * - debug: Logs everything; use in debug mode.
  * - info: Logs information, warning and error messages.
  * - warn: Logs only warning and error messages.
  * - error: Logs only error messages.
- * - silent: Suppress all logs; use in production mode for interal modules.
+ * - silent: Suppress all logs; use in production mode for internal modules.
  */
 const enum LogLevel {
     /**
@@ -35,7 +35,7 @@ const enum LogLevel {
     error = 'error ',
 
     /**
-     * Silent log level. Suppress all logs; use in production mode for interal
+     * Silent log level. Suppress all logs; use in production mode for internal
      * modules.
      */
     silent = 'silent',
@@ -48,7 +48,7 @@ interface LoggerOptions {
     /**
      * Named log level threshold.
      */
-    level?: LogLevel
+    level?: LogLevel;
 }
 
 /**
@@ -61,14 +61,14 @@ class Logger {
     /**
      * Namespace to prefix each log message.
      */
-    protected _namespace?: string
+    protected _namespace?: string;
 
     /**
      * Configuration options for the logger instance.
      */
     protected _options: LoggerOptions & { level: LogLevel } = {
         level: LogLevel.info
-    }
+    };
 
     /**
      * Create a new logger instance.
@@ -88,7 +88,7 @@ class Logger {
      * @returns The current configuration options used by logger.
      */
     public get options(): LoggerOptions {
-        return { ...this._options }
+        return { ...this._options };
     }
 
     /**
@@ -109,34 +109,34 @@ class Logger {
     protected _levelEnabled(level: LogLevel): boolean {
         switch (this._options.level) {
             case LogLevel.debug:
-                return true
+                return true;
             case LogLevel.info:
                 switch (level) {
                     case LogLevel.debug:
-                        return false
+                        return false;
                     default:
-                        return true
+                        return true;
                 }
             case LogLevel.warn:
                 switch (level) {
                     case LogLevel.debug:
                     case LogLevel.info:
-                        return false
+                        return false;
                     default:
-                        return true
+                        return true;
                 }
             case LogLevel.error:
                 switch (level) {
                     case LogLevel.debug:
                     case LogLevel.info:
                     case LogLevel.warn:
-                        return false
+                        return false;
                     default:
-                        return true
+                        return true;
                 }
             case LogLevel.silent: // Define for optimized lookup in production
             default:
-                return false
+                return false;
         } // switch (this._options.level)
     }
 
@@ -150,7 +150,7 @@ class Logger {
     protected _formatMessage(level: string, message: string): string {
         const timestamp = new Date().toISOString(); // YYYY-MM-DDThh:mm:ss.lllZ
         const ns = this._namespace ? `[${this._namespace}] ` : '';
-        return `${timestamp} ${level} ${ns}${message}`
+        return `${timestamp} ${level} ${ns}${message}`;
     }
 
     /**
@@ -199,7 +199,7 @@ class Logger {
      * }
      */
     public debug(message: string, ...meta: any[]) {
-        if (!this._levelEnabled(LogLevel.debug)) return
+        if (!this._levelEnabled(LogLevel.debug)) return;
         const formattedMsg = this._formatMessage(LogLevel.debug, message);
         this._log(LogLevel.debug, formattedMsg, ...meta);
     }
@@ -224,7 +224,7 @@ class Logger {
      * }
      */
     public info(message: string, ...meta: any[]) {
-        if (!this._levelEnabled(LogLevel.info)) return
+        if (!this._levelEnabled(LogLevel.info)) return;
         const formattedMsg = this._formatMessage(LogLevel.info, message);
         this._log(LogLevel.info, formattedMsg, ...meta);
     }
@@ -249,7 +249,7 @@ class Logger {
      * }
      */
     public warn(message: string, ...meta: any[]) {
-        if (!this._levelEnabled(LogLevel.warn)) return
+        if (!this._levelEnabled(LogLevel.warn)) return;
         const formattedMsg = this._formatMessage(LogLevel.warn, message);
         this._log(LogLevel.warn, formattedMsg, ...meta);
     }
@@ -274,7 +274,7 @@ class Logger {
      * }
      */
     public error(message: string, ...meta: any[]) {
-        if (!this._levelEnabled(LogLevel.error)) return
+        if (!this._levelEnabled(LogLevel.error)) return;
         const formattedMsg = this._formatMessage(LogLevel.error, message);
         this._log(LogLevel.error, formattedMsg, ...meta);
     }
