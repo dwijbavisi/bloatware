@@ -808,20 +808,20 @@ captured or manually recorded. After refactoring, verification MUST compare:
 
 ## 13. Traceability matrix
 
-| Objective or limitation           | Requirements                           |
-| --------------------------------- | -------------------------------------- |
-| Modular, typed code               | F1.1, F1.5, F2.1, 11.1                 |
-| Tested and documented code        | F1.6, F2.9, F3.8, section 12           |
-| Custom parser reliability         | F1.1-F1.6, 11.2                        |
-| Parser/rendering decoupling       | F1.1, F1.5, F2.1                       |
-| Extensible website layout         | F2.1-F2.9                              |
-| Feature parity                    | sections 3, F1.2, F1.3, 8.2, 8.3, 12.4 |
-| Security baseline                 | F1.3, F3.1, F3.4, 11.3                 |
-| Compliance/accessibility baseline | F2.8, 11.4, 12.3                       |
-| Structured build/runtime logging  | F2.7, F3.5, 9.3                        |
-| SBoM/dependency awareness         | sections 3.2, 7, 11.3                  |
-| Build performance visibility      | F3.6, 11.5, 12.1                       |
-| Static deployment                 | sections 4, 8.3, 10.2, 10.3            |
+| Objective or limitation being addressed | Requirements                           |
+| --------------------------------------- | -------------------------------------- |
+| Modular, typed code                     | F1.1, F1.5, F2.1, 11.1                 |
+| Tested and documented code              | F1.6, F2.9, F3.8, section 12           |
+| Custom parser reliability               | F1.1-F1.6, 11.2                        |
+| Parser/rendering decoupling             | F1.1, F1.5, F2.1                       |
+| Extensible website layout               | F2.1-F2.9                              |
+| Feature parity                          | sections 3, F1.2, F1.3, 8.2, 8.3, 12.4 |
+| Security baseline                       | F1.3, F3.1, F3.4, 11.3                 |
+| Compliance/accessibility baseline       | F2.8, 11.4, 12.3                       |
+| Structured build/runtime logging        | F2.7, F3.5, 9.3                        |
+| SBoM/dependency awareness               | sections 3.2, 7, 11.3                  |
+| Build performance visibility            | F3.6, 11.5, 12.1                       |
+| Static deployment                       | sections 4, 8.3, 10.2, 10.3            |
 
 ## 14. Risks and mitigations
 
