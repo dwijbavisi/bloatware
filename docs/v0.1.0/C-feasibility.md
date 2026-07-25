@@ -35,8 +35,8 @@ This document is intended for:
 ## How to read the following sections
 
 Each feasibility query is an independent question about an objective, a known
-technical-debt item or a cross-cutting constraint. Read the **options /
-opinions** subsection to understand the alternatives and the selected direction.
+technical-debt item or a cross-cutting constraint. Read the **options / opinions**
+subsection to understand the alternatives and the selected direction.
 Read **complexity / risk assessment** to understand what may prevent success,
 and **mitigations** to see how the risk will be controlled. The final
 **Go / No-Go decision** is the scope decision for v0.1.0, not a claim that the
