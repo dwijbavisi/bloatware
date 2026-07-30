@@ -31,7 +31,8 @@ bloatware/
 |
 |-- site/
 |   |-- modules/          # Reusable core modules
-|   |   |-- logger.ts     # Structured logging & build profiler
+|   |   |-- logger.ts     # Structured JSON logging
+|   |   |-- profiler.ts   # Build-time execution profiler
 |   |   |-- md-parser/    # Two-pass custom Markdown parser
 |   |   \-- md-render/    # Decoupled React AST renderer
 |   |
@@ -49,8 +50,10 @@ bloatware/
   definitions (Block and Inline discriminated unions).
 - `site/modules/md-render/`: Decoupled React AST renderer mapping AST nodes
   directly to HTML elements without filesystem dependencies.
-- `site/modules/logger.ts`: Structured JSON logging and execution profiler
-  tracking build events, warnings, and average build-time-per-page.
+- `site/modules/logger.ts`: Structured JSON logger tracking build events and
+  warnings.
+- `site/modules/profiler.ts`: Execution profiler tracking performance metrics
+  like average build-time-per-page and total compilation time.
 
 ### 3. Running the Build
 To generate the static website:
