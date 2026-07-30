@@ -21,7 +21,7 @@ export interface ArticleDetailTemplateProps {
  * @example
  * <ArticleDetailTemplate item={record} />
  */
-export function ArticleDetailTemplate({ item }: ArticleDetailTemplateProps): JSX.Element {
+export function ArticleDetailTemplate({ item }: ArticleDetailTemplateProps): React.JSX.Element {
     const toc = extractToc(item.ast);
 
     return (

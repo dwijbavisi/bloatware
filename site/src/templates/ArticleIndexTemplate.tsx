@@ -6,7 +6,7 @@ import { CoreLayout } from './CoreLayout';
 
 /**
  * Props for the ArticleIndexTemplate component.
- * 
+ *
  * @property items - Array of article records to display chronologically.
  */
 export interface ArticleIndexTemplateProps {
@@ -15,13 +15,13 @@ export interface ArticleIndexTemplateProps {
 
 /**
  * Renders the article index view, grouping articles by year of publication.
- * 
+ *
  * @param props - Component props.
  * @returns The rendered JSX element.
  * @example
  * <ArticleIndexTemplate items={articleRecords} />
  */
-export function ArticleIndexTemplate({ items }: ArticleIndexTemplateProps): JSX.Element {
+export function ArticleIndexTemplate({ items }: ArticleIndexTemplateProps): React.JSX.Element {
     // Group by year (date is YYYY-MM-DD or YYYY-MM)
     const byYear = new Map<string, ChildRecord[]>();
     for (const item of items) {

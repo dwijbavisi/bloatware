@@ -25,7 +25,7 @@ export interface IndexTemplateProps {
  * @example
  * <IndexTemplate recentArticles={records} introNodes={ast} />
  */
-export function IndexTemplate({ recentArticles, introNodes }: IndexTemplateProps): JSX.Element {
+export function IndexTemplate({ recentArticles, introNodes }: IndexTemplateProps): React.JSX.Element {
     return (
         <CoreLayout title="bloatware-site" pageTitle="Index" currentRoute="/" showPageTitle={false}>
             {introNodes && introNodes.length > 0 && (

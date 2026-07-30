@@ -33,7 +33,7 @@ export interface CoreLayoutProps {
  *     <p>Content</p>
  * </CoreLayout>
  */
-export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = true, toc, children }: CoreLayoutProps): JSX.Element {
+export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = true, toc, children }: CoreLayoutProps): React.JSX.Element {
     return (
         <html lang="en">
             <head>

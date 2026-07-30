@@ -9,6 +9,6 @@ import React from 'react';
  * @example
  * <MDMarker>### </MDMarker>
  */
-export const MDMarker = ({ children }: { children: React.ReactNode }): JSX.Element => (
+export const MDMarker = ({ children }: { children: React.ReactNode }): React.JSX.Element => (
     <span className="md-marker">{children}</span>
 );

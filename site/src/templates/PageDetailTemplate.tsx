@@ -23,7 +23,7 @@ export interface PageDetailTemplateProps {
  * @example
  * <PageDetailTemplate item={record} />
  */
-export function PageDetailTemplate({ item }: PageDetailTemplateProps): JSX.Element {
+export function PageDetailTemplate({ item }: PageDetailTemplateProps): React.JSX.Element {
     const toc = extractToc(item.ast);
     const subpages = item.children;
 

@@ -3,7 +3,7 @@ import type { TocItem } from '../lib/toc';
 
 /**
  * Props for the TableOfContents component.
- * 
+ *
  * @property toc - Optional Table of Contents array.
  */
 export interface TableOfContentsProps {
@@ -12,13 +12,13 @@ export interface TableOfContentsProps {
 
 /**
  * Renders a dropdown Table of Contents menu for the current page.
- * 
+ *
  * @param props - Component props.
  * @returns The `<details>` element, or null if no TOC exists.
  * @example
  * <TableOfContents toc={items} />
  */
-export function TableOfContents({ toc }: TableOfContentsProps): JSX.Element | null {
+export function TableOfContents({ toc }: TableOfContentsProps): React.JSX.Element | null {
     if (!toc || toc.length === 0) {
         return null;
     }

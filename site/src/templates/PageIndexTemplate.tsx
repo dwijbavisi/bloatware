@@ -70,7 +70,7 @@ function buildPageTree(items: ChildRecord[]): PageTreeNode[] {
  * @example
  * const jsx = renderTree(tree, "/pages/");
  */
-function renderTree(nodes: PageTreeNode[], fromRoute: string, depth = 0): JSX.Element {
+function renderTree(nodes: PageTreeNode[], fromRoute: string, depth = 0): React.JSX.Element {
     return (
         <ul className={depth === 0 ? "page-tree" : "page-tree-children"}>
             {nodes.map((node) => {
@@ -106,7 +106,7 @@ export interface PageIndexTemplateProps {
  * @example
  * <PageIndexTemplate items={pageRecords} />
  */
-export function PageIndexTemplate({ items }: PageIndexTemplateProps): JSX.Element {
+export function PageIndexTemplate({ items }: PageIndexTemplateProps): React.JSX.Element {
     const tree = buildPageTree(items);
     return (
         <CoreLayout title="Pages | bloatware-site" pageTitle="Pages" currentRoute="/pages/">

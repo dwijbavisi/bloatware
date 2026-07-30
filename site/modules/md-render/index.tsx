@@ -249,6 +249,6 @@ export function renderBlockNode(node: BlockNode, key: number | string): React.Re
  * @example
  * <MarkdownRenderer nodes={record.ast} />
  */
-export function MarkdownRenderer({ nodes }: { nodes: BlockNode[] }): JSX.Element {
+export function MarkdownRenderer({ nodes }: { nodes: BlockNode[] }): React.JSX.Element {
     return <>{nodes.map((node, i) => renderBlockNode(node, i))}</>;
 }

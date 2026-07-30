@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
     return (
         <main style={{ fontFamily: "Segoe UI, Tahoma, sans-serif", padding: "2rem" }}>
             <h1>bloatware-site</h1>
