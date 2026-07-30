@@ -1,129 +1,195 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import esbuild from "esbuild";
-import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { loadSiteData } from "../src/contentLoader";
-import { parse } from "../modules/md-parser";
-import { IndexTemplate } from "../src/templates/Index";
-import { ArticlesTemplate, ArticleDetailTemplate } from "../src/templates/Articles";
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import esbuild from 'esbuild';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
-import { PagesTemplate, PageDetailTemplate } from "../src/templates/Pages";
+import { loadContentGenerator } from '../modules/discovery';
+import { buildRouteHierarchy } from '../modules/router';
+import type { ChildRecord, ContentRecord } from '../modules/router/types';
+import { resolveLinks } from '../modules/link-resolver';
+import { parseMarkdown, type BlockNode } from '../modules/md-parser';
+import { Logger } from '../modules/logger';
+import profiler from '../modules/profiler';
+
+import { IndexTemplate } from '../src/templates/IndexTemplate';
+import { ArticleIndexTemplate } from '../src/templates/ArticleIndexTemplate';
+import { ArticleDetailTemplate } from '../src/templates/ArticleDetailTemplate';
+import { PageIndexTemplate } from '../src/templates/PageIndexTemplate';
+import { PageDetailTemplate } from '../src/templates/PageDetailTemplate';
 
 const ROOT = process.cwd();
-const DIST = path.resolve(ROOT, "dist");
-const WWW_DIR = path.resolve(ROOT, "../www");
+const DIST = path.resolve(ROOT, 'dist');
+const ASSETS_DIR = path.resolve(DIST, 'assets');
+const log = new Logger('build-static');
 
-function log(msg: string): void {
-    console.log(`[${new Date().toISOString()}] ${msg}`);
-}
-
+/**
+ * Wraps a React element in a standard HTML document doctype declaration.
+ *
+ * @param element - The React root element.
+ * @returns The raw HTML string.
+ */
 function documentFromElement(element: React.ReactElement): string {
-    return `<!doctype html>${renderToStaticMarkup(element)}`;
+    return `<!doctype html>\n${renderToStaticMarkup(element)}`;
 }
 
+/**
+ * Writes an HTML string to disk, resolving its canonical path to an index.html file.
+ *
+ * @param route - The canonical route (e.g., "/articles/my-post/").
+ * @param html - The fully rendered HTML string.
+ * @returns Promise that resolves when writing is complete.
+ */
 async function writeRoute(route: string, html: string): Promise<void> {
-    const routePath = route === "/" ? "" : route.replace(/^\//, "");
+    const routePath = route === '/' ? '' : route.replace(/^\/|\/$/g, '');
     const outputDir = path.join(DIST, routePath);
     await fs.mkdir(outputDir, { recursive: true });
-    await fs.writeFile(path.join(outputDir, "index.html"), html, "utf8");
+    await fs.writeFile(path.join(outputDir, 'index.html'), html, 'utf8');
 }
 
-async function copyIfExists(source: string, target: string): Promise<void> {
-    try {
-        await fs.access(source);
-        await fs.cp(source, target, { recursive: true });
-    } catch {
-        // Optional directory does not exist.
-    }
+/**
+ * Creates a combined asynchronous generator that sequentially yields raw content
+ * records from both the articles and pages directories.
+ *
+ * @returns An AsyncGenerator yielding RawContentRecord objects.
+ */
+async function* combinedContentStream() {
+    const articlesDir = path.resolve(ROOT, '../content/articles');
+    const pagesDir = path.resolve(ROOT, '../content/pages');
+    yield* loadContentGenerator('article', articlesDir);
+    yield* loadContentGenerator('page', pagesDir);
 }
 
+/**
+ * Executes the entire static build pipeline deterministically.
+ *
+ * @returns A Promise that resolves when the build is successful.
+ */
 async function run(): Promise<void> {
-    log("Loading site data...");
-    const siteData = await loadSiteData();
-    log(`Loaded ${siteData.articles.length} articles, ${siteData.pages.length} pages.`);
+    profiler.time('build');
+    log.info('Starting build orchestrator...');
 
-    log("Parsing readMe.md...");
-    const readMePath = path.resolve(ROOT, "../readMe.md");
-    const readMeText = await fs.readFile(readMePath, "utf8");
-    const { children: introNodes } = parse(readMeText);
-    log(`readMe.md parsed — ${introNodes.length} node(s).`);
-
-    log("Clearing dist...");
+    // 1. Initialization and Cleanup
+    log.info('Clearing workspace...');
     await fs.rm(DIST, { recursive: true, force: true });
-    await fs.mkdir(DIST, { recursive: true });
+    await fs.mkdir(ASSETS_DIR, { recursive: true });
 
-    log("Copying static assets...");
-    await fs.copyFile(path.resolve(ROOT, "src/styles.css"), path.resolve(DIST, "styles.css"));
+    log.info('Bundling static assets...');
+    await fs.copyFile(path.resolve(ROOT, 'src/assets/styles.css'), path.resolve(ASSETS_DIR, 'styles.css'));
 
-    log("Building interaction.ts...");
     await esbuild.build({
-        entryPoints: [path.resolve(ROOT, "src/interaction.ts")],
-        outfile: path.resolve(DIST, "interaction.js"),
+        entryPoints: [path.resolve(ROOT, 'src/assets/interaction.ts')],
+        outfile: path.resolve(ASSETS_DIR, 'interaction.js'),
         bundle: true,
-        format: "iife",
-        platform: "browser",
+        format: 'iife',
+        platform: 'browser',
         minify: true,
     });
 
-    await copyIfExists(WWW_DIR, DIST);
-
-    const latestArticles = siteData.articles.slice(0, 6);
-
-    log("Rendering index...");
-    await writeRoute(
-        "/",
-        documentFromElement(React.createElement(IndexTemplate, { latestArticles, introNodes }))
-    );
-
-    log("Rendering article list...");
-    await writeRoute(
-        "/articles/",
-        documentFromElement(React.createElement(ArticlesTemplate, { items: siteData.articles }))
-    );
-
-    log("Rendering pages list...");
-    await writeRoute(
-        "/pages/",
-        documentFromElement(React.createElement(PagesTemplate, { items: siteData.pages }))
-    );
-
-    log("Rendering article detail pages...");
-    for (const item of siteData.articles) {
-        log(`  article: ${item.route}`);
-        await writeRoute(
-            item.route,
-            documentFromElement(React.createElement(ArticleDetailTemplate, { item }))
-        );
+    log.info('Parsing homepage intro (readMe.md)...');
+    const readMePath = path.resolve(ROOT, '../readMe.md');
+    let introNodes: BlockNode[] = [];
+    try {
+        const readMeText = await fs.readFile(readMePath, 'utf8');
+        const parsed = parseMarkdown(readMeText);
+        introNodes = parsed.ast;
+    } catch (err) {
+        log.warn('Could not read or parse readMe.md for homepage.', err);
     }
 
-    log("Rendering page detail pages...");
-    for (const item of siteData.pages) {
-        log(`  page: ${item.route}`);
-        await writeRoute(
-            item.route,
-            documentFromElement(React.createElement(PageDetailTemplate, { item }))
-        );
+    // 2. Stream Processing (Memory Safe)
+    const allArticles: ChildRecord[] = [];
+    const allPages: ChildRecord[] = [];
+    let pageCount = 0;
+
+    log.info('Initializing router stream...');
+    const routedStream = buildRouteHierarchy(combinedContentStream());
+
+    for await (const record of routedStream) {
+        log.debug(`Rendering route: ${record.route}`);
+
+        // Cache lightweight footprint for global index pages
+        const footprint: ChildRecord = {
+            id: record.id,
+            title: record.title,
+            route: record.route,
+            summary: record.summary,
+            date: record.metadata.sortDate
+        };
+
+        if (record.kind === 'article') {
+            allArticles.push(footprint);
+        } else {
+            allPages.push(footprint);
+        }
+
+        // Apply LinkResolver to update relative markdown paths in the AST
+        const resolvedAst = resolveLinks(record.ast, record.route);
+        const resolvedRecord: ContentRecord = { ...record, ast: resolvedAst };
+
+        // Render React template
+        const template = record.kind === 'article'
+            ? React.createElement(ArticleDetailTemplate, { item: resolvedRecord })
+            : React.createElement(PageDetailTemplate, { item: resolvedRecord });
+
+        // Write directly to disk and allow AST to garbage collect
+        const html = documentFromElement(template);
+        await writeRoute(record.route, html);
+
+        pageCount++;
     }
 
-    log("Writing route manifest...");
+    // 3. Global Index Generation
+    log.info('Generating global index pages...');
+
+    allArticles.sort((a, b) => {
+        if (a.date && b.date) return a.date < b.date ? 1 : -1;
+        return a.title.localeCompare(b.title);
+    });
+
+    const homeHtml = documentFromElement(
+        React.createElement(IndexTemplate, {
+            recentArticles: allArticles.slice(0, 6),
+            introNodes
+        })
+    );
+    await writeRoute('/', homeHtml);
+
+    const articlesHtml = documentFromElement(
+        React.createElement(ArticleIndexTemplate, { items: allArticles })
+    );
+    await writeRoute('/articles/', articlesHtml);
+
+    const pagesHtml = documentFromElement(
+        React.createElement(PageIndexTemplate, { items: allPages })
+    );
+    await writeRoute('/pages/', pagesHtml);
+
+    pageCount += 3;
+
+    // 4. Manifest
+    log.info('Writing route-manifest.json...');
+    const durationMs = profiler.timeEnd('build', 'Total build execution time') ?? 0;
+
     const routeManifest = {
         generatedAt: new Date().toISOString(),
+        totalGenerated: pageCount,
+        durationMs,
         routes: [
-            "/",
-            "/articles/",
-            "/pages/",
-            ...siteData.articles.map((item) => item.route),
-            ...siteData.pages.map((item) => item.route)
+            '/',
+            '/articles/',
+            '/pages/',
+            ...allArticles.map(a => a.route),
+            ...allPages.map(p => p.route)
         ]
     };
 
-    await fs.writeFile(path.join(DIST, "route-manifest.json"), JSON.stringify(routeManifest, null, 2), "utf8");
+    await fs.writeFile(path.join(DIST, 'route-manifest.json'), JSON.stringify(routeManifest, null, 2), 'utf8');
 
-    log(`Done. Generated ${routeManifest.routes.length} routes into ${DIST}`);
+    log.info(`Build successful. Generated ${pageCount} routes in ${routeManifest.durationMs}ms.`);
 }
 
 run().catch((error: unknown) => {
-    log(`Build failed: ${error instanceof Error ? error.stack ?? error.message : String(error)}`);
+    log.error(`Build failed critically.`, error instanceof Error ? error : new Error(String(error)));
     process.exit(1);
 });

@@ -33,6 +33,9 @@ bloatware/
 |   |-- modules/          # Reusable core modules
 |   |   |-- logger.ts     # Structured JSON logging
 |   |   |-- profiler.ts   # Build-time execution profiler
+|   |   |-- link-resolver.ts # Resolve relative-links to pages and articles
+|   |   |-- discovery/    # Content discovery logic
+|   |   |-- router/       # Routing and permalink logic
 |   |   |-- md-parser/    # Two-pass custom Markdown parser
 |   |   \-- md-render/    # Decoupled React AST renderer
 |   |
