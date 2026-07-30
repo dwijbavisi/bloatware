@@ -1,70 +1,98 @@
-# Markdown Parser Design and Specifications
+# bloatware Markdown Parser Module
 
-This document outlines the systematic design, grammar definitions, scanner state machine, and logging specifications for the `md-parser` module.
+Welcome to the heart of the bloatware rendering engine: the custom Markdown
+parser. This module is designed from scratch to be lightweight, strictly typed,
+and entirely dependency-free.
 
----
+Rather than relying on massive external libraries or complex regular expression
+engines that suffer from catastrophic backtracking, this parser uses a clean
+two-pass architecture to separate structural blocks from inline formatting.
 
-## 1. Subset Grammar Specification
 
-The parser compiles a strict, minimal subset of Markdown into a custom AST (Abstract Syntax Tree).
+## 1. Two-Pass Parsing Architecture
 
-### Block Grammar
-1. **Heading**: A line beginning with 1 to 6 `#` characters followed by a single space.
-   * `HeadingNode` = `level` (1..6) + `children` (`InlineNode[]`)
-2. **BlockCode**: Starts with a line containing exactly ```` ` (3 backticks) and an optional language string, and ends with a line containing exactly ```` `.
-   * `BlockCodeNode` = `lang` (optional string) + `content` (string)
-3. **BlockMath**: Starts with a line containing exactly `$$`, and ends with a line containing exactly `$$`.
-   * `BlockMathNode` = `content` (string)
-4. **Blockquote**: Consecutive lines starting with `> ` (or `>` followed by space). The prefix `> ` is stripped, and the content is recursively parsed as blocks.
-   * `BlockquoteNode` = `severity` (defaults to default) + `children` (`BlockNode[]`)
-5. **Horizontal Rule**: A line containing exactly `---` or `***`.
-   * `HrNode`
-6. **List**: A sequence of list items. Unordered items start with `- `, `+ `, or `* `. Ordered items start with one or more digits followed by a dot and a space (e.g. `1. `).
-   * `ListNode` = `ordering` + `children` (`ListItemNode[]`)
-7. **Paragraph**: A sequence of consecutive non-empty lines that do not trigger other block rules, grouped together.
-   * `ParagraphNode` = `children` (`InlineNode[]`)
+The entry point is `parseMarkdown()` in `parser/index.ts`. It delegates parsing
+into two distinct, decoupled phases.
 
-### Inline Grammar
-1. **Bold**: Encased in double asterisks (`**`). Supports nested inline nodes.
-2. **Italic**: Encased in single asterisks (`*`). Supports nested inline nodes.
-3. **InlineCode**: Encased in single backticks (`` ` ``). Raw text only.
-4. **InlineMath**: Encased in single dollar signs (`$`). Raw text only.
-5. **Link**: Formatted as `[text](url)`. Content inside brackets supports nested inline nodes. URL is literal.
-6. **SuperScript**: Encased in caret signs (`^`). Supports nested inline nodes.
-7. **SubScript**: Encased in tildes (`~`). Supports nested inline nodes.
-8. **LineBreak**: Denoted by a backslash followed by a newline (`\\\n`).
-9. **Text**: Fallback literal characters.
+### Pass 1: The Block Lexer (`pass-one.ts`)
+The Block Lexer is responsible for defining the document's structure. It splits
+the raw input string by newlines and scans it line-by-line.
 
----
+Key branches and conditionals include:
+- **Fenced Blocks**: If a line strictly starts with three backticks (code) or
+  a double-dollar sign (math), it enters a collection mode, gathering all
+  subsequent raw lines until the matching closing delimiter is found.
+- **Prefix Matching**: Using lightweight regex checks, it scans line prefixes
+  for structural elements:
+  - Hash signs create Headings (H1 through H4).
+  - A greater-than sign creates Blockquotes. It gathers consecutive quoted
+    lines, strips the prefix, and recursively feeds them back into the block
+    lexer to support nested elements.
+  - Hyphens, pluses, or asterisks create Unordered Lists. Numbers create
+    Ordered Lists.
+  - Three hyphens create a Horizontal Rule.
+- **Paragraph Fallback**: Any standard line of text begins a paragraph block.
+  The lexer continues to gather lines into the paragraph until it hits an empty
+  line or the start of a new structural block.
+- **Metadata Extraction**: As a final post-processing step, the lexer checks if
+  the last two AST nodes are a Horizontal Rule followed by an Unordered List.
+  If so, it extracts them as publication metadata (Author, Published, Conceived).
 
-## 2. Scanner-Based Parser Design
+For every text-containing block (like paragraphs, headings, and list items),
+Pass 1 seamlessly hands the raw text string to Pass 2.
 
-To ensure proper systematic processing, the parser implements a scanner architecture.
+### Pass 2: The Inline Lexer (`pass-two.ts`)
+The Inline Lexer takes a flat string and tokenizes it into a sequence of safe
+AST formatting nodes. It scans character-by-character left-to-right.
 
-### StringScanner API
-The `StringScanner` class wraps a source string and tracks progress:
-* `pos: number`: Current character position.
-* `src: string`: Input source string.
-* `peek(): string`: Returns character at `pos` or `""` if EOF.
-* `peekStr(length: number): string`: Returns substring of `length` starting at `pos`.
-* `next(): string`: Consumes and returns character at `pos`.
-* `match(str: string): boolean`: If next characters match `str`, consumes them and returns true; otherwise returns false.
-* `consumeWhile(predicate: (c: string) => boolean): string`: Consumes characters as long as the predicate matches.
-* `isEOF(): boolean`: Returns true if the scanner reached the end.
+Key branches and conditionals include:
+- **Raw Delimiters**: If it encounters a backtick (code) or a dollar sign
+  (math), it scans forward for the closing delimiter and captures the raw
+  content without parsing it further.
+- **Recursive Formatting**: When it encounters formatting delimiters like double
+  asterisks (bold) or single asterisks (italic), it finds the closing pair,
+  extracts the inner text, and recursively calls the Inline Lexer on that inner
+  text. This cleanly supports deeply nested constructs (e.g., italic text inside
+  bold text).
+- **Link Matching**: When it encounters an opening bracket, it scans for a
+  closing bracket and a subsequent parenthesis. The URL target is extracted
+  directly, while the link label is recursively tokenized.
+- **Escaping**: All accumulated plain text is sanitized through the
+  `escapeHtml()` utility to prevent cross-site scripting (XSS) vulnerabilities.
 
-### Inline Parse Flow
-The `InlineParser` uses the scanner to perform recursive descent parsing:
-1. Loops through string scanner elements.
-2. When encountering styling indicators (`**`, `*`, `[`, etc.), it attempts to look ahead and find the matching closing tag.
-3. **Graceful Recovery**: If no closing tag is found, the tag character is treated as a simple `TextNode` (e.g. literal `*` or `**`), and the parser resumes from the next character. This avoids hard errors and ensures the build never crashes due to editorial typos.
 
----
+## 2. Supported Markdown Constructs
 
-## 3. Logger Integration
+The parser explicitly supports only a defined subset of Markdown designed for
+clean, readable technical writing.
 
-The parser uses the application's unified `Logger` namespace `module:md-parser` to record parser transitions for auditing:
-* **Logger Instance**: `const log = new Logger('module:md-parser', { level: LogLevel.info });`
-* **Log Points**:
-  * **Block Scanning**: Logs the start of document processing, detection of block types, and block boundaries.
-  * **Inline Parser**: Logs entering inline mode, matched tokens (e.g., `"Found BoldNode starting at pos..."`), and parsing completions.
-  * **Syntax Failures/Warnings**: Logs at `LogLevel.warn` if an unclosed tag is detected and details the fallback recovery action.
+### Structural Blocks
+- **Headings**: H1 through H4.
+- **Paragraphs**: Standard text blocks broken by empty lines.
+- **Blockquotes**: Supports nested structural blocks.
+- **Lists**: Unordered and Ordered.
+- **Code Blocks**: Fenced blocks optionally specifying a language.
+- **Math Blocks**: Fenced display equations.
+- **Horizontal Rules**: A single line thematic break.
+
+### Inline Formatting (Supports Nesting)
+Because Pass 2 is recursive, inline formatting can be combined infinitely.
+- **Bold**: Double asterisks surrounding text.
+- **Italic**: Single asterisks surrounding text.
+- **Superscript**: Caret symbols surrounding text.
+- **Subscript**: Tilde symbols surrounding text.
+- **Inline Code**: Backticks surrounding text (Not recursive).
+- **Inline Math**: Dollar signs surrounding text (Not recursive).
+- **Links**: Standard label and URL target (Label supports nested formatting).
+- **Forced Line Break**: A backslash followed by a newline.
+
+
+## 3. Diagnostics & Profiling
+
+The parser is tightly integrated with the project's observability tools.
+- **Diagnostics**: Unclosed delimiters (like a missing closing asterisk pair)
+  are caught gracefully. The parser falls back to treating them as literal text
+  and logs a warning to the `diagnostics` array with the approximate line number.
+- **Profiling**: The `profiler.ts` module wraps the execution of
+  `parseMarkdown()`, logging the exact millisecond duration required to compile
+  the AST tree for performance monitoring.
