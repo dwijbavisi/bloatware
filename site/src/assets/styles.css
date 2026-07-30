@@ -299,21 +299,19 @@ h6,
 }
 
 h1 {
-    font-size: var(--text-3xl);
-    margin: var(--space-6) 0 var(--space-4);
-    letter-spacing: -0.02em;
+    font-size: var(--text-2xl);
+    margin: var(--space-4) 0 var(--space-2);
+    letter-spacing: -0.01em;
 }
 
 h2 {
-    font-size: var(--text-2xl);
-    margin: var(--space-8) 0 var(--space-3);
-    padding-bottom: var(--space-2);
-    border-bottom: 1px solid var(--c-surface-border);
+    font-size: var(--text-xl);
+    margin: var(--space-4) 0 var(--space-2);
 }
 
 h3 {
-    font-size: var(--text-xl);
-    margin: var(--space-6) 0 var(--space-3);
+    font-size: var(--text-lg);
+    margin: var(--space-3) 0 var(--space-1);
 }
 
 /* Links */
@@ -335,8 +333,6 @@ a:hover {
     font-style: normal;
     font-weight: normal;
     opacity: 0.7;
-    margin-right: 0.15em;
-    user-select: none;
 }
 
 /* Prose blocks */
@@ -374,23 +370,30 @@ ol.block-list,
 }
 
 /* Blockquote */
-.block-blockquote {
+.block-quote {
     border-left: 4px solid var(--c-blockquote-border);
-    margin: var(--space-4) 0;
-    padding: var(--space-3) var(--space-4);
-    background: var(--c-blockquote-bg);
+    margin: var(--space-2) 0;
+    padding: var(--space-2) var(--space-3) var(--space-2) 0;
+    background: color-mix(in srgb, var(--c-accent-primary) 10%, transparent);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
     color: var(--c-text-secondary);
     font-style: italic;
 }
 
-.md-blockquote-line {
-    display: block;
-    margin-bottom: var(--space-2);
+.block-quote p {
+    margin: var(--space-1) 0;
 }
 
-.md-blockquote-line:last-child {
+.block-quote p:first-child {
+    margin-top: 0;
+}
+
+.block-quote p:last-child {
     margin-bottom: 0;
+}
+
+.md-blockquote-line {
+    display: block;
 }
 
 /* Code Blocks */
@@ -441,11 +444,18 @@ ol.block-list,
 }
 
 /* Horizontal Rule */
+.block-hr {
+    display: flex;
+    align-items: center;
+    margin: var(--space-8) 0;
+}
+
 hr {
     all: unset;
     display: block;
+    flex: 1;
     border-top: 1px solid var(--c-surface-border);
-    margin: var(--space-8) 0;
+    margin: 0 0 0 var(--space-4);
 }
 
 /* Article List */
@@ -460,17 +470,10 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 1px solid transparent;
-    padding-bottom: var(--space-2);
-    transition: border-color var(--transition-fast);
-}
-
-.article-list li:hover {
-    border-bottom-color: var(--c-surface-border);
 }
 
 .article-list a {
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     font-weight: 500;
 }
 
@@ -490,8 +493,6 @@ hr {
     letter-spacing: 0.1em;
     color: var(--c-text-muted);
     margin-bottom: var(--space-4);
-    border-bottom: 1px solid var(--c-surface-border);
-    padding-bottom: var(--space-2);
 }
 
 .page-tree,

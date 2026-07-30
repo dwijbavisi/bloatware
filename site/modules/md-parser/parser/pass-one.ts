@@ -133,7 +133,7 @@ function parseBlocks(text: string, diagnostics: DiagnosticLog[]): BlockNode[] {
                 if (currentItemLines.length > 0) {
                     items.push({
                         kind: 'list-item',
-                        children: parseInline(currentItemLines.join(' '), diagnostics, i)
+                        children: parseInline(currentItemLines.join('\n'), diagnostics, i)
                     });
                     currentItemLines = [];
                 }
@@ -230,7 +230,7 @@ function parseBlocks(text: string, diagnostics: DiagnosticLog[]): BlockNode[] {
 
         ast.push({
             kind: 'block-paragraph',
-            children: parseInline(contentLines.join(' '), diagnostics, i - contentLines.length)
+            children: parseInline(contentLines.join('\n'), diagnostics, i - contentLines.length)
         });
     }
 

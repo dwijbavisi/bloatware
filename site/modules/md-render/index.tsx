@@ -90,7 +90,12 @@ export function renderInlineNode(node: InlineNode, key: number | string): React.
                 </a>
             );
         case 'inline-break':
-            return <br key={key} />;
+            return (
+                <React.Fragment key={key}>
+                    <MDMarker>{'\\'}</MDMarker>
+                    <br />
+                </React.Fragment>
+            );
         default:
             return null;
     }
@@ -127,6 +132,7 @@ function renderBlockquoteLines(nodes: InlineNode[]): React.ReactNode {
         <span key={index} className="md-blockquote-line">
             <MDMarker>{'> '}</MDMarker>
             {renderInlineNodes(segment)}
+            {index < segments.length - 1 && <MDMarker>{'\\'}</MDMarker>}
         </span>
     ));
 }
