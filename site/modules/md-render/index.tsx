@@ -200,9 +200,9 @@ export function renderBlockNode(node: BlockNode, key: number | string): React.Re
             });
 
             return isOrdered ? (
-                <ol key={key}>{items}</ol>
+                <ol key={key} className={node.kind}>{items}</ol>
             ) : (
-                <ul key={key}>{items}</ul>
+                <ul key={key} className={node.kind}>{items}</ul>
             );
         }
 

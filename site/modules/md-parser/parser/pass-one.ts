@@ -121,47 +121,86 @@ function parseBlocks(text: string, diagnostics: DiagnosticLog[]): BlockNode[] {
             continue;
         }
 
-        // 6. Unordered List
-        if (trimmed.match(/^[-+*]\s+(.*)$/)) {
+        // 6 & 7. Lists
+        const ulMatch = trimmed.match(/^[-+*]\s+(.*)$/);
+        const olMatch = trimmed.match(/^\d+\.\s+(.*)$/);
+        if (ulMatch || olMatch) {
+            const isOrdered = !!olMatch;
             const items: ListItemNode[] = [];
-            while (i < len) {
-                const listMatch = lines[i].match(/^[-+*]\s+(.*)$/);
-                if (listMatch) {
-                    items.push({
-                        kind: 'list-item',
-                        children: parseInline(listMatch[1], diagnostics, i)
-                    });
-                    i++;
-                } else {
-                    break;
-                }
-            }
-            ast.push({
-                kind: 'block-list',
-                ordered: false,
-                items
-            });
-            continue;
-        }
+            let currentItemLines: string[] = [];
 
-        // 7. Ordered List
-        if (trimmed.match(/^\d+\.\s+(.*)$/)) {
-            const items: ListItemNode[] = [];
-            while (i < len) {
-                const listMatch = lines[i].match(/^\d+\.\s+(.*)$/);
-                if (listMatch) {
+            const commitItem = () => {
+                if (currentItemLines.length > 0) {
                     items.push({
                         kind: 'list-item',
-                        children: parseInline(listMatch[1], diagnostics, i)
+                        children: parseInline(currentItemLines.join(' '), diagnostics, i)
                     });
+                    currentItemLines = [];
+                }
+            };
+
+            while (i < len) {
+                const lineStr = lines[i];
+                const t = lineStr.trim();
+
+                const curUlMatch = t.match(/^[-+*]\s+(.*)$/);
+                const curOlMatch = t.match(/^\d+\.\s+(.*)$/);
+                const isCurOrdered = !!curOlMatch;
+                const isCurListMatch = curUlMatch || curOlMatch;
+
+                if (isCurListMatch) {
+                    if (isCurOrdered !== isOrdered) {
+                        break; // list type changed
+                    }
+                    commitItem();
+                    currentItemLines.push(isCurListMatch[1]);
                     i++;
+                } else if (t === '') {
+                    // Check ahead for next non-empty line
+                    let nextNonEmpty = i + 1;
+                    while (nextNonEmpty < len && lines[nextNonEmpty].trim() === '') {
+                        nextNonEmpty++;
+                    }
+                    if (nextNonEmpty < len) {
+                        const nextT = lines[nextNonEmpty].trim();
+                        const nextUlMatch = nextT.match(/^[-+*]\s+(.*)$/);
+                        const nextOlMatch = nextT.match(/^\d+\.\s+(.*)$/);
+                        
+                        // If next non-empty line is a list item of the same type, we skip the empty lines
+                        if ((isOrdered && nextOlMatch) || (!isOrdered && nextUlMatch)) {
+                            i++;
+                            continue;
+                        } else if (lines[nextNonEmpty].startsWith('  ') || lines[nextNonEmpty].startsWith('\t')) {
+                            // If indented, treat as continuation of current item
+                            i++;
+                            continue;
+                        } else {
+                            // Otherwise, list ends
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
                 } else {
-                    break;
+                    // Continuation line
+                    if (
+                        t.startsWith('```') ||
+                        t === '$$' ||
+                        t.match(/^#{1,4}\s+/) ||
+                        t === '---' ||
+                        lineStr.startsWith('> ')
+                    ) {
+                        break;
+                    }
+                    currentItemLines.push(t);
+                    i++;
                 }
             }
+            commitItem();
+            
             ast.push({
                 kind: 'block-list',
-                ordered: true,
+                ordered: isOrdered,
                 items
             });
             continue;
