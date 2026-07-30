@@ -106,7 +106,7 @@ async function run(): Promise<void> {
     const routedStream = buildRouteHierarchy(combinedContentStream());
 
     for await (const record of routedStream) {
-        log.debug(`Rendering route: ${record.route}`);
+        log.info(`Rendering route: ${record.route}`);
 
         // Cache lightweight footprint for global index pages
         const footprint: ChildRecord = {

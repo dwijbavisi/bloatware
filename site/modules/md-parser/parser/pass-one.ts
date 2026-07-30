@@ -13,7 +13,7 @@ import type {
 /**
  * Parses a raw markdown string into an array of BlockNodes.
  * Handles the recursive parsing of nested blocks like blockquotes.
- * 
+ *
  * @param text - The raw markdown text to parse.
  * @param diagnostics - Mutable array to collect warnings and errors.
  * @returns Array of structured BlockNodes.
@@ -188,7 +188,7 @@ function parseBlocks(text: string, diagnostics: DiagnosticLog[]): BlockNode[] {
             contentLines.push(l.trim());
             i++;
         }
-        
+
         ast.push({
             kind: 'block-paragraph',
             children: parseInline(contentLines.join(' '), diagnostics, i - contentLines.length)
@@ -201,13 +201,13 @@ function parseBlocks(text: string, diagnostics: DiagnosticLog[]): BlockNode[] {
 /**
  * Extracts metadata from the trailing list of the AST if present.
  * Looks for a sequence of [HorizontalRule, UnorderedList] at the end.
- * 
+ *
  * @param ast - The mutable AST array to check and pop from.
  * @returns The extracted DocumentMetadata object.
  */
 function extractMetadata(ast: BlockNode[]): DocumentMetadata {
     const meta: DocumentMetadata = {};
-    
+
     if (ast.length >= 2) {
         const lastNode = ast[ast.length - 1];
         const secondLastNode = ast[ast.length - 2];
@@ -226,7 +226,7 @@ function extractMetadata(ast: BlockNode[]): DocumentMetadata {
                     }
                 }
             });
-            
+
             // Format sortDate for routing sorting logic
             if (meta.published) {
                 try {
@@ -235,36 +235,36 @@ function extractMetadata(ast: BlockNode[]): DocumentMetadata {
                     if (!isNaN(d.getTime())) {
                         meta.sortDate = d.toISOString().split('T')[0];
                     }
-                } catch(e) {
+                } catch (e) {
                     // Ignore date parsing failures
                 }
             }
 
             // Remove metadata footprint from rendered AST
-            ast.pop(); // Remove list
-            ast.pop(); // Remove HR
+            // ast.pop(); // Remove list
+            // ast.pop(); // Remove HR
         }
     }
-    
+
     return meta;
 }
 
 /**
  * Main entry point for the custom Two-Pass Markdown Parser.
  * Tokenizes raw text into a strict TypeScript AST.
- * 
+ *
  * @param text - Raw markdown string input.
  * @returns Object containing the AST, extracted metadata, and diagnostics.
  * @example
  * import { parseMarkdown } from 'modules/md-parser';
- * 
+ *
  * const result = parseMarkdown('# Hello World');
  * console.log(result.ast[0]); // HeadingBlockNode
  */
 export function parseMarkdown(text: string): ParseResult {
     profiler.time('md-parse');
     log.debug('Starting two-pass markdown parser execution...');
-    
+
     const diagnostics: DiagnosticLog[] = [];
     const ast = parseBlocks(text, diagnostics);
     const metadata = extractMetadata(ast);
