@@ -54,6 +54,8 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
     const routedStream = buildRouteHierarchy(combinedContentStream());
 
     for await (const record of routedStream) {
+        log.info(`Rendering route: ${record.route}`);
+
         const footprint: ChildRecord = {
             id: record.id,
             title: record.title,
