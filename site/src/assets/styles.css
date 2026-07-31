@@ -2,25 +2,16 @@
    Design System Variables
    ========================================================================== */
 :root {
+    /* Base Theme */
+    --c-primary: #511c75;
+    --c-accent: #e68d4e;
+    --c-highlight: #529e78;
+
     /* Color Palette - Light Theme */
-    --c-bg: #ffffff;
-    --c-surface: #f8fafc;
-    --c-surface-hover: #f1f5f9;
-    --c-surface-border: #e2e8f0;
-
-    --c-text-primary: #0f172a;
-    --c-text-secondary: #475569;
-    --c-text-muted: #94a3b8;
-
-    --c-accent-primary: #0284c7;
-    --c-accent-hover: #0369a1;
-    --c-accent-variant: #ea580c;
-    --c-accent-highlight: #7c3aed;
-
-    --c-code-bg: #f1f5f9;
-    --c-code-text: #0f172a;
-    --c-blockquote-bg: #f0f9ff;
-    --c-blockquote-border: #0ea5e9;
+    --c-bg: color-mix(in srgb, var(--c-primary) 24%, #f2f3f5);
+    --c-text: #472340;
+    --c-text-contrast: #130202;
+    --c-highlight-bg: color-mix(in srgb, var(--c-highlight) 20%, #487083);
 
     /* Typography */
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -65,24 +56,10 @@
 @media (prefers-color-scheme: dark) {
     :root {
         /* Color Palette - Dark Theme */
-        --c-bg: #0f172a;
-        --c-surface: #1e293b;
-        --c-surface-hover: #334155;
-        --c-surface-border: #334155;
-
-        --c-text-primary: #f8fafc;
-        --c-text-secondary: #94a3b8;
-        --c-text-muted: #64748b;
-
-        --c-accent-primary: #38bdf8;
-        --c-accent-hover: #7dd3fc;
-        --c-accent-variant: #fb923c;
-        --c-accent-highlight: #a78bfa;
-
-        --c-code-bg: #1e293b;
-        --c-code-text: #e2e8f0;
-        --c-blockquote-bg: #1e293b;
-        --c-blockquote-border: #38bdf8;
+        --c-bg: color-mix(in srgb, var(--c-primary) 12%, #221325);
+        --c-text: #94a3b8;
+        --c-text-contrast: #d0d6dd;
+        --c-highlight-bg: color-mix(in srgb, var(--c-highlight) 20%, #0f172a);
 
         color-scheme: dark;
     }
@@ -100,7 +77,7 @@
 body {
     font-family: var(--font-sans);
     line-height: var(--leading-normal);
-    color: var(--c-text-primary);
+    color: var(--c-text);
     background: var(--c-bg);
     transition: background-color var(--transition-fast), color var(--transition-fast);
 }
@@ -121,7 +98,7 @@ main {
    Header
    ========================================================================== */
 .site-header {
-    border-bottom: 1px solid var(--c-surface-border);
+    border-bottom: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
     background: var(--c-bg);
     position: sticky;
     top: 0;
@@ -138,7 +115,7 @@ main {
 }
 
 .brand {
-    color: var(--c-accent-primary);
+    color: var(--c-accent);
     text-decoration: none;
     font-weight: 700;
     font-family: var(--font-mono);
@@ -152,20 +129,20 @@ main {
 }
 
 .brand::first-letter {
-    color: var(--c-accent-variant);
+    color: var(--c-accent);
 }
 
 nav .nav-link {
     margin-left: var(--space-6);
-    color: var(--c-text-secondary);
-    font-size: var(--text-sm);
+    color: var(--c-text);
+    font-size: var(--text-base);
     font-weight: 500;
     letter-spacing: 0.05em;
     transition: color var(--transition-fast);
 }
 
 nav .nav-link:hover {
-    color: var(--c-accent-primary);
+    color: var(--c-accent);
 }
 
 /* ==========================================================================
@@ -178,8 +155,8 @@ nav .nav-link:hover {
 }
 
 .toc-dropdown summary {
-    color: var(--c-text-secondary);
-    font-size: var(--text-sm);
+    color: var(--c-text);
+    font-size: var(--text-base);
     font-weight: 500;
     letter-spacing: 0.05em;
     cursor: pointer;
@@ -206,15 +183,15 @@ nav .nav-link:hover {
 }
 
 .toc-dropdown summary:hover {
-    color: var(--c-accent-primary);
+    color: var(--c-accent);
 }
 
 .toc-menu {
     position: absolute;
     right: 0;
     top: calc(100% + var(--space-2));
-    background: var(--c-surface);
-    border: 1px solid var(--c-surface-border);
+    background: var(--c-bg);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
     border-radius: var(--radius-md);
     min-width: 260px;
     max-height: 70vh;
@@ -229,7 +206,7 @@ nav .nav-link:hover {
 .toc-item {
     display: block;
     padding: var(--space-2) var(--space-4);
-    color: var(--c-text-secondary);
+    color: var(--c-text);
     font-size: var(--text-sm);
     text-decoration: none;
     font-family: var(--font-sans);
@@ -237,14 +214,14 @@ nav .nav-link:hover {
 }
 
 .toc-item:hover {
-    color: var(--c-accent-primary);
-    background: var(--c-surface-hover);
+    color: var(--c-accent);
+    background: var(--c-highlight-bg);
 }
 
 .toc-h1 {
     padding-left: var(--space-4);
     font-weight: 600;
-    color: var(--c-text-primary);
+    color: var(--c-text-contrast);
 }
 
 .toc-h2 {
@@ -263,7 +240,7 @@ nav .nav-link:hover {
     opacity: 0;
     margin-left: var(--space-2);
     font-size: 0.75em;
-    color: var(--c-accent-primary);
+    color: var(--c-accent);
     text-decoration: none;
     font-family: var(--font-mono);
     font-weight: normal;
@@ -293,7 +270,7 @@ h6,
 .block-heading {
     font-family: var(--font-sans);
     font-weight: 700;
-    color: var(--c-text-primary);
+    color: var(--c-text-contrast);
     line-height: var(--leading-tight);
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
 }
@@ -314,32 +291,51 @@ h3 {
     margin: var(--space-3) 0 var(--space-1);
 }
 
+/* Make bold and italic bright */
+strong,
+b {
+    color: var(--c-text-contrast);
+    font-weight: 700;
+}
+
+em,
+i,
+.block-quote {
+    color: var(--c-text-contrast);
+    font-style: italic;
+}
+
 /* Links */
 a {
-    color: var(--c-accent-primary);
+    color: var(--c-highlight);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast), filter var(--transition-fast);
 }
 
 a:hover {
-    color: var(--c-accent-hover);
+    filter: brightness(0.8);
     text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+    a:hover {
+        filter: brightness(1.2);
+    }
 }
 
 /* Markdown Markers */
 .md-marker {
-    color: var(--c-accent-variant);
+    color: var(--c-accent);
     font-family: var(--font-mono);
     font-style: normal;
     font-weight: normal;
-    opacity: 0.7;
 }
 
 /* Prose blocks */
 .prose p,
 .block-paragraph {
     margin: var(--space-3) 0;
-    color: var(--c-text-secondary);
+    color: var(--c-text);
     text-align: justify;
 }
 
@@ -347,7 +343,7 @@ a:hover {
 .prose ol,
 .block-list {
     margin: var(--space-3) 0;
-    color: var(--c-text-secondary);
+    color: var(--c-text);
 }
 
 ul.block-list,
@@ -371,12 +367,12 @@ ol.block-list,
 
 /* Blockquote */
 .block-quote {
-    border-left: 4px solid var(--c-blockquote-border);
+    border-left: 4px solid var(--c-accent);
     margin: var(--space-2) 0;
     padding: var(--space-2) var(--space-3) var(--space-2) 0;
-    background: color-mix(in srgb, var(--c-accent-primary) 10%, transparent);
+    background: var(--c-highlight-bg);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    color: var(--c-text-secondary);
+    color: var(--c-text-contrast);
     font-style: italic;
 }
 
@@ -398,8 +394,8 @@ ol.block-list,
 
 /* Code Blocks */
 .block-code {
-    background: var(--c-code-bg);
-    border: 1px solid var(--c-surface-border);
+    background: var(--c-highlight-bg);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
     padding: var(--space-3);
     border-radius: var(--radius-md);
     margin: var(--space-4) 0;
@@ -409,16 +405,16 @@ ol.block-list,
 .inline-code {
     font-family: var(--font-mono);
     font-size: 0.9em;
-    background: var(--c-surface);
-    color: var(--c-accent-highlight);
+    background: var(--c-highlight-bg);
+    color: var(--c-accent);
     padding: 0.2em 0.4em;
     border-radius: var(--radius-sm);
-    border: 1px solid var(--c-surface-border);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
 }
 
 .block-code code {
     font-family: var(--font-mono);
-    color: var(--c-code-text);
+    color: var(--c-text);
     font-size: var(--text-sm);
     line-height: var(--leading-relaxed);
 }
@@ -427,34 +423,37 @@ ol.block-list,
 .inline-math {
     font-family: var(--font-mono);
     font-style: italic;
-    color: var(--c-accent-highlight);
+    color: var(--c-accent);
 }
 
 .block-math {
     font-family: var(--font-mono);
     font-style: italic;
-    color: var(--c-accent-highlight);
+    color: var(--c-accent);
     overflow-x: auto;
     padding: var(--space-3);
-    background: var(--c-surface);
+    background: var(--c-highlight-bg);
     border-radius: var(--radius-md);
     margin: var(--space-4) 0;
     white-space: pre;
-    border: 1px solid var(--c-surface-border);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
 }
 
 /* Horizontal Rule */
 .block-hr {
     display: flex;
     align-items: center;
-    margin: var(--space-8) 0;
 }
 
 hr {
     all: unset;
     display: block;
     flex: 1;
-    border-top: 1px solid var(--c-surface-border);
+    border-top: 1px solid var(--c-accent);
+    margin: 0;
+}
+
+.block-hr>hr {
     margin: 0 0 0 var(--space-4);
 }
 
@@ -478,7 +477,7 @@ hr {
 }
 
 .meta {
-    color: var(--c-text-muted);
+    color: var(--c-text);
     font-size: var(--text-sm);
     font-family: var(--font-mono);
 }
@@ -491,7 +490,7 @@ hr {
     font-size: var(--text-sm);
     font-weight: 600;
     letter-spacing: 0.1em;
-    color: var(--c-text-muted);
+    color: var(--c-text);
     margin-bottom: var(--space-4);
 }
 
@@ -505,7 +504,7 @@ hr {
 .page-tree-children {
     padding-left: var(--space-4);
     margin-top: var(--space-2);
-    border-left: 1px solid var(--c-surface-border);
+    border-left: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
     margin-left: var(--space-2);
 }
 
@@ -515,5 +514,5 @@ hr {
 
 .page-tree-group {
     font-weight: 600;
-    color: var(--c-text-primary);
+    color: var(--c-text-contrast);
 }

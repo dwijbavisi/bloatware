@@ -36,7 +36,7 @@ const _behaviors = new Map<string, BehaviorSetup>();
  * @example
  * register("fade-in", (el) => { el.classList.add("visible"); });
  */
-export function register(name: string, setup: BehaviorSetup): void {
+function register(name: string, setup: BehaviorSetup): void {
     _behaviors.set(name, setup);
 }
 
@@ -47,7 +47,7 @@ export function register(name: string, setup: BehaviorSetup): void {
  * @example
  * init(); // Manually triggers a scan of the DOM for data-interaction attributes.
  */
-export function init(): void {
+function init(): void {
     document.querySelectorAll<HTMLElement>("[data-interaction]").forEach((el) => {
         const names = (el.dataset.interaction ?? "").split(/\s+/).filter(Boolean);
         for (const name of names) {
