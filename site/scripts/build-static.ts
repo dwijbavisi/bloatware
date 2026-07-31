@@ -1,128 +1,65 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import esbuild from "esbuild";
-import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { loadSiteData } from "../src/contentLoader";
-import { parse } from "../modules/md/index";
-import { IndexTemplate } from "../src/templates/Index";
-import { ArticlesTemplate, ArticleDetailTemplate } from "../src/templates/Articles";
-import { PagesTemplate, PageDetailTemplate } from "../src/templates/Pages";
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import esbuild from 'esbuild';
+import { Logger } from '../modules/logger';
+import profiler from '../modules/profiler';
+import { generateAllRoutes } from './builder';
 
 const ROOT = process.cwd();
-const DIST = path.resolve(ROOT, "dist");
-const WWW_DIR = path.resolve(ROOT, "../www");
-
-function log(msg: string): void {
-    console.log(`[${new Date().toISOString()}] ${msg}`);
-}
-
-function documentFromElement(element: React.ReactElement): string {
-    return `<!doctype html>${renderToStaticMarkup(element)}`;
-}
+const DIST = path.resolve(ROOT, 'dist');
+const ASSETS_DIR = path.resolve(DIST, 'assets');
+const log = new Logger('build-static');
 
 async function writeRoute(route: string, html: string): Promise<void> {
-    const routePath = route === "/" ? "" : route.replace(/^\//, "");
+    const routePath = route === '/' ? '' : route.replace(/^\/|\/$/g, '');
     const outputDir = path.join(DIST, routePath);
     await fs.mkdir(outputDir, { recursive: true });
-    await fs.writeFile(path.join(outputDir, "index.html"), html, "utf8");
-}
-
-async function copyIfExists(source: string, target: string): Promise<void> {
-    try {
-        await fs.access(source);
-        await fs.cp(source, target, { recursive: true });
-    } catch {
-        // Optional directory does not exist.
-    }
+    await fs.writeFile(path.join(outputDir, 'index.html'), html, 'utf8');
 }
 
 async function run(): Promise<void> {
-    log("Loading site data...");
-    const siteData = await loadSiteData();
-    log(`Loaded ${siteData.articles.length} articles, ${siteData.pages.length} pages.`);
+    profiler.time('build');
+    log.info('Starting build orchestrator...');
 
-    log("Parsing readMe.md...");
-    const readMePath = path.resolve(ROOT, "../readMe.md");
-    const readMeText = await fs.readFile(readMePath, "utf8");
-    const { nodes: introNodes } = parse(readMeText);
-    log(`readMe.md parsed — ${introNodes.length} node(s).`);
-
-    log("Clearing dist...");
+    log.info('Clearing workspace...');
     await fs.rm(DIST, { recursive: true, force: true });
-    await fs.mkdir(DIST, { recursive: true });
+    await fs.mkdir(ASSETS_DIR, { recursive: true });
 
-    log("Copying static assets...");
-    await fs.copyFile(path.resolve(ROOT, "src/styles.css"), path.resolve(DIST, "styles.css"));
+    log.info('Bundling static assets...');
+    await fs.copyFile(path.resolve(ROOT, 'src/assets/styles.css'), path.resolve(ASSETS_DIR, 'styles.css'));
 
-    log("Building interaction.ts...");
     await esbuild.build({
-        entryPoints: [path.resolve(ROOT, "src/interaction.ts")],
-        outfile: path.resolve(DIST, "interaction.js"),
+        entryPoints: [path.resolve(ROOT, 'src/assets/interaction.ts')],
+        outfile: path.resolve(ASSETS_DIR, 'interaction.js'),
         bundle: true,
-        format: "iife",
-        platform: "browser",
+        format: 'iife',
+        platform: 'browser',
         minify: true,
     });
 
-    await copyIfExists(WWW_DIR, DIST);
+    const routeMap = await generateAllRoutes();
 
-    const latestArticles = siteData.articles.slice(0, 6);
-
-    log("Rendering index...");
-    await writeRoute(
-        "/",
-        documentFromElement(React.createElement(IndexTemplate, { latestArticles, introNodes }))
-    );
-
-    log("Rendering article list...");
-    await writeRoute(
-        "/articles/",
-        documentFromElement(React.createElement(ArticlesTemplate, { items: siteData.articles }))
-    );
-
-    log("Rendering pages list...");
-    await writeRoute(
-        "/pages/",
-        documentFromElement(React.createElement(PagesTemplate, { items: siteData.pages }))
-    );
-
-    log("Rendering article detail pages...");
-    for (const item of siteData.articles) {
-        log(`  article: ${item.route}`);
-        await writeRoute(
-            item.route,
-            documentFromElement(React.createElement(ArticleDetailTemplate, { item }))
-        );
+    log.info('Writing HTML files to disk...');
+    for (const [route, html] of routeMap.entries()) {
+        await writeRoute(route, html);
     }
 
-    log("Rendering page detail pages...");
-    for (const item of siteData.pages) {
-        log(`  page: ${item.route}`);
-        await writeRoute(
-            item.route,
-            documentFromElement(React.createElement(PageDetailTemplate, { item }))
-        );
-    }
+    log.info('Writing route-manifest.json...');
+    const durationMs = profiler.timeEnd('build', 'Total build execution time') ?? 0;
 
-    log("Writing route manifest...");
     const routeManifest = {
         generatedAt: new Date().toISOString(),
-        routes: [
-            "/",
-            "/articles/",
-            "/pages/",
-            ...siteData.articles.map((item) => item.route),
-            ...siteData.pages.map((item) => item.route)
-        ]
+        totalGenerated: routeMap.size,
+        durationMs,
+        routes: Array.from(routeMap.keys())
     };
 
-    await fs.writeFile(path.join(DIST, "route-manifest.json"), JSON.stringify(routeManifest, null, 2), "utf8");
+    await fs.writeFile(path.join(DIST, 'route-manifest.json'), JSON.stringify(routeManifest, null, 2), 'utf8');
 
-    log(`Done. Generated ${routeManifest.routes.length} routes into ${DIST}`);
+    log.info(`Build successful. Generated ${routeMap.size} routes in ${routeManifest.durationMs}ms.`);
 }
 
 run().catch((error: unknown) => {
-    log(`Build failed: ${error instanceof Error ? error.stack ?? error.message : String(error)}`);
+    log.error(`Build failed critically.`, error instanceof Error ? error : new Error(String(error)));
     process.exit(1);
 });

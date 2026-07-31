@@ -19,7 +19,7 @@ suggests that I only truly know the pen if I also know everything it is not.
 
 I must know that it is not a cup, not a tree, not hot and not a distant star.
 
-> To define a single object (X) completely, I must define its boundaries
+> To define a single object (X) completely, I must define its boundaries \
 > against everything else in existence (!X; read as NOT X).
 
 > If this is true, then to know a single pen is to know the entire universe.

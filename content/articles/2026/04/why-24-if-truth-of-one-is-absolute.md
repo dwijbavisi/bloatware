@@ -35,7 +35,7 @@ comfortable, copy-paste of traditions.
 My own foray into formal philosophy began last August. For a while, it was
 actually fun. I got introduced to a fancy new vocabulary and discovered that
 "Philosophy of Philosophy" is a real thing people spend time on. It is a great
-way to learn reasoning and logic, and it taught me how to question [outside] the box.
+way to learn reasoning and logic, and it taught me how to question \[outside\] the box.
 
 But while I have scratched the surface of handful of ideas, becoming a
 philosopher was never the objective. Philosophy is excellent at giving me options.
