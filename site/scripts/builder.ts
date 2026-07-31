@@ -58,6 +58,7 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
             id: record.id,
             title: record.title,
             route: record.route,
+            canonicalPath: record.canonicalPath,
             summary: record.summary,
             date: record.metadata.sortDate
         };

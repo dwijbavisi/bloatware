@@ -17,6 +17,7 @@ export interface ChildRecord {
     id: string;
     title: string;
     route: string;
+    canonicalPath?: string;
     summary?: string;
     date?: string;
 }

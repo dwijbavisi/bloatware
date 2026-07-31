@@ -52,7 +52,7 @@ function insertIntoTree(nodes: PageTreeNode[], parts: string[], item: ChildRecor
 function buildPageTree(items: ChildRecord[]): PageTreeNode[] {
     const roots: PageTreeNode[] = [];
     for (const item of items) {
-        const cleanPath = item.route.replace(/^\/pages\//, '').replace(/\/$/, '');
+        const cleanPath = item.canonicalPath || item.route.replace(/^\/pages\//, '').replace(/\/$/, '');
         if (cleanPath) {
             insertIntoTree(roots, cleanPath.split('/'), item);
         }

@@ -179,6 +179,7 @@ export async function* buildRouteHierarchy(
                 id: record.id,
                 title,
                 route,
+                canonicalPath,
                 summary,
                 date
             });

@@ -78,7 +78,7 @@ passive that you have forgotten you even have a destination.
 Option 2 (fighting for the seat): This is **Kasay**. Or passions like anger,
 ego, greed et cetera. You are so consumed by the need to win the pretty argument
 that you have chained yourself even tighter to the train's drama. First you
-fight to regain seat, then you fight to protect it.
+fight to regain seat, then you fight to retain it.
 
 Both options keep you blind. And neither solves the real problem.
 
