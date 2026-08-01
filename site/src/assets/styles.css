@@ -353,6 +353,7 @@ ol.block-list,
     margin: var(--space-2) 0;
     position: relative;
     padding-left: var(--space-6);
+    text-align: justify;
 }
 
 .block-list li>.md-marker {

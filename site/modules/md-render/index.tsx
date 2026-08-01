@@ -216,9 +216,11 @@ export function renderBlockNode(node: BlockNode, key: number | string): React.Re
             return (
                 <pre key={key} className={node.kind}>
                     <MDMarker>```{node.language || ''}</MDMarker>
+                    <br />
                     <code className={node.language ? `language-${node.language}` : 'language-pseudo'}>
                         {node.value}
                     </code>
+                    <br />
                     <MDMarker>```</MDMarker>
                 </pre>
             );
