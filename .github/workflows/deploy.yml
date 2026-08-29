@@ -43,8 +43,11 @@ jobs:
 
       - name: Get Hugging Face Dataset HEAD SHA
         id: hf-sha
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_DATASET_REPO: ${{ vars.HF_DATASET_REPO }}
         run: |
-          SHA=$(git ls-remote https://${{ secrets.HF_TOKEN }}@huggingface.co/datasets/${{ vars.HF_DATASET_REPO }} HEAD | cut -f1)
+          SHA=$(git -c http.extraHeader="Authorization: Bearer $HF_TOKEN" ls-remote "https://huggingface.co/datasets/$HF_DATASET_REPO" HEAD | cut -f1)
           if [ -z "$SHA" ]; then
             echo "Error: Could not retrieve HEAD SHA from Hugging Face repository."
             exit 1
@@ -63,17 +66,19 @@ jobs:
 
       - name: Sync Hugging Face Content on Cache Miss
         if: steps.cache-content.outputs.cache-hit != 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_DATASET_REPO: ${{ vars.HF_DATASET_REPO }}
         run: |
           if [ -d "content/.git" ]; then
             echo "Cache restored older version. Fast-forwarding latest changes..."
             cd content
-            git remote set-url origin https://${{ secrets.HF_TOKEN }}@huggingface.co/datasets/${{ vars.HF_DATASET_REPO }}
-            git fetch --depth 1 origin main
+            git -c http.extraHeader="Authorization: Bearer $HF_TOKEN" fetch --depth 1 origin main
             git reset --hard origin/main
           else
             echo "No cache found. Performing fresh shallow clone..."
             rm -rf content
-            git clone --depth 1 https://${{ secrets.HF_TOKEN }}@huggingface.co/datasets/${{ vars.HF_DATASET_REPO }} content
+            git -c http.extraHeader="Authorization: Bearer $HF_TOKEN" clone --depth 1 "https://huggingface.co/datasets/$HF_DATASET_REPO" content
           fi
 
       - name: Build static site
