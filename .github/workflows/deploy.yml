@@ -5,6 +5,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+  repository_dispatch:
+    types: [content-updated]
 
 permissions:
   contents: read
@@ -37,6 +39,41 @@ jobs:
             npm ci
           else
             npm install
+          fi
+
+      - name: Get Hugging Face Dataset HEAD SHA
+        id: hf-sha
+        run: |
+          SHA=$(git ls-remote https://${{ secrets.HF_TOKEN }}@huggingface.co/datasets/${{ vars.HF_DATASET_REPO }} HEAD | cut -f1)
+          if [ -z "$SHA" ]; then
+            echo "Error: Could not retrieve HEAD SHA from Hugging Face repository."
+            exit 1
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Hugging Face Dataset HEAD SHA: $SHA"
+
+      - name: Cache Hugging Face Content
+        id: cache-content
+        uses: actions/cache@v4
+        with:
+          path: content
+          key: hf-content-${{ steps.hf-sha.outputs.sha }}
+          restore-keys: |
+            hf-content-
+
+      - name: Sync Hugging Face Content on Cache Miss
+        if: steps.cache-content.outputs.cache-hit != 'true'
+        run: |
+          if [ -d "content/.git" ]; then
+            echo "Cache restored older version. Fast-forwarding latest changes..."
+            cd content
+            git remote set-url origin https://${{ secrets.HF_TOKEN }}@huggingface.co/datasets/${{ vars.HF_DATASET_REPO }}
+            git fetch --depth 1 origin main
+            git reset --hard origin/main
+          else
+            echo "No cache found. Performing fresh shallow clone..."
+            rm -rf content
+            git clone --depth 1 https://${{ secrets.HF_TOKEN }}@huggingface.co/datasets/${{ vars.HF_DATASET_REPO }} content
           fi
 
       - name: Build static site
