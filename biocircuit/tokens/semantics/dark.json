@@ -1,0 +1,100 @@
+{
+  "substrate": {
+    "cavity": {
+      "$value": "{color.silicon-black.800}",
+      "$type": "color",
+      "$description": "Sunken or recessed wells, inset code blocks, and cavity enclosures"
+    },
+    "canvas": {
+      "$value": "{color.silicon-black.900}",
+      "$type": "color",
+      "$description": "Default base wafer and main document body canvas"
+    },
+    "die": {
+      "$value": "{color.silicon-black.900}",
+      "$type": "color",
+      "$description": "Mounted semiconductor die surface for cards and reading content blocks"
+    },
+    "panel": {
+      "$value": "{color.silicon-black.800}",
+      "$type": "color",
+      "$description": "Floating operational modules, popovers, and table of contents menus"
+    },
+    "package": {
+      "$value": "{color.silicon-black.700}",
+      "$type": "color",
+      "$description": "Top-level enclosure packaging for modals, overlays, and dialogs"
+    }
+  },
+  "text": {
+    "contrast": {
+      "$value": "{color.titanium-white.100}",
+      "$type": "color",
+      "$description": "Primary silkscreen typography, headings, and bold structural markings"
+    },
+    "base": {
+      "$value": "{color.titanium-white.300}",
+      "$type": "color",
+      "$description": "Standard reading text and body prose"
+    },
+    "muted": {
+      "$value": "{color.titanium-white.600}",
+      "$type": "color",
+      "$description": "Secondary telemetry, publication metadata, and auxiliary notes"
+    }
+  },
+  "border": {
+    "subtle": {
+      "$value": "{color.silicon-black.800}",
+      "$type": "color",
+      "$description": "Subtle hairline dividers and structural boundaries"
+    },
+    "default": {
+      "$value": "{color.silicon-black.700}",
+      "$type": "color",
+      "$description": "Standard component boundaries and interactive outlines"
+    }
+  },
+  "channel": {
+    "passive": {
+      "lead": { "$value": "{color.titanium-white.100}", "$type": "color" },
+      "trace": { "$value": "{color.silicon-black.700}", "$type": "color" },
+      "tint": { "$value": "{color.silicon-black.800}", "$type": "color" },
+      "fill": { "$value": "{color.titanium-white.200}", "$type": "color" },
+      "contrast": { "$value": "{color.silicon-black.900}", "$type": "color" },
+      "glow": { "$value": "{color.silicon-black.700}", "$type": "color" }
+    },
+    "alarm": {
+      "lead": { "$value": "{color.blaze-vermilion.300}", "$type": "color" },
+      "trace": { "$value": "{color.blaze-vermilion.500}", "$type": "color" },
+      "tint": { "$value": "{color.blaze-vermilion.900}", "$type": "color" },
+      "fill": { "$value": "{color.blaze-vermilion.500}", "$type": "color" },
+      "contrast": { "$value": "{color.titanium-white.100}", "$type": "color" },
+      "glow": { "$value": "{color.blaze-vermilion.800}", "$type": "color" }
+    },
+    "power": {
+      "lead": { "$value": "{color.solar-amber.300}", "$type": "color" },
+      "trace": { "$value": "{color.solar-amber.500}", "$type": "color" },
+      "tint": { "$value": "{color.solar-amber.900}", "$type": "color" },
+      "fill": { "$value": "{color.solar-amber.500}", "$type": "color" },
+      "contrast": { "$value": "{color.silicon-black.900}", "$type": "color" },
+      "glow": { "$value": "{color.solar-amber.800}", "$type": "color" }
+    },
+    "clock": {
+      "lead": { "$value": "{color.laser-emerald.300}", "$type": "color" },
+      "trace": { "$value": "{color.laser-emerald.500}", "$type": "color" },
+      "tint": { "$value": "{color.laser-emerald.900}", "$type": "color" },
+      "fill": { "$value": "{color.laser-emerald.500}", "$type": "color" },
+      "contrast": { "$value": "{color.silicon-black.900}", "$type": "color" },
+      "glow": { "$value": "{color.laser-emerald.800}", "$type": "color" }
+    },
+    "signal": {
+      "lead": { "$value": "{color.electric-cyan.300}", "$type": "color" },
+      "trace": { "$value": "{color.electric-cyan.500}", "$type": "color" },
+      "tint": { "$value": "{color.electric-cyan.900}", "$type": "color" },
+      "fill": { "$value": "{color.electric-cyan.500}", "$type": "color" },
+      "contrast": { "$value": "{color.silicon-black.900}", "$type": "color" },
+      "glow": { "$value": "{color.electric-cyan.800}", "$type": "color" }
+    }
+  }
+}

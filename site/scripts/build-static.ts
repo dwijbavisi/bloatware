@@ -26,7 +26,12 @@ async function run(): Promise<void> {
     await fs.mkdir(ASSETS_DIR, { recursive: true });
 
     log.info('Bundling static assets...');
-    await fs.copyFile(path.resolve(ROOT, 'src/assets/styles.css'), path.resolve(ASSETS_DIR, 'styles.css'));
+    await esbuild.build({
+        entryPoints: [path.resolve(ROOT, 'src/assets/styles.css')],
+        outfile: path.resolve(ASSETS_DIR, 'styles.css'),
+        bundle: true,
+        minify: true,
+    });
 
     await esbuild.build({
         entryPoints: [path.resolve(ROOT, 'src/assets/interaction.ts')],

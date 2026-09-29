@@ -1,0 +1,238 @@
+{
+  "color": {
+    "silicon-black": {
+      "100": {
+        "$value": "#384355",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#323b4b",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#2b3341",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#242b37",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#1e232d",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#181c24",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#12151b",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#0c0e12",
+        "$type": "color"
+      },
+      "900": {
+        "$value": "#07080a",
+        "$type": "color"
+      },
+      "$description": "Deep semiconductor substrate and die package tones for dark-mode surfaces, background canvas, and recessed component cavities"
+    },
+    "titanium-white": {
+      "100": {
+        "$value": "#f8fafc",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#d6dade",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#b5bbc0",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#959ca3",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#767f88",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#59636d",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#3d4853",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#232f3a",
+        "$type": "color"
+      },
+      "900": {
+        "$value": "#0a1723",
+        "$type": "color"
+      },
+      "$description": "Structural monoline frame and high-contrast silkscreen scale for borders, technical typography, and optical alignment markers"
+    },
+    "blaze-vermilion": {
+      "100": {
+        "$value": "#ffe4de",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#ffbfb7",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#ff9a91",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#fc726b",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#ef4444",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#b92a2d",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#861017",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#560003",
+        "$type": "color"
+      },
+      "900": {
+        "$value": "#2a0000",
+        "$type": "color"
+      },
+      "$description": "High-frequency signal, clock rail, and critical interrupt channel for high-priority alerts, active buses, and critical states"
+    },
+    "solar-amber": {
+      "100": {
+        "$value": "#ffedd1",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#ffdaab",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#ffc684",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#fab358",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#f59e0b",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#ba7300",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#824a00",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#4e2500",
+        "$type": "color"
+      },
+      "900": {
+        "$value": "#200400",
+        "$type": "color"
+      },
+      "$description": "Primary power rail, voltage delivery, and caution channel for power bus routing, energy telemetry, and warning indicators"
+    },
+    "laser-emerald": {
+      "100": {
+        "$value": "#dafddf",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#b5efbf",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#8fe29f",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#64d47f",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#22c55e",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#00943f",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#006622",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#003c06",
+        "$type": "color"
+      },
+      "900": {
+        "$value": "#001600",
+        "$type": "color"
+      },
+      "$description": "Sensory telemetry, peripheral I/O, and nominal status channel for sensor bus routing, active telemetry, and operational states"
+    },
+    "electric-cyan": {
+      "100": {
+        "$value": "#d5f9ff",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#afe9f7",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#88d8ec",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#5bc7e0",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#06b6d4",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#0088a1",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#005e71",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#003644",
+        "$type": "color"
+      },
+      "900": {
+        "$value": "#00121c",
+        "$type": "color"
+      },
+      "$description": "Cold ground reference plane, persistent data memory, and digital bus channel for state indicators, routing, and grounding"
+    }
+  }
+}

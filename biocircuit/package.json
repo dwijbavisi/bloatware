@@ -1,0 +1,17 @@
+{
+  "name": "@crabwire/bloatware-biocircuit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "tokens:primitives": "tsx scripts/generate-primitives.ts",
+    "tokens:build": "tsx scripts/build-tokens.ts",
+    "build": "npm run tokens:primitives && npm run tokens:build"
+  },
+  "devDependencies": {
+    "culori": "^4.0.1",
+    "style-dictionary": "^4.3.4",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}

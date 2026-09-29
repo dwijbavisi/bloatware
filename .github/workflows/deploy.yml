@@ -30,9 +30,24 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: site/package-lock.json
+          cache-dependency-path: |
+            biocircuit/package-lock.json
+            site/package-lock.json
 
-      - name: Install dependencies
+      - name: Install biocircuit dependencies
+        working-directory: biocircuit
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build biocircuit tokens
+        working-directory: biocircuit
+        run: npm run build
+
+      - name: Install site dependencies
         working-directory: site
         run: |
           if [ -f package-lock.json ]; then
