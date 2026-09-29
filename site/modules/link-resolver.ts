@@ -57,14 +57,14 @@ export function relativeRouteHref(fromRoute: string, toRoute: string): string {
 
 /**
  * Rewrites a relative .md file href to a static-site HTML path.
- * Ignores absolute URLs and anchor hashes.
+ * Ignores absolute URLs and anchor hashes. Preserves target heading fragments.
  *
  * @param href - The raw href found in the markdown link.
  * @param fromRoute - The canonical route of the document containing the link.
  * @returns The rewritten href string.
  * @example
- * resolveMdLinkHref('./another.md', '/articles/my-post/')
- * // Returns: "../another/index.html"
+ * resolveMdLinkHref('./another.md#heading', '/articles/my-post/')
+ * // Returns: "../another/index.html#heading"
  */
 function resolveMdLinkHref(href: string, fromRoute: string): string {
     // Ignore external URLs, mailto links, anchor hashes, and root absolute paths
@@ -72,8 +72,12 @@ function resolveMdLinkHref(href: string, fromRoute: string): string {
         return href;
     }
 
+    const hashIndex = href.indexOf('#');
+    const pathPart = hashIndex !== -1 ? href.slice(0, hashIndex) : href;
+    const fragment = hashIndex !== -1 ? href.slice(hashIndex) : '';
+
     // Ignore links that do not point to markdown files (e.g. static assets)
-    if (!href.toLowerCase().endsWith('.md')) {
+    if (!pathPart.toLowerCase().endsWith('.md')) {
         return href;
     }
 
@@ -81,10 +85,10 @@ function resolveMdLinkHref(href: string, fromRoute: string): string {
     const fromDir = fromRoute.replace(/\/$/, '').split('/').slice(0, -1).join('/') + '/';
 
     // Resolve the raw href relative to that directory, strip .md, and append slash
-    const resolved = path.posix.resolve(fromDir, href.replace(/\.md$/i, ''));
+    const resolved = path.posix.resolve(fromDir, pathPart.replace(/\.md$/i, ''));
     const targetRoute = resolved + '/';
 
-    return relativeRouteHref(fromRoute, targetRoute);
+    return `${relativeRouteHref(fromRoute, targetRoute)}${fragment}`;
 }
 
 /**
