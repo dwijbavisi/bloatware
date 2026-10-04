@@ -16,6 +16,7 @@ import { ArticleIndexTemplate } from '../src/templates/ArticleIndexTemplate';
 import { ArticleDetailTemplate } from '../src/templates/ArticleDetailTemplate';
 import { PageIndexTemplate } from '../src/templates/PageIndexTemplate';
 import { PageDetailTemplate } from '../src/templates/PageDetailTemplate';
+import { NotFoundTemplate } from '../src/templates/NotFoundTemplate';
 
 import { enrichSeries } from '../src/lib/series';
 
@@ -122,7 +123,12 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
     );
     routeMap.set('/pages/', pagesHtml);
 
-    pageCount += 3;
+    const notFoundHtml = documentFromElement(
+        React.createElement(NotFoundTemplate)
+    );
+    routeMap.set('/404.html', notFoundHtml);
+
+    pageCount += 4;
 
     const durationMs = profiler.timeEnd('generate-routes', 'Memory generation time') ?? 0;
     log.info(`Generated ${pageCount} routes in memory in ${durationMs}ms.`);

@@ -767,3 +767,53 @@ hr {
     color: var(--c-accent);
 }
 
+/* ==========================================================================
+   Error Page (404)
+   ========================================================================== */
+.error-page {
+    margin-top: var(--space-8);
+}
+
+.error-lead {
+    font-size: var(--text-lg);
+    color: var(--c-text-contrast);
+    margin-bottom: var(--space-4);
+}
+
+.error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+}
+
+.error-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 40%, transparent);
+    border-radius: var(--radius-sm);
+    color: var(--c-text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: var(--text-sm);
+    font-family: var(--font-mono);
+    transition: all var(--transition-fast);
+}
+
+.error-btn:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+    background: color-mix(in srgb, var(--c-accent) 10%, transparent);
+}
+
+.error-btn-primary {
+    border-color: var(--c-accent);
+    background: color-mix(in srgb, var(--c-accent) 15%, transparent);
+    color: var(--c-accent);
+}
+
+.error-btn-primary:hover {
+    background: color-mix(in srgb, var(--c-accent) 25%, transparent);
+}
+

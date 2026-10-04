@@ -11,6 +11,7 @@ import type { TocItem } from '../lib/toc';
  * @property pageTitle - The `<h1>` title string rendered on the page.
  * @property currentRoute - The current absolute route for link resolution.
  * @property showPageTitle - Optional flag to hide the `<h1>` (defaults to true).
+ * @property isNotFound - Optional flag indicating this is a 404 page requiring dynamic base resolution.
  * @property toc - Optional Table of Contents array.
  * @property children - React nodes to render inside the main body.
  */
@@ -19,6 +20,7 @@ export interface CoreLayoutProps {
     pageTitle: string;
     currentRoute: string;
     showPageTitle?: boolean;
+    isNotFound?: boolean;
     toc?: TocItem[];
     children: React.ReactNode;
 }
@@ -34,13 +36,20 @@ export interface CoreLayoutProps {
  *     <p>Content</p>
  * </CoreLayout>
  */
-export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = true, toc, children }: CoreLayoutProps): React.JSX.Element {
+export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = true, isNotFound = false, toc, children }: CoreLayoutProps): React.JSX.Element {
     return (
         <html lang="en">
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>{title}</title>
+                {isNotFound && (
+                    <script
+                        dangerouslySetInnerHTML={{
+                            __html: `(function(){if(window.location.protocol!=='file:'){var p=window.location.pathname.indexOf('/bloatware')===0?'/bloatware/':'/';document.write('<base href="'+window.location.origin+p+'">');}})();`
+                        }}
+                    />
+                )}
                 <link rel="stylesheet" href={relativeAssetHref(currentRoute, "assets/styles.css")} />
                 <script defer src={relativeAssetHref(currentRoute, "assets/interaction.js")}></script>
             </head>

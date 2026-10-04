@@ -11,6 +11,10 @@ const ASSETS_DIR = path.resolve(DIST, 'assets');
 const log = new Logger('build-static');
 
 async function writeRoute(route: string, html: string): Promise<void> {
+    if (route === '/404.html') {
+        await fs.writeFile(path.join(DIST, '404.html'), html, 'utf8');
+        return;
+    }
     const routePath = route === '/' ? '' : route.replace(/^\/|\/$/g, '');
     const outputDir = path.join(DIST, routePath);
     await fs.mkdir(outputDir, { recursive: true });
