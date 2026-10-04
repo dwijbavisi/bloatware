@@ -164,6 +164,7 @@ export async function* buildRouteHierarchy(
             outputPath,
             title,
             summary,
+            date,
             metadata: raw.metadata,
             ast: raw.ast,
             children

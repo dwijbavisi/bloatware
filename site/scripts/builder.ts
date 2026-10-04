@@ -17,6 +17,8 @@ import { ArticleDetailTemplate } from '../src/templates/ArticleDetailTemplate';
 import { PageIndexTemplate } from '../src/templates/PageIndexTemplate';
 import { PageDetailTemplate } from '../src/templates/PageDetailTemplate';
 
+import { enrichSeries } from '../src/lib/series';
+
 const ROOT = process.cwd();
 const log = new Logger('builder');
 
@@ -52,8 +54,16 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
     let pageCount = 0;
 
     const routedStream = buildRouteHierarchy(combinedContentStream());
-
+    const allRecords: ContentRecord[] = [];
     for await (const record of routedStream) {
+        allRecords.push(record);
+    }
+
+    // Detect and enrich articles with series info
+    const articleRecords = allRecords.filter(r => r.kind === 'article');
+    enrichSeries(articleRecords);
+
+    for (const record of allRecords) {
         log.info(`Rendering route: ${record.route}`);
 
         const footprint: ChildRecord = {
@@ -62,7 +72,7 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
             route: record.route,
             canonicalPath: record.canonicalPath,
             summary: record.summary,
-            date: record.metadata.sortDate
+            date: record.metadata.sortDate ?? record.date
         };
 
         if (record.kind === 'article') {

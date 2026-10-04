@@ -2,6 +2,7 @@ import React from 'react';
 import { relativeRouteHref } from '../../modules/link-resolver';
 import { formatDate } from '../lib/formatDate';
 import type { ChildRecord } from '../../modules/router/types';
+import { ArticleTitle } from '../components/ArticleTitle';
 import { CoreLayout } from './CoreLayout';
 
 /**
@@ -39,7 +40,9 @@ export function ArticleIndexTemplate({ items }: ArticleIndexTemplateProps): Reac
                     <ul className="article-list">
                         {byYear.get(year)!.map((item) => (
                             <li key={item.route}>
-                                <a href={relativeRouteHref("/articles/", item.route)}>{item.title}</a>
+                                <a href={relativeRouteHref("/articles/", item.route)}>
+                                    <ArticleTitle title={item.title} />
+                                </a>
                                 {item.date && (
                                     <span className="meta"> {formatDate(item.date)}</span>
                                 )}

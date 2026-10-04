@@ -4,6 +4,7 @@ import { formatDate } from '../lib/formatDate';
 import type { ChildRecord } from '../../modules/router/types';
 import type { BlockNode } from '../../modules/md-parser';
 import { MarkdownRenderer } from '../../modules/md-render';
+import { ArticleTitle } from '../components/ArticleTitle';
 import { CoreLayout } from './CoreLayout';
 
 /**
@@ -39,7 +40,9 @@ export function IndexTemplate({ recentArticles, introNodes }: IndexTemplateProps
                 <ul className="article-list">
                     {recentArticles.map((item) => (
                         <li key={item.route}>
-                            <a href={relativeRouteHref("/", item.route)}>{item.title}</a>
+                            <a href={relativeRouteHref("/", item.route)}>
+                                <ArticleTitle title={item.title} />
+                            </a>
                             {item.date && (
                                 <span className="meta"> {formatDate(item.date)}</span>
                             )}

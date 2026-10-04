@@ -23,6 +23,30 @@ export interface ChildRecord {
 }
 
 /**
+ * A part of an article series.
+ */
+export interface SeriesPart {
+    title: string;
+    partTitle: string;
+    route: string;
+    part: number;
+    date?: string;
+}
+
+/**
+ * Metadata and navigation links for articles that belong to a series.
+ */
+export interface SeriesInfo {
+    name: string;
+    part: number;
+    total: number;
+    partTitle: string;
+    prev?: SeriesPart;
+    next?: SeriesPart;
+    allParts: SeriesPart[];
+}
+
+/**
  * A fully routed and compiled content record. This is yielded by the router
  * directly to the rendering engine.
  *
@@ -52,6 +76,8 @@ export interface ContentRecord {
     outputPath: string;
     title: string;
     summary?: string;
+    date?: string;
+    series?: SeriesInfo;
     metadata: DocumentMetadata;
     ast: BlockNode[];
     children: ChildRecord[];

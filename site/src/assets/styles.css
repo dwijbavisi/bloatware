@@ -505,3 +505,189 @@ hr {
     font-weight: 600;
     color: var(--c-text-contrast);
 }
+
+/* ==========================================================================
+   Series Banner & Navigation
+   ========================================================================== */
+.series-title-prefix {
+    color: var(--c-accent);
+}
+
+.series-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--c-highlight-bg);
+    border: 1px solid var(--cwbwbc-border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    margin: var(--space-3) 0 var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--c-text);
+}
+
+.series-badge {
+    background: var(--cwbwbc-channel-power-tint);
+    color: var(--cwbwbc-channel-power-lead);
+    border: 1px solid var(--cwbwbc-channel-power-trace);
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.series-banner-text strong {
+    color: var(--c-text-contrast);
+}
+
+.series-nav {
+    margin: var(--space-8) 0 var(--space-4);
+    padding: var(--space-4);
+    background: var(--c-highlight-bg);
+    border: 1px solid var(--cwbwbc-border-subtle);
+    border-radius: var(--radius-md);
+}
+
+.series-nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--cwbwbc-border-subtle);
+    font-size: var(--text-sm);
+}
+
+.series-nav-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.series-nav-name {
+    font-weight: 700;
+    color: var(--c-text-contrast);
+}
+
+.series-nav-progress {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--c-text-muted);
+}
+
+.series-nav-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+@media (max-width: 600px) {
+    .series-nav-links {
+        grid-template-columns: 1fr;
+    }
+}
+
+.series-nav-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-3);
+    background: var(--c-bg);
+    border: 1px solid var(--cwbwbc-border-subtle);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.series-nav-next {
+    text-align: right;
+}
+
+.series-nav-card:hover {
+    border-color: var(--cwbwbc-channel-signal-trace);
+    text-decoration: none;
+    filter: none;
+    background: var(--c-surface);
+}
+
+.series-nav-direction {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--c-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-1);
+}
+
+.series-nav-card-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--c-text-contrast);
+    line-height: var(--leading-snug);
+}
+
+.series-nav-card:hover .series-nav-card-title {
+    color: var(--c-highlight);
+}
+
+.series-nav-card-empty {
+    display: block;
+}
+
+.series-nav-all {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--cwbwbc-border-subtle);
+}
+
+.series-nav-all-summary {
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--c-text-muted);
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color var(--transition-fast);
+}
+
+.series-nav-all-summary::-webkit-details-marker {
+    display: none;
+}
+
+.series-nav-all-summary:hover {
+    color: var(--c-text-contrast);
+}
+
+.series-nav-all[open] .series-chevron {
+    transform: rotate(180deg);
+}
+
+.series-chevron {
+    transition: transform var(--transition-fast);
+    display: inline-block;
+}
+
+.series-parts-list {
+    margin-top: var(--space-3);
+    padding-left: var(--space-4);
+    font-size: var(--text-sm);
+}
+
+.series-parts-list li {
+    margin: var(--space-2) 0;
+}
+
+.series-parts-list li.current-part {
+    font-weight: 600;
+    color: var(--c-text-contrast);
+}
+
+.series-part-current {
+    color: var(--c-accent);
+}
+
