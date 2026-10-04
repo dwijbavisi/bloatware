@@ -1,6 +1,7 @@
 import React from 'react';
 import { relativeAssetHref } from '../../modules/link-resolver';
 import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 import type { TocItem } from '../lib/toc';
 
 /**
@@ -49,6 +50,7 @@ export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = tru
                     {showPageTitle && <h1>{pageTitle}</h1>}
                     {children}
                 </main>
+                <Footer currentRoute={currentRoute} />
             </body>
         </html>
     );

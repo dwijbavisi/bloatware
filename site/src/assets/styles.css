@@ -72,6 +72,9 @@ body {
     color: var(--c-text);
     background: var(--c-bg);
     transition: background-color var(--transition-fast), color var(--transition-fast);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==========================================================================
@@ -80,6 +83,10 @@ body {
 .inner {
     width: min(var(--layout-max-width), calc(100% - var(--space-8)));
     margin: 0 auto;
+}
+
+main.inner {
+    flex: 1;
 }
 
 /* ==========================================================================
@@ -688,6 +695,75 @@ hr {
 }
 
 .series-part-current {
+    color: var(--c-accent);
+}
+
+/* ==========================================================================
+   Section Headers & More Links
+   ========================================================================== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-2);
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.section-more {
+    font-size: var(--text-sm);
+    color: var(--c-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.section-more:hover {
+    color: var(--c-highlight);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.site-footer {
+    border-top: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    background: var(--c-bg);
+    margin-top: var(--space-16);
+    padding: var(--space-6) 0;
+}
+
+.site-footer .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--text-sm);
+}
+
+.site-footer .footer-brand {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--c-accent);
+    letter-spacing: 0.03em;
+}
+
+.site-footer .footer-links {
+    display: flex;
+    gap: var(--space-6);
+    align-items: center;
+}
+
+.site-footer .footer-link {
+    color: var(--c-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    transition: color var(--transition-fast);
+}
+
+.site-footer .footer-link:hover {
     color: var(--c-accent);
 }
 

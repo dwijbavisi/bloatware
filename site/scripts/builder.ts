@@ -98,9 +98,15 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
         return a.title.localeCompare(b.title);
     });
 
+    allPages.sort((a, b) => {
+        if (a.date && b.date) return a.date < b.date ? 1 : -1;
+        return a.title.localeCompare(b.title);
+    });
+
     const homeHtml = documentFromElement(
         React.createElement(IndexTemplate, {
             recentArticles: allArticles.slice(0, 6),
+            pages: allPages.slice(0, 6),
             introNodes
         })
     );
