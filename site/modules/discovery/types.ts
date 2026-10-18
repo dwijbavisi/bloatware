@@ -6,7 +6,7 @@ import type { BlockNode, DocumentMetadata } from '../md-parser';
  * @example
  * const type: ContentKind = 'article';
  */
-export type ContentKind = 'article' | 'page';
+export type ContentKind = 'article' | 'page' | 'zettel';
 
 /**
  * Represents a purely discovered markdown file, before any routing, 

@@ -27,6 +27,7 @@ export function Footer({ currentRoute }: FooterProps): React.JSX.Element {
                     <div className="footer-links">
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/articles/")}>Articles</a>
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/pages/")}>Pages</a>
+                        <a className="footer-link" href={relativeRouteHref(currentRoute, "/zettelkasten/")}>Zettelkasten</a>
                         <a
                             className="footer-link"
                             href="https://github.com/dwijbavisi/bloatware"

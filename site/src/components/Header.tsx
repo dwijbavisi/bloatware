@@ -33,6 +33,7 @@ export function Header({ currentRoute, toc }: HeaderProps): React.JSX.Element {
                     <TableOfContents toc={toc} />
                     <a className="nav-link" href={relativeRouteHref(currentRoute, "/articles/")}>Articles</a>
                     <a className="nav-link" href={relativeRouteHref(currentRoute, "/pages/")}>Pages</a>
+                    <a className="nav-link" href={relativeRouteHref(currentRoute, "/zettelkasten/")}>Zettelkasten</a>
                 </nav>
             </div>
         </header>

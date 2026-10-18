@@ -135,7 +135,11 @@ export async function* buildRouteHierarchy(
         const canonicalPath = toCanonicalPath(slug);
 
         // Define route strings
-        const kindSegment = raw.kind === 'article' ? 'articles' : 'pages';
+        const kindSegment = raw.kind === 'article'
+            ? 'articles'
+            : raw.kind === 'zettel'
+            ? 'zettelkasten'
+            : 'pages';
         const route = `/${kindSegment}/${slug}/`;
         const outputPath = `${kindSegment}/${slug}/index.html`;
 

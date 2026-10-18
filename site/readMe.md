@@ -12,6 +12,7 @@ A robust, minimal, static-first React/TSX build system and decoupled markdown re
 
 - `../content/articles` - Chronological posts and essays.
 - `../content/pages` - Hierarchical pages and documentation.
+- `../content/zettelkasten` - Unorganized slip-box cards and reading notes.
 - `../readMe.md` - Used to populate the intro section of the global home page.
 
 ## Commands
@@ -36,8 +37,10 @@ All layouts are strictly typed and located in `site/src/templates/`:
 - `IndexTemplate.tsx` - Route: `/`
 - `ArticleIndexTemplate.tsx` - Route: `/articles/`
 - `PageIndexTemplate.tsx` - Route: `/pages/`
+- `ZettelkastenIndexTemplate.tsx` - Route: `/zettelkasten/`
 - `ArticleDetailTemplate.tsx` - Route: `/articles/:year/:month/:slug/`
 - `PageDetailTemplate.tsx` - Route: `/pages/:topic/:subtopic/:slug/`
+- `ZettelDetailTemplate.tsx` - Route: `/zettelkasten/:slug/`
 
 ## Deployment
 
