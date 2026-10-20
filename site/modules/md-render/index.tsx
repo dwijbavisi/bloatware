@@ -89,6 +89,14 @@ export function renderInlineNode(node: InlineNode, key: number | string): React.
                     <MDMarker>]({node.target})</MDMarker>
                 </a>
             );
+        case 'inline-email':
+            return (
+                <a key={key} href={`mailto:${node.email}`}>
+                    <MDMarker>&lt;&lt;</MDMarker>
+                    {node.email}
+                    <MDMarker>&gt;&gt;</MDMarker>
+                </a>
+            );
         case 'inline-break':
             return (
                 <React.Fragment key={key}>

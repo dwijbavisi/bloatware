@@ -16,7 +16,12 @@ const log = new Logger('module:discovery');
  */
 async function gatherMarkdownFiles(dir: string): Promise<string[]> {
     const results: string[] = [];
-    const entries = await fs.readdir(dir, { withFileTypes: true });
+    let entries;
+    try {
+        entries = await fs.readdir(dir, { withFileTypes: true });
+    } catch {
+        return results;
+    }
 
     for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);

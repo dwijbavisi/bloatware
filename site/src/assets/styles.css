@@ -817,3 +817,91 @@ hr {
     background: color-mix(in srgb, var(--c-accent) 25%, transparent);
 }
 
+/* ==========================================================================
+   Zettelkasten & Slip-box
+   ========================================================================== */
+.zettelkasten-header {
+    margin-bottom: var(--space-6);
+}
+
+.zettelkasten-desc {
+    color: var(--c-text-muted);
+    font-size: var(--text-base);
+    margin-bottom: var(--space-2);
+}
+
+.zettelkasten-count {
+    font-size: var(--text-sm);
+    font-family: var(--font-mono);
+    color: var(--c-accent);
+}
+
+.zettel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+}
+
+.zettel-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4);
+    background: var(--c-surface);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.zettel-card:hover {
+    border-color: var(--c-accent);
+    background: var(--c-highlight-bg);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.zettel-card-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--c-text-contrast);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-2);
+}
+
+.zettel-card:hover .zettel-card-title {
+    color: var(--c-accent);
+}
+
+.zettel-card-summary {
+    font-size: var(--text-sm);
+    color: var(--c-text-muted);
+    line-height: var(--leading-normal);
+    flex: 1;
+}
+
+.zettel-card-meta {
+    margin-top: var(--space-3);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--c-accent);
+}
+
+.zettel-detail-nav {
+    margin-bottom: var(--space-4);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--text-sm);
+    font-family: var(--font-mono);
+    color: var(--c-text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+    color: var(--c-accent);
+}
+

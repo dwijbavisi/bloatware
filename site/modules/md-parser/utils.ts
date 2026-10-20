@@ -38,6 +38,9 @@ export function inlineToText(nodes: InlineNode[]): string {
             if ('value' in n) {
                 return n.value;
             }
+            if ('email' in n) {
+                return n.email;
+            }
             if ('children' in n && Array.isArray(n.children)) {
                 return inlineToText(n.children);
             }
@@ -57,10 +60,5 @@ export function inlineToText(nodes: InlineNode[]): string {
  * // Returns: "&lt;script&gt;alert(&quot;hi&quot;)&lt;/script&gt;"
  */
 export function escapeHtml(text: string): string {
-    return text
-    // .replace(/&/g, '&amp;')
-    // .replace(/</g, '&lt;')
-    // .replace(/>/g, '&gt;')
-    // .replace(/"/g, '&quot;')
-    // .replace(/'/g, '&#39;');
+    return text;
 }

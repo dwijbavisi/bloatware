@@ -16,6 +16,8 @@ import { ArticleIndexTemplate } from '../src/templates/ArticleIndexTemplate';
 import { ArticleDetailTemplate } from '../src/templates/ArticleDetailTemplate';
 import { PageIndexTemplate } from '../src/templates/PageIndexTemplate';
 import { PageDetailTemplate } from '../src/templates/PageDetailTemplate';
+import { ZettelkastenIndexTemplate } from '../src/templates/ZettelkastenIndexTemplate';
+import { ZettelDetailTemplate } from '../src/templates/ZettelDetailTemplate';
 import { NotFoundTemplate } from '../src/templates/NotFoundTemplate';
 
 import { enrichSeries } from '../src/lib/series';
@@ -30,8 +32,10 @@ function documentFromElement(element: React.ReactElement): string {
 async function* combinedContentStream() {
     const articlesDir = path.resolve(ROOT, '../content/articles');
     const pagesDir = path.resolve(ROOT, '../content/pages');
+    const zettelDir = path.resolve(ROOT, '../content/zettelkasten');
     yield* loadContentGenerator('article', articlesDir);
     yield* loadContentGenerator('page', pagesDir);
+    yield* loadContentGenerator('zettel', zettelDir);
 }
 
 export async function generateAllRoutes(): Promise<Map<string, string>> {
@@ -52,6 +56,7 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
 
     const allArticles: ChildRecord[] = [];
     const allPages: ChildRecord[] = [];
+    const allZettels: ChildRecord[] = [];
     let pageCount = 0;
 
     const routedStream = buildRouteHierarchy(combinedContentStream());
@@ -78,6 +83,8 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
 
         if (record.kind === 'article') {
             allArticles.push(footprint);
+        } else if (record.kind === 'zettel') {
+            allZettels.push(footprint);
         } else {
             allPages.push(footprint);
         }
@@ -87,6 +94,8 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
 
         const template = record.kind === 'article'
             ? React.createElement(ArticleDetailTemplate, { item: resolvedRecord })
+            : record.kind === 'zettel'
+            ? React.createElement(ZettelDetailTemplate, { item: resolvedRecord })
             : React.createElement(PageDetailTemplate, { item: resolvedRecord });
 
         const html = documentFromElement(template);
@@ -100,6 +109,11 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
     });
 
     allPages.sort((a, b) => {
+        if (a.date && b.date) return a.date < b.date ? 1 : -1;
+        return a.title.localeCompare(b.title);
+    });
+
+    allZettels.sort((a, b) => {
         if (a.date && b.date) return a.date < b.date ? 1 : -1;
         return a.title.localeCompare(b.title);
     });
@@ -123,12 +137,17 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
     );
     routeMap.set('/pages/', pagesHtml);
 
+    const zettelkastenHtml = documentFromElement(
+        React.createElement(ZettelkastenIndexTemplate, { items: allZettels })
+    );
+    routeMap.set('/zettelkasten/', zettelkastenHtml);
+
     const notFoundHtml = documentFromElement(
         React.createElement(NotFoundTemplate)
     );
     routeMap.set('/404.html', notFoundHtml);
 
-    pageCount += 4;
+    pageCount += 5;
 
     const durationMs = profiler.timeEnd('generate-routes', 'Memory generation time') ?? 0;
     log.info(`Generated ${pageCount} routes in memory in ${durationMs}ms.`);
