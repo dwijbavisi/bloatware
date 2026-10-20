@@ -17,6 +17,7 @@ export type InlineNode =
     | InlineCodeNode
     | InlineMathNode
     | LinkInlineNode
+    | EmailInlineNode
     | SuperScriptInlineNode
     | SubScriptInlineNode
     | ForcedBreakInlineNode;
@@ -105,6 +106,20 @@ export interface LinkInlineNode {
     kind: 'inline-link';
     target: string;
     children: InlineNode[];
+}
+
+/**
+ * Represents an inline clickable email autolink delimited by << ... >>.
+ *
+ * @example
+ * const node: EmailInlineNode = {
+ *     kind: 'inline-email',
+ *     email: 'dwij.bavisi@crabwire.net'
+ * };
+ */
+export interface EmailInlineNode {
+    kind: 'inline-email';
+    email: string;
 }
 
 /**

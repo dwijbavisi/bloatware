@@ -75,7 +75,6 @@ function hasUnclosedBold(text: string): boolean {
                     i += 3;
                 } else {
                     inBold = !inBold;
-                    i += 2;
                 }
                 continue;
             }
@@ -351,6 +350,23 @@ export function parseInline(text: string, diagnostics: DiagnosticLog[], lineOffs
                         children: parseInline(label, diagnostics, lineOffset)
                     });
                     i = urlEnd + 1;
+                    continue;
+                }
+            }
+        }
+
+        // 9. Clickable Email Autolink <<email@domain>>
+        if (char === '<' && text.startsWith('<<', i)) {
+            const end = text.indexOf('>>', i + 2);
+            if (end !== -1) {
+                const emailContent = text.substring(i + 2, end).trim();
+                if (emailContent.includes('@')) {
+                    flushText();
+                    nodes.push({
+                        kind: 'inline-email',
+                        email: emailContent
+                    });
+                    i = end + 2;
                     continue;
                 }
             }

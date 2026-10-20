@@ -7,6 +7,7 @@ export type {
     InlineCodeNode,
     InlineMathNode,
     LinkInlineNode,
+    EmailInlineNode,
     SuperScriptInlineNode,
     SubScriptInlineNode,
     ForcedBreakInlineNode,
