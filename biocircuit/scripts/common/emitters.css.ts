@@ -406,42 +406,6 @@ export class CssDocumentBuilder {
     }
 
     /**
-     * Serializes and writes the generated CSS stylesheet directly to disk.
-     *
-     * Notes
-     * -----
-     * Ensures parent directories exist recursively before writing the file
-     * and logs the formatted output path to stdout.
-     *
-     * Parameters
-     * ----------
-     * @param {string} outputPath
-     *   Target file path for the emitted CSS file.
-     * @param {string} [rootDir]
-     *   Optional workspace or project root directory for clean relative path logging.
-     *
-     * Returns
-     * -------
-     * @returns {void}
-     *
-     * Examples
-     * --------
-     * ```ts
-     * builder.writeBuildOutput('build/styles/layout.css', ROOT_DIR);
-     * ```
-     */
-    writeBuildOutput(outputPath: string, rootDir?: string): void {
-        const css = this.serialize();
-        const dir = path.dirname(outputPath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        fs.writeFileSync(outputPath, css, 'utf-8');
-        const displayPath = rootDir ? path.relative(rootDir, outputPath) : outputPath;
-        console.log(`[emit] Generated: ${displayPath} via common CssDocumentBuilder`);
-    }
-
-    /**
      * Recursively formats a CSS node with indentation according to hierarchy level.
      *
      * Parameters
@@ -478,5 +442,41 @@ export class CssDocumentBuilder {
         const bodyLines = node.body.map(child => this.formatNode(child, level + 1, indent)).join('\n\n');
 
         return `${commentStr}${pad}@${node.name}${paramStr} {\n${bodyLines}\n${pad}}`;
+    }
+
+    /**
+     * Serializes and writes the generated CSS stylesheet directly to disk.
+     *
+     * Notes
+     * -----
+     * Ensures parent directories exist recursively before writing the file
+     * and logs the formatted output path to stdout.
+     *
+     * Parameters
+     * ----------
+     * @param {string} outputPath
+     *   Target file path for the emitted CSS file.
+     * @param {string} [rootDir]
+     *   Optional workspace or project root directory for clean relative path logging.
+     *
+     * Returns
+     * -------
+     * @returns {void}
+     *
+     * Examples
+     * --------
+     * ```ts
+     * builder.writeBuildOutput('build/styles/layout.css', ROOT_DIR);
+     * ```
+     */
+    writeBuildOutput(outputPath: string, rootDir?: string): void {
+        const css = this.serialize();
+        const dir = path.dirname(outputPath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(outputPath, css, 'utf-8');
+        const displayPath = rootDir ? path.relative(rootDir, outputPath) : outputPath;
+        console.log(`[emit] Generated: ${displayPath} via common CssDocumentBuilder`);
     }
 }

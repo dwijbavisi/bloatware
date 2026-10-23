@@ -7,8 +7,9 @@
         "outDir": "build",
         "declaration": true,
         "declarationMap": true,
-        "sourceMap": true,
+        "inlineSourceMap": true,
         "strict": true,
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "resolveJsonModule": true
