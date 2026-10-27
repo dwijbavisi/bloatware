@@ -1,0 +1,28 @@
+{
+    "biocircuit": {
+        "layout": {
+            "bounds": {
+                "minWidth": {
+                    "$value": "40ch",
+                    "$type": "dimension",
+                    "$description": "Minimum operational board width in character units"
+                },
+                "maxWidth": {
+                    "$value": "240ch",
+                    "$type": "dimension",
+                    "$description": "Maximum operational board width in character units"
+                },
+                "minLanes": {
+                    "$value": 6,
+                    "$type": "number",
+                    "$description": "Baseline channel count"
+                },
+                "maxLanes": {
+                    "$value": 30,
+                    "$type": "number",
+                    "$description": "Maximum channel count"
+                }
+            }
+        }
+    }
+}

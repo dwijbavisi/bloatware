@@ -27,7 +27,8 @@ export interface CoreLayoutProps {
 
 /**
  * Renders the top-level HTML document shell, including the `<head>`,
- * global Header component, and `<main>` content wrapper.
+ * global Header component, and `<main>` content wrapper configured
+ * with Biocircuit layout and theme systems.
  *
  * @param props - Component props.
  * @returns The `<html>` document.
@@ -43,6 +44,11 @@ export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = tru
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>{title}</title>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `(function(){try{var t=localStorage.getItem('biocircuit-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`
+                    }}
+                />
                 {isNotFound && (
                     <script
                         dangerouslySetInnerHTML={{
@@ -55,7 +61,7 @@ export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = tru
             </head>
             <body>
                 <Header currentRoute={currentRoute} toc={toc} />
-                <main className="inner">
+                <main className="inner cwbwbc-board">
                     {showPageTitle && <h1>{pageTitle}</h1>}
                     {children}
                 </main>

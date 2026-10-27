@@ -1,0 +1,36 @@
+{
+    "biocircuit": {
+        "color": {
+            "silicon-black": {
+                "$value": "#07080a",
+                "$type": "color",
+                "$description": "Deep semiconductor substrate and die package anchor (Anchor Step 900)"
+            },
+            "titanium-white": {
+                "$value": "#f8fafc",
+                "$type": "color",
+                "$description": "Structural monoline frame and high-contrast silkscreen anchor (Anchor Step 100)"
+            },
+            "blaze-vermilion": {
+                "$value": "#ef4444",
+                "$type": "color",
+                "$description": "High-frequency signal, clock rail, and critical interrupt channel anchor (Anchor Step 500)"
+            },
+            "solar-amber": {
+                "$value": "#f59e0b",
+                "$type": "color",
+                "$description": "Primary power rail, voltage delivery, and caution channel anchor (Anchor Step 500)"
+            },
+            "laser-emerald": {
+                "$value": "#22c55e",
+                "$type": "color",
+                "$description": "Sensory telemetry, peripheral I/O, and nominal status channel anchor (Anchor Step 500)"
+            },
+            "electric-cyan": {
+                "$value": "#06b6d4",
+                "$type": "color",
+                "$description": "Cold ground reference plane, persistent data memory, and digital bus anchor (Anchor Step 500)"
+            }
+        }
+    }
+}

@@ -1,28 +1,39 @@
-@import '../../../biocircuit/dist/css/index.css';
+@import '../../../biocircuit/dist/index.css';
 
 /* ==========================================================================
-   Design System Variables & Cybernetic Semantic Mapping
+   Design System Variables & Cybernetic Biocircuit Semantic Mapping
    ========================================================================== */
 :root {
-    /* Color Palette - Mapped to @crabwire/bloatware-biocircuit tokens */
-    --c-bg: var(--cwbwbc-substrate-canvas);
-    --c-highlight-bg: var(--cwbwbc-substrate-cavity);
-    --c-surface: var(--cwbwbc-substrate-die);
-    --c-panel: var(--cwbwbc-substrate-panel);
-    --c-package: var(--cwbwbc-substrate-package);
+    /* Color Palette - Wired directly to @crabwire/bloatware-biocircuit tokens */
+    --c-bg: var(--cwbwbc-biocircuit-channel-passive-substrate-canvas);
+    --c-highlight-bg: var(--cwbwbc-biocircuit-channel-passive-substrate-cavity);
+    --c-surface: var(--cwbwbc-biocircuit-channel-passive-substrate-die);
+    --c-panel: var(--cwbwbc-biocircuit-channel-passive-substrate-panel);
+    --c-package: var(--cwbwbc-biocircuit-channel-passive-substrate-package);
 
-    --c-text: var(--cwbwbc-text-base);
-    --c-text-contrast: var(--cwbwbc-text-contrast);
-    --c-text-muted: var(--cwbwbc-text-muted);
+    --c-text: var(--cwbwbc-biocircuit-channel-passive-text-on-canvas);
+    --c-text-contrast: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+    --c-text-muted: var(--cwbwbc-biocircuit-color-titanium-white-400);
+    --c-text-subtle: var(--cwbwbc-biocircuit-color-titanium-white-500);
 
-    /* Cybernetic Accents */
-    --c-accent: var(--cwbwbc-channel-power-lead);        /* solar-amber for markers and brand */
-    --c-highlight: var(--cwbwbc-channel-signal-lead);    /* electric-cyan for links & telemetry */
+    /* Outlines & Boundaries */
+    --c-border: var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    --c-border-subtle: var(--cwbwbc-biocircuit-channel-passive-glow-canvas);
+    --c-border-prominent: var(--cwbwbc-biocircuit-channel-passive-glow-die);
+
+    /* Channel Accents - Dark Mode Defaults */
+    --c-accent: var(--cwbwbc-biocircuit-color-solar-amber-400);        /* Solar Amber: power, brand, markers */
+    --c-accent-glow: var(--cwbwbc-biocircuit-channel-power-glow-package);
+    --c-highlight: var(--cwbwbc-biocircuit-color-electric-cyan-400);    /* Electric Cyan: hyperlinks & telemetry */
+    --c-highlight-glow: var(--cwbwbc-biocircuit-channel-signal-glow-package);
+    --c-clock: var(--cwbwbc-biocircuit-color-laser-emerald-400);       /* Laser Emerald: timestamps & meta */
+    --c-alarm: var(--cwbwbc-biocircuit-color-blaze-vermilion-400);     /* Blaze Vermilion: warnings & 404 */
 
     /* Typography */
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'Cascadia Code', Consolas, 'Courier New', monospace;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
 
+    --text-xs: 0.75rem;
     --text-sm: 0.875rem;
     --text-base: 1rem;
     --text-lg: 1.125rem;
@@ -32,10 +43,10 @@
 
     --leading-tight: 1.25;
     --leading-snug: 1.375;
-    --leading-normal: 1.6;
-    --leading-relaxed: 1.75;
+    --leading-normal: 1.65;
+    --leading-relaxed: 1.8;
 
-    /* Spacing */
+    /* Spacing aligned with Biocircuit keepout and scale */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -45,68 +56,129 @@
     --space-12: 3rem;
     --space-16: 4rem;
 
-    /* Layout */
-    --layout-max-width: 800px;
-    --header-height: 4.5rem;
+    /* Layout Geometry */
+    --layout-max-width: 860px;
+    --header-height: 4rem;
 
-    /* Misc */
+    /* Topology Radii */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
 
-    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Light Theme High-Contrast Overrides */
+[data-theme="light"] {
+    --c-text-muted: var(--cwbwbc-biocircuit-color-silicon-black-300);
+    --c-text-subtle: var(--cwbwbc-biocircuit-color-silicon-black-400);
+    --c-accent: var(--cwbwbc-biocircuit-color-solar-amber-700);
+    --c-highlight: var(--cwbwbc-biocircuit-color-electric-cyan-700);
+    --c-clock: var(--cwbwbc-biocircuit-color-laser-emerald-700);
+    --c-alarm: var(--cwbwbc-biocircuit-color-blaze-vermilion-700);
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        --c-text-muted: var(--cwbwbc-biocircuit-color-silicon-black-300);
+        --c-text-subtle: var(--cwbwbc-biocircuit-color-silicon-black-400);
+        --c-accent: var(--cwbwbc-biocircuit-color-solar-amber-700);
+        --c-highlight: var(--cwbwbc-biocircuit-color-electric-cyan-700);
+        --c-clock: var(--cwbwbc-biocircuit-color-laser-emerald-700);
+        --c-alarm: var(--cwbwbc-biocircuit-color-blaze-vermilion-700);
+    }
 }
 
 /* ==========================================================================
-   Reset
+   Reset & Cybernetic Canvas Substrate
    ========================================================================== */
-* {
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+html {
+    overflow-x: clip;
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
     font-family: var(--font-sans);
     line-height: var(--leading-normal);
     color: var(--c-text);
-    background: var(--c-bg);
+    background-color: var(--c-bg);
+    background-image:
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-attachment: fixed;
     transition: background-color var(--transition-fast), color var(--transition-fast);
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="light"] body {
+    background-image:
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) body {
+        background-image:
+            radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+            linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    }
 }
 
 /* ==========================================================================
-   Layout
+   Layout Architecture: Biocircuit Board & Clearance Setback
    ========================================================================== */
 .inner {
-    width: min(var(--layout-max-width), calc(100% - var(--space-8)));
+    width: 100%;
+    max-width: var(--layout-max-width);
     margin: 0 auto;
+    padding-inline: max(1rem, var(--cwbwbc-layout-clearance, 1rem));
 }
 
 main.inner {
     flex: 1;
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-12);
+    min-width: 0;
 }
 
 /* ==========================================================================
-   Header
+   Header Subsystem: Adaptive Mobile & Desktop Navigation
    ========================================================================== */
 .site-header {
-    border-bottom: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
-    background: var(--c-bg);
+    border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-canvas);
+    background: color-mix(in srgb, var(--c-bg) 88%, transparent);
     position: sticky;
     top: 0;
-    z-index: 10;
-    backdrop-filter: blur(8px);
-    background: color-mix(in srgb, var(--c-bg) 85%, transparent);
+    z-index: 100;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.site-header .inner {
+.header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: var(--header-height);
+    min-height: var(--header-height);
+    position: relative;
+    gap: var(--space-3);
 }
 
 .brand {
@@ -114,58 +186,175 @@ main.inner {
     text-decoration: none;
     font-weight: 700;
     font-family: var(--font-mono);
-    font-size: var(--text-lg);
-    letter-spacing: 0.03em;
-    transition: opacity var(--transition-fast);
+    font-size: clamp(1rem, 4vw, 1.15rem);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) 0;
+    transition: opacity var(--transition-fast), text-shadow var(--transition-fast);
+    flex-shrink: 0;
 }
 
 .brand:hover {
-    opacity: 0.8;
+    opacity: 0.9;
+    text-shadow: 0 0 10px var(--c-accent-glow);
 }
 
-.brand::first-letter {
-    color: var(--c-accent);
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+}
+
+/* Action Buttons & Minimum Touch Targets (44px) */
+.theme-toggle,
+.mobile-nav-toggle,
+.toc-dropdown summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 40px;
+    padding: var(--space-1) var(--space-2);
+    background: var(--c-highlight-bg);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    color: var(--c-text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1;
+    touch-action: manipulation;
+    user-select: none;
+    transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover,
+.mobile-nav-toggle:hover {
+    border-color: var(--c-highlight);
+    color: var(--c-highlight);
+    box-shadow: 0 0 10px -2px var(--c-highlight);
+}
+
+.mobile-nav-toggle {
+    display: none;
+}
+
+.hamburger-icon {
+    display: block;
+    transition: transform var(--transition-fast);
+}
+
+.site-header.mobile-nav-active .hamburger-icon .line-top {
+    transform: rotate(45deg) translate(5px, -5px);
+    transform-origin: 3px 6px;
+}
+
+.site-header.mobile-nav-active .hamburger-icon .line-mid {
+    opacity: 0;
+}
+
+.site-header.mobile-nav-active .hamburger-icon .line-bot {
+    transform: rotate(-45deg) translate(5px, 5px);
+    transform-origin: 3px 18px;
+}
+
+/* Navigation Links */
+nav.header-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
 }
 
 nav .nav-link {
-    margin-left: var(--space-6);
     color: var(--c-text);
-    font-size: var(--text-base);
+    text-decoration: none;
+    font-size: var(--text-sm);
     font-weight: 500;
-    letter-spacing: 0.05em;
-    transition: color var(--transition-fast);
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
 nav .nav-link:hover {
-    color: var(--c-accent);
+    color: var(--c-highlight);
+    background: var(--c-highlight-bg);
+}
+
+/* Mobile Header Breakdown (<= 680px) */
+@media (max-width: 680px) {
+    .mobile-nav-toggle {
+        display: inline-flex;
+    }
+
+    nav.header-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--c-panel);
+        border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-panel);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+        padding: var(--space-3) max(1rem, var(--cwbwbc-layout-clearance, 1rem));
+        flex-direction: column;
+        gap: var(--space-2);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        z-index: 101;
+    }
+
+    .site-header.mobile-nav-active nav.header-nav {
+        display: flex;
+        animation: biocircuitNavOpen 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    nav.header-nav .nav-link {
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--text-base);
+        min-height: 48px;
+        border: 1px solid transparent;
+    }
+
+    nav.header-nav .nav-link:hover,
+    nav.header-nav .nav-link:active {
+        background: var(--c-highlight-bg);
+        border-color: var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+        color: var(--c-highlight);
+    }
+}
+
+@keyframes biocircuitNavOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ==========================================================================
-   ToC Dropdown
+   Table of Contents Dropdown (Responsive Panel Surface)
    ========================================================================== */
 .toc-dropdown {
     position: relative;
-    margin-left: var(--space-4);
     display: inline-block;
-}
-
-.toc-dropdown summary {
-    color: var(--c-text);
-    font-size: var(--text-base);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    list-style: none;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    transition: color var(--transition-fast);
 }
 
 .toc-chevron {
     display: inline-block;
-    font-size: 0.9em;
+    font-size: 0.8em;
+    margin-left: var(--space-1);
     transition: transform var(--transition-fast);
 }
 
@@ -178,39 +367,61 @@ nav .nav-link:hover {
 }
 
 .toc-dropdown summary:hover {
-    color: var(--c-accent);
+    color: var(--c-highlight);
+    border-color: var(--c-highlight);
 }
 
 .toc-menu {
     position: absolute;
     right: 0;
     top: calc(100% + var(--space-2));
-    background: var(--c-bg);
-    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    background: var(--c-panel);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-panel);
     border-radius: var(--radius-md);
-    min-width: 260px;
+    width: 300px;
+    max-width: calc(100vw - 2rem);
     max-height: 70vh;
     overflow-y: auto;
-    z-index: 20;
+    z-index: 200;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.45);
     padding: var(--space-2) 0;
 }
 
+/* Mobile TOC Viewport Boundary Constraint */
+@media (max-width: 640px) {
+    .toc-menu {
+        position: fixed;
+        top: calc(var(--header-height) + 0.5rem);
+        left: max(1rem, var(--cwbwbc-layout-clearance, 1rem));
+        right: max(1rem, var(--cwbwbc-layout-clearance, 1rem));
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        border-color: var(--c-highlight);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65);
+    }
+}
+
 .toc-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
     padding: var(--space-2) var(--space-4);
     color: var(--c-text);
     font-size: var(--text-sm);
     text-decoration: none;
     font-family: var(--font-sans);
+    line-height: var(--leading-snug);
     transition: all var(--transition-fast);
 }
 
-.toc-item:hover {
-    color: var(--c-accent);
+.toc-item:hover,
+.toc-item:active {
+    color: var(--c-highlight);
     background: var(--c-highlight-bg);
+    text-decoration: none;
 }
 
 .toc-h1 {
@@ -220,12 +431,13 @@ nav .nav-link:hover {
 }
 
 .toc-h2 {
-    padding-left: calc(var(--space-4) + var(--space-4));
+    padding-left: calc(var(--space-4) + var(--space-3));
 }
 
 .toc-h3 {
-    padding-left: calc(var(--space-4) + var(--space-8));
+    padding-left: calc(var(--space-4) + var(--space-6));
     font-size: 0.8rem;
+    color: var(--c-text-muted);
 }
 
 /* ==========================================================================
@@ -254,7 +466,7 @@ h6:hover .md-heading-anchor,
 }
 
 /* ==========================================================================
-   Typography & Prose
+   Typography & Modern Fluid Prose (text-wrap & responsive sizing)
    ========================================================================== */
 h1,
 h2,
@@ -268,25 +480,27 @@ h6,
     color: var(--c-text-contrast);
     line-height: var(--leading-tight);
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
+    text-wrap: balance;
+    overflow-wrap: break-word;
 }
 
 h1 {
-    font-size: var(--text-2xl);
-    margin: var(--space-4) 0 var(--space-2);
-    letter-spacing: -0.01em;
+    font-size: clamp(1.6rem, 5vw + 0.2rem, 2.25rem);
+    margin: var(--space-6) 0 var(--space-3);
+    letter-spacing: -0.02em;
 }
 
 h2 {
-    font-size: var(--text-xl);
-    margin: var(--space-4) 0 var(--space-2);
+    font-size: clamp(1.25rem, 3.5vw + 0.2rem, 1.65rem);
+    margin: var(--space-6) 0 var(--space-3);
+    letter-spacing: -0.01em;
 }
 
 h3 {
-    font-size: var(--text-lg);
-    margin: var(--space-3) 0 var(--space-1);
+    font-size: clamp(1.1rem, 2.5vw + 0.1rem, 1.35rem);
+    margin: var(--space-4) 0 var(--space-2);
 }
 
-/* Make bold and italic bright */
 strong,
 b {
     color: var(--c-text-contrast);
@@ -300,7 +514,7 @@ i,
     font-style: italic;
 }
 
-/* Links */
+/* Hyperlinks */
 a {
     color: var(--c-highlight);
     text-decoration: none;
@@ -308,14 +522,8 @@ a {
 }
 
 a:hover {
-    filter: brightness(0.8);
     text-decoration: underline;
-}
-
-@media (prefers-color-scheme: dark) {
-    a:hover {
-        filter: brightness(1.2);
-    }
+    filter: brightness(1.2);
 }
 
 /* Markdown Markers */
@@ -326,12 +534,14 @@ a:hover {
     font-weight: normal;
 }
 
-/* Prose blocks */
+/* Prose blocks - Natural Alignment & Pretty Wrapping */
 .prose p,
 .block-paragraph {
     margin: var(--space-3) 0;
     color: var(--c-text);
-    text-align: justify;
+    text-align: left;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
 }
 
 .prose ul,
@@ -352,20 +562,22 @@ ol.block-list,
     margin: var(--space-2) 0;
     position: relative;
     padding-left: var(--space-6);
-    text-align: justify;
+    text-align: left;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
 }
 
-.block-list li>.md-marker {
+.block-list li > .md-marker {
     position: absolute;
     left: 0;
     top: 0;
 }
 
-/* Blockquote */
+/* Blockquote - Recessed Cavity Surface */
 .block-quote {
-    border-left: 4px solid var(--c-accent);
-    margin: var(--space-2) 0;
-    padding: var(--space-2) var(--space-3) var(--space-2) 0;
+    border-left: 3px solid var(--c-accent);
+    margin: var(--space-4) 0;
+    padding: var(--space-3) var(--space-4);
     background: var(--c-highlight-bg);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
     color: var(--c-text-contrast);
@@ -388,24 +600,27 @@ ol.block-list,
     display: block;
 }
 
-/* Code Blocks */
+/* Code Blocks - Cavity Surface Topology & Touch Scroll */
 .block-code {
     background: var(--c-highlight-bg);
-    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
-    padding: var(--space-3);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    padding: var(--space-4);
     border-radius: var(--radius-md);
     margin: var(--space-4) 0;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
 }
 
 .inline-code {
     font-family: var(--font-mono);
-    font-size: 0.9em;
+    font-size: 0.88em;
     background: var(--c-highlight-bg);
     color: var(--c-accent);
-    padding: 0.2em 0.4em;
+    padding: 0.15em 0.4em;
     border-radius: var(--radius-sm);
-    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    overflow-wrap: break-word;
 }
 
 .block-code code {
@@ -427,15 +642,16 @@ ol.block-list,
     font-style: italic;
     color: var(--c-accent);
     overflow-x: auto;
-    padding: var(--space-3);
+    -webkit-overflow-scrolling: touch;
+    padding: var(--space-3) var(--space-4);
     background: var(--c-highlight-bg);
     border-radius: var(--radius-md);
     margin: var(--space-4) 0;
     white-space: pre;
-    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
 }
 
-/* Horizontal Rule */
+/* Horizontal Rule - Amber Circuit Lead */
 .block-hr {
     display: flex;
     align-items: center;
@@ -445,15 +661,17 @@ hr {
     all: unset;
     display: block;
     flex: 1;
-    border-top: 1px solid var(--c-accent);
-    margin: 0;
+    border-top: 1px solid color-mix(in srgb, var(--c-accent) 70%, transparent);
+    margin: var(--space-6) 0;
 }
 
-.block-hr>hr {
+.block-hr > hr {
     margin: 0 0 0 var(--space-4);
 }
 
-/* Article List */
+/* ==========================================================================
+   Article List: Responsive Stack Architecture
+   ========================================================================== */
 .article-list {
     list-style: none;
     padding: 0;
@@ -465,31 +683,63 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    gap: var(--space-3);
+    min-width: 0;
 }
 
 .article-list a {
     font-size: var(--text-base);
     font-weight: 500;
+    color: var(--c-highlight);
+    text-decoration: none;
+    transition: color var(--transition-fast), filter var(--transition-fast);
+    overflow-wrap: break-word;
+}
+
+.article-list a:hover {
+    filter: brightness(1.2);
+    text-decoration: underline;
 }
 
 .meta {
-    color: var(--c-text);
+    color: var(--c-text-muted);
     font-size: var(--text-sm);
     font-family: var(--font-mono);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Clean Column Flow on Mobile Screens */
+@media (max-width: 560px) {
+    .article-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-2);
+        border-bottom: 1px dashed var(--cwbwbc-biocircuit-channel-passive-glow-canvas);
+    }
+
+    .article-list .meta {
+        font-size: var(--text-xs);
+    }
 }
 
 .year-group {
-    margin: var(--space-6) 0 var(--space-3);
+    margin: var(--space-8) 0 var(--space-4);
 }
 
 .year-label {
     font-size: var(--text-sm);
     font-weight: 600;
+    font-family: var(--font-mono);
     letter-spacing: 0.1em;
-    color: var(--c-text);
+    color: var(--c-accent);
     margin-bottom: var(--space-4);
+    text-transform: uppercase;
 }
 
+/* Page Hierarchy Tree - Circuit Trace Left Border */
 .page-tree,
 .page-tree-children {
     list-style: none;
@@ -500,12 +750,29 @@ hr {
 .page-tree-children {
     padding-left: var(--space-4);
     margin-top: var(--space-2);
-    border-left: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    border-left: 1.5px solid color-mix(in srgb, var(--c-accent) 45%, transparent);
     margin-left: var(--space-2);
+    transition: border-color var(--transition-fast);
+}
+
+.page-tree-children:hover {
+    border-left-color: var(--c-accent);
 }
 
 .page-tree li {
     margin: var(--space-3) 0;
+}
+
+.page-tree a {
+    color: var(--c-highlight);
+    text-decoration: none;
+    transition: color var(--transition-fast), filter var(--transition-fast);
+    overflow-wrap: break-word;
+}
+
+.page-tree a:hover {
+    filter: brightness(1.2);
+    text-decoration: underline;
 }
 
 .page-tree-group {
@@ -514,7 +781,7 @@ hr {
 }
 
 /* ==========================================================================
-   Series Banner & Navigation
+   Series Banner & Navigation (Power Channel Circuitry)
    ========================================================================== */
 .series-title-prefix {
     color: var(--c-accent);
@@ -525,25 +792,28 @@ hr {
     align-items: center;
     gap: var(--space-2);
     background: var(--c-highlight-bg);
-    border: 1px solid var(--cwbwbc-border-subtle);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-3);
     margin: var(--space-3) 0 var(--space-4);
     font-size: var(--text-sm);
     color: var(--c-text);
+    max-width: 100%;
+    flex-wrap: wrap;
 }
 
 .series-badge {
-    background: var(--cwbwbc-channel-power-tint);
-    color: var(--cwbwbc-channel-power-lead);
-    border: 1px solid var(--cwbwbc-channel-power-trace);
-    padding: 0.15rem 0.45rem;
+    background: var(--cwbwbc-biocircuit-channel-power-substrate-package);
+    color: var(--cwbwbc-biocircuit-channel-power-text-on-package);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-power-glow-package);
+    padding: 0.15rem 0.5rem;
     border-radius: var(--radius-sm);
     font-family: var(--font-mono);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    flex-shrink: 0;
 }
 
 .series-banner-text strong {
@@ -554,7 +824,7 @@ hr {
     margin: var(--space-8) 0 var(--space-4);
     padding: var(--space-4);
     background: var(--c-highlight-bg);
-    border: 1px solid var(--cwbwbc-border-subtle);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
     border-radius: var(--radius-md);
 }
 
@@ -564,8 +834,10 @@ hr {
     justify-content: space-between;
     margin-bottom: var(--space-4);
     padding-bottom: var(--space-2);
-    border-bottom: 1px solid var(--cwbwbc-border-subtle);
+    border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
     font-size: var(--text-sm);
+    flex-wrap: wrap;
+    gap: var(--space-2);
 }
 
 .series-nav-meta {
@@ -600,9 +872,10 @@ hr {
 .series-nav-card {
     display: flex;
     flex-direction: column;
-    padding: var(--space-3);
-    background: var(--c-bg);
-    border: 1px solid var(--cwbwbc-border-subtle);
+    padding: var(--space-3) var(--space-4);
+    min-height: 52px;
+    background: var(--c-surface);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
     border-radius: var(--radius-md);
     text-decoration: none;
     transition: all var(--transition-fast);
@@ -612,11 +885,18 @@ hr {
     text-align: right;
 }
 
+@media (max-width: 600px) {
+    .series-nav-next {
+        text-align: left;
+    }
+}
+
 .series-nav-card:hover {
-    border-color: var(--cwbwbc-channel-signal-trace);
+    border-color: var(--c-highlight);
     text-decoration: none;
     filter: none;
-    background: var(--c-surface);
+    background: var(--c-panel);
+    box-shadow: 0 4px 16px -2px rgba(6, 182, 212, 0.15);
 }
 
 .series-nav-direction {
@@ -646,7 +926,7 @@ hr {
 .series-nav-all {
     margin-top: var(--space-4);
     padding-top: var(--space-3);
-    border-top: 1px dashed var(--cwbwbc-border-subtle);
+    border-top: 1px dashed var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
 }
 
 .series-nav-all-summary {
@@ -659,6 +939,7 @@ hr {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    min-height: 44px;
     transition: color var(--transition-fast);
 }
 
@@ -687,6 +968,9 @@ hr {
 
 .series-parts-list li {
     margin: var(--space-2) 0;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
 }
 
 .series-parts-list li.current-part {
@@ -705,8 +989,9 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-top: var(--space-6);
-    margin-bottom: var(--space-2);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+    gap: var(--space-2);
 }
 
 .section-header h2 {
@@ -715,24 +1000,27 @@ hr {
 
 .section-more {
     font-size: var(--text-sm);
+    font-family: var(--font-mono);
     color: var(--c-text-muted);
     text-decoration: none;
     font-weight: 500;
+    white-space: nowrap;
     transition: color var(--transition-fast);
 }
 
 .section-more:hover {
     color: var(--c-highlight);
+    text-decoration: underline;
 }
 
 /* ==========================================================================
-   Footer
+   Footer Subsystem: Responsive Flow
    ========================================================================== */
 .site-footer {
-    border-top: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    border-top: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-canvas);
     background: var(--c-bg);
-    margin-top: var(--space-16);
-    padding: var(--space-6) 0;
+    margin-top: auto;
+    padding: var(--space-8) 0;
 }
 
 .site-footer .footer-content {
@@ -740,35 +1028,51 @@ hr {
     justify-content: space-between;
     align-items: center;
     font-size: var(--text-sm);
+    gap: var(--space-4);
 }
 
 .site-footer .footer-brand {
     font-family: var(--font-mono);
     font-weight: 700;
     color: var(--c-accent);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
 }
 
 .site-footer .footer-links {
     display: flex;
     gap: var(--space-6);
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .site-footer .footer-link {
     color: var(--c-text-muted);
     text-decoration: none;
+    font-family: var(--font-mono);
     font-weight: 500;
+    font-size: var(--text-sm);
     letter-spacing: 0.03em;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
     transition: color var(--transition-fast);
 }
 
 .site-footer .footer-link:hover {
-    color: var(--c-accent);
+    color: var(--c-highlight);
+}
+
+@media (max-width: 600px) {
+    .site-footer .footer-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
 }
 
 /* ==========================================================================
-   Error Page (404)
+   Error Page (404 - Alarm Channel)
    ========================================================================== */
 .error-page {
     margin-top: var(--space-8);
@@ -790,8 +1094,10 @@ hr {
 .error-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-height: 44px;
     padding: var(--space-2) var(--space-4);
-    border: 1px solid color-mix(in srgb, var(--c-accent) 40%, transparent);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
     border-radius: var(--radius-sm);
     color: var(--c-text);
     text-decoration: none;
@@ -799,26 +1105,34 @@ hr {
     font-size: var(--text-sm);
     font-family: var(--font-mono);
     transition: all var(--transition-fast);
+    background: var(--c-surface);
+}
+
+@media (max-width: 480px) {
+    .error-btn {
+        width: 100%;
+    }
 }
 
 .error-btn:hover {
-    border-color: var(--c-accent);
-    color: var(--c-accent);
-    background: color-mix(in srgb, var(--c-accent) 10%, transparent);
+    border-color: var(--c-highlight);
+    color: var(--c-highlight);
+    background: var(--c-panel);
 }
 
 .error-btn-primary {
-    border-color: var(--c-accent);
-    background: color-mix(in srgb, var(--c-accent) 15%, transparent);
-    color: var(--c-accent);
+    border-color: var(--c-alarm);
+    background: var(--cwbwbc-biocircuit-channel-alarm-substrate-cavity);
+    color: var(--cwbwbc-biocircuit-channel-alarm-text-on-cavity);
 }
 
 .error-btn-primary:hover {
-    background: color-mix(in srgb, var(--c-accent) 25%, transparent);
+    border-color: var(--cwbwbc-biocircuit-channel-alarm-glow-package);
+    box-shadow: 0 0 12px var(--c-alarm);
 }
 
 /* ==========================================================================
-   Zettelkasten & Slip-box
+   Zettelkasten & Slip-box: Biocircuit Adaptive Grid
    ========================================================================== */
 .zettelkasten-header {
     margin-bottom: var(--space-6);
@@ -838,8 +1152,8 @@ hr {
 
 .zettel-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: var(--cwbwbc-layout-keepout, var(--space-4));
     margin-top: var(--space-6);
 }
 
@@ -848,17 +1162,19 @@ hr {
     flex-direction: column;
     padding: var(--space-4);
     background: var(--c-surface);
-    border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
     border-radius: var(--radius-md);
     text-decoration: none;
+    min-height: 120px;
     transition: all var(--transition-fast);
 }
 
 .zettel-card:hover {
-    border-color: var(--c-accent);
-    background: var(--c-highlight-bg);
+    border-color: var(--c-highlight);
+    background: var(--c-panel);
     text-decoration: none;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px -2px rgba(6, 182, 212, 0.15);
 }
 
 .zettel-card-title {
@@ -870,7 +1186,7 @@ hr {
 }
 
 .zettel-card:hover .zettel-card-title {
-    color: var(--c-accent);
+    color: var(--c-highlight);
 }
 
 .zettel-card-summary {
@@ -884,7 +1200,7 @@ hr {
     margin-top: var(--space-3);
     font-size: 0.75rem;
     font-family: var(--font-mono);
-    color: var(--c-accent);
+    color: var(--c-clock);
 }
 
 .zettel-detail-nav {
@@ -894,6 +1210,7 @@ hr {
 .back-link {
     display: inline-flex;
     align-items: center;
+    min-height: 44px;
     font-size: var(--text-sm);
     font-family: var(--font-mono);
     color: var(--c-text-muted);
@@ -902,6 +1219,5 @@ hr {
 }
 
 .back-link:hover {
-    color: var(--c-accent);
+    color: var(--c-highlight);
 }
-

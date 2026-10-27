@@ -1,0 +1,422 @@
+{
+    "$schema": "https://design-tokens.github.io/community-group/format/",
+    "biocircuit": {
+        "channel": {
+            "passive": {
+                "substrate": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.silicon-black.800}",
+                        "$type": "color",
+                        "$description": "Substrate background color for cavity surface in passive channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.silicon-black.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for canvas surface in passive channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.silicon-black.800}",
+                        "$type": "color",
+                        "$description": "Substrate background color for die surface in passive channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.silicon-black.700}",
+                        "$type": "color",
+                        "$description": "Substrate background color for panel surface in passive channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.silicon-black.600}",
+                        "$type": "color",
+                        "$description": "Substrate background color for package surface in passive channel"
+                    }
+                },
+                "text": {
+                    "on-cavity": {
+                        "$value": "{biocircuit.color.titanium-white.300}",
+                        "$type": "color",
+                        "$description": "Text foreground color on cavity surface in passive channel"
+                    },
+                    "on-canvas": {
+                        "$value": "{biocircuit.color.titanium-white.200}",
+                        "$type": "color",
+                        "$description": "Text foreground color on canvas surface in passive channel"
+                    },
+                    "on-die": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on die surface in passive channel"
+                    },
+                    "on-panel": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on panel surface in passive channel"
+                    },
+                    "on-package": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on package surface in passive channel"
+                    }
+                },
+                "glow": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.silicon-black.700}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for cavity surface in passive channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.silicon-black.800}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for canvas surface in passive channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.silicon-black.600}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for die surface in passive channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.silicon-black.500}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for panel surface in passive channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.silicon-black.400}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for package surface in passive channel"
+                    }
+                }
+            },
+            "alarm": {
+                "substrate": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.blaze-vermilion.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for cavity surface in alarm channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.blaze-vermilion.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for canvas surface in alarm channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.blaze-vermilion.800}",
+                        "$type": "color",
+                        "$description": "Substrate background color for die surface in alarm channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.blaze-vermilion.700}",
+                        "$type": "color",
+                        "$description": "Substrate background color for panel surface in alarm channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.blaze-vermilion.600}",
+                        "$type": "color",
+                        "$description": "Substrate background color for package surface in alarm channel"
+                    }
+                },
+                "text": {
+                    "on-cavity": {
+                        "$value": "{biocircuit.color.blaze-vermilion.200}",
+                        "$type": "color",
+                        "$description": "Text foreground color on cavity surface in alarm channel"
+                    },
+                    "on-canvas": {
+                        "$value": "{biocircuit.color.blaze-vermilion.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on canvas surface in alarm channel"
+                    },
+                    "on-die": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on die surface in alarm channel"
+                    },
+                    "on-panel": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on panel surface in alarm channel"
+                    },
+                    "on-package": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on package surface in alarm channel"
+                    }
+                },
+                "glow": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.blaze-vermilion.700}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for cavity surface in alarm channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.blaze-vermilion.600}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for canvas surface in alarm channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.blaze-vermilion.500}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for die surface in alarm channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.blaze-vermilion.400}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for panel surface in alarm channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.blaze-vermilion.300}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for package surface in alarm channel"
+                    }
+                }
+            },
+            "power": {
+                "substrate": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.solar-amber.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for cavity surface in power channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.solar-amber.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for canvas surface in power channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.solar-amber.800}",
+                        "$type": "color",
+                        "$description": "Substrate background color for die surface in power channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.solar-amber.700}",
+                        "$type": "color",
+                        "$description": "Substrate background color for panel surface in power channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.solar-amber.600}",
+                        "$type": "color",
+                        "$description": "Substrate background color for package surface in power channel"
+                    }
+                },
+                "text": {
+                    "on-cavity": {
+                        "$value": "{biocircuit.color.solar-amber.200}",
+                        "$type": "color",
+                        "$description": "Text foreground color on cavity surface in power channel"
+                    },
+                    "on-canvas": {
+                        "$value": "{biocircuit.color.solar-amber.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on canvas surface in power channel"
+                    },
+                    "on-die": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on die surface in power channel"
+                    },
+                    "on-panel": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on panel surface in power channel"
+                    },
+                    "on-package": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on package surface in power channel"
+                    }
+                },
+                "glow": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.solar-amber.700}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for cavity surface in power channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.solar-amber.600}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for canvas surface in power channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.solar-amber.500}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for die surface in power channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.solar-amber.400}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for panel surface in power channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.solar-amber.300}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for package surface in power channel"
+                    }
+                }
+            },
+            "clock": {
+                "substrate": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.laser-emerald.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for cavity surface in clock channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.laser-emerald.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for canvas surface in clock channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.laser-emerald.800}",
+                        "$type": "color",
+                        "$description": "Substrate background color for die surface in clock channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.laser-emerald.700}",
+                        "$type": "color",
+                        "$description": "Substrate background color for panel surface in clock channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.laser-emerald.600}",
+                        "$type": "color",
+                        "$description": "Substrate background color for package surface in clock channel"
+                    }
+                },
+                "text": {
+                    "on-cavity": {
+                        "$value": "{biocircuit.color.laser-emerald.200}",
+                        "$type": "color",
+                        "$description": "Text foreground color on cavity surface in clock channel"
+                    },
+                    "on-canvas": {
+                        "$value": "{biocircuit.color.laser-emerald.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on canvas surface in clock channel"
+                    },
+                    "on-die": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on die surface in clock channel"
+                    },
+                    "on-panel": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on panel surface in clock channel"
+                    },
+                    "on-package": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on package surface in clock channel"
+                    }
+                },
+                "glow": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.laser-emerald.700}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for cavity surface in clock channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.laser-emerald.600}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for canvas surface in clock channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.laser-emerald.500}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for die surface in clock channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.laser-emerald.400}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for panel surface in clock channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.laser-emerald.300}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for package surface in clock channel"
+                    }
+                }
+            },
+            "signal": {
+                "substrate": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.electric-cyan.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for cavity surface in signal channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.electric-cyan.900}",
+                        "$type": "color",
+                        "$description": "Substrate background color for canvas surface in signal channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.electric-cyan.800}",
+                        "$type": "color",
+                        "$description": "Substrate background color for die surface in signal channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.electric-cyan.700}",
+                        "$type": "color",
+                        "$description": "Substrate background color for panel surface in signal channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.electric-cyan.600}",
+                        "$type": "color",
+                        "$description": "Substrate background color for package surface in signal channel"
+                    }
+                },
+                "text": {
+                    "on-cavity": {
+                        "$value": "{biocircuit.color.electric-cyan.200}",
+                        "$type": "color",
+                        "$description": "Text foreground color on cavity surface in signal channel"
+                    },
+                    "on-canvas": {
+                        "$value": "{biocircuit.color.electric-cyan.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on canvas surface in signal channel"
+                    },
+                    "on-die": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on die surface in signal channel"
+                    },
+                    "on-panel": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on panel surface in signal channel"
+                    },
+                    "on-package": {
+                        "$value": "{biocircuit.color.titanium-white.100}",
+                        "$type": "color",
+                        "$description": "Text foreground color on package surface in signal channel"
+                    }
+                },
+                "glow": {
+                    "cavity": {
+                        "$value": "{biocircuit.color.electric-cyan.700}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for cavity surface in signal channel"
+                    },
+                    "canvas": {
+                        "$value": "{biocircuit.color.electric-cyan.600}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for canvas surface in signal channel"
+                    },
+                    "die": {
+                        "$value": "{biocircuit.color.electric-cyan.500}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for die surface in signal channel"
+                    },
+                    "panel": {
+                        "$value": "{biocircuit.color.electric-cyan.400}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for panel surface in signal channel"
+                    },
+                    "package": {
+                        "$value": "{biocircuit.color.electric-cyan.300}",
+                        "$type": "color",
+                        "$description": "Boundary glow and outline accent color for package surface in signal channel"
+                    }
+                }
+            }
+        }
+    }
+}
