@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "paths": {
+            "@dist": [
+                "../dist/index.d.ts"
+            ],
+            "@dist/*": [
+                "../dist/*"
+            ],
+            "@tokens/*": [
+                "../tokens/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

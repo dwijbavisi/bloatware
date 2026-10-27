@@ -6,12 +6,18 @@
     "scripts": {
         "build:intermediate": "tsc -p tsconfig.json && tsx scripts/build-orchestrator.ts",
         "build:dist": "tsx scripts/dist-orchestrator.ts",
-        "build": "npm run build:intermediate && npm run build:dist"
+        "build": "npm run build:intermediate && npm run build:dist",
+        "showcase": "vite showcase"
     },
     "devDependencies": {
+        "@types/react": "^19.2.18",
+        "@types/react-dom": "^19.2.18",
         "culori": "^4.0.2",
+        "react": "^19.2.18",
+        "react-dom": "^19.2.18",
         "style-dictionary": "^5.7.1",
         "tsx": "^4.23.15",
-        "typescript": "^7.0.2"
+        "typescript": "^7.0.2",
+        "vite": "^8.3.5"
     }
 }

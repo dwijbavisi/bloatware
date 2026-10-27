@@ -1,0 +1,786 @@
+/**
+ * Biocircuit Showcase Stylesheet
+ * Integrates directly with biocircuit.tokens, biocircuit.layout, and biocircuit.theme CSS layers.
+ */
+
+:root {
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Theme responsive high-contrast accents */
+    --accent-signal: var(--cwbwbc-biocircuit-color-electric-cyan-400);
+    --accent-clock: var(--cwbwbc-biocircuit-color-laser-emerald-400);
+    --accent-power: var(--cwbwbc-biocircuit-color-solar-amber-400);
+    --accent-alarm: var(--cwbwbc-biocircuit-color-blaze-vermilion-400);
+    --text-muted: var(--cwbwbc-biocircuit-color-titanium-white-400);
+    --text-subtle: var(--cwbwbc-biocircuit-color-titanium-white-500);
+
+    /* Fallback substrate canvas if not yet activated */
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-canvas, #07080a);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-canvas, #d6dade);
+    font-family: var(--font-mono);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="light"] {
+    --accent-signal: var(--cwbwbc-biocircuit-color-electric-cyan-700);
+    --accent-clock: var(--cwbwbc-biocircuit-color-laser-emerald-700);
+    --accent-power: var(--cwbwbc-biocircuit-color-solar-amber-700);
+    --accent-alarm: var(--cwbwbc-biocircuit-color-blaze-vermilion-700);
+    --text-muted: var(--cwbwbc-biocircuit-color-silicon-black-300);
+    --text-subtle: var(--cwbwbc-biocircuit-color-silicon-black-400);
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        --accent-signal: var(--cwbwbc-biocircuit-color-electric-cyan-700);
+        --accent-clock: var(--cwbwbc-biocircuit-color-laser-emerald-700);
+        --accent-power: var(--cwbwbc-biocircuit-color-solar-amber-700);
+        --accent-alarm: var(--cwbwbc-biocircuit-color-blaze-vermilion-700);
+        --text-muted: var(--cwbwbc-biocircuit-color-silicon-black-300);
+        --text-subtle: var(--cwbwbc-biocircuit-color-silicon-black-400);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-canvas);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-canvas);
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+[data-theme="light"] body {
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+/* Master Header */
+.showcase-header {
+    border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-canvas);
+    background: color-mix(in srgb, var(--cwbwbc-biocircuit-channel-passive-substrate-canvas) 85%, transparent);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.showcase-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 0.85rem;
+}
+
+.brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-cavity);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-cavity);
+    display: grid;
+    place-items: center;
+    color: var(--accent-signal);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+}
+
+.brand-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-canvas);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.brand-version {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-package);
+    color: var(--accent-signal);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-cavity);
+}
+
+/* Navigation Tabs */
+.nav-tabs {
+    display: none;
+    gap: 0.25rem;
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-die);
+    padding: 0.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
+}
+
+@media (min-width: 900px) {
+    .nav-tabs {
+        display: flex;
+    }
+}
+
+.nav-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+}
+
+.nav-tab-btn:hover {
+    color: var(--accent-signal);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="light"] .nav-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.nav-tab-btn.active {
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-signal-text-on-panel);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-panel);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+}
+
+/* Theme Switcher */
+.theme-switch-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-die);
+    padding: 0.2rem;
+    border-radius: 6px;
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
+}
+
+.theme-btn {
+    background: transparent;
+    border: none;
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.theme-btn.active {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-package);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-package);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-package);
+    font-weight: 700;
+}
+
+/* Live Telemetry Banner */
+.telemetry-banner {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-cavity);
+    border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    padding-block: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.telemetry-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.telemetry-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.telemetry-label {
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+.telemetry-value {
+    font-weight: 700;
+    color: var(--accent-signal);
+}
+
+.telemetry-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-clock);
+    box-shadow: 0 0 8px var(--accent-clock);
+    animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Hero Section */
+.hero-box {
+    margin-block: 2.5rem 2rem;
+    padding: 2rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--cwbwbc-biocircuit-channel-passive-substrate-die) 0%, var(--cwbwbc-biocircuit-channel-passive-substrate-cavity) 100%);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--accent-signal) 25%, 
+        var(--accent-clock) 50%, 
+        var(--accent-power) 75%, 
+        transparent 100%);
+}
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+}
+
+.hero-title span {
+    background: linear-gradient(135deg, var(--accent-signal), var(--accent-clock));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 75ch;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.hero-tag {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-panel);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-panel);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-panel);
+}
+
+/* Section Shell */
+.showcase-section {
+    margin-block: 2.5rem 3.5rem;
+}
+
+.section-head {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    padding-bottom: 0.75rem;
+}
+
+.section-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.section-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-canvas);
+}
+
+.section-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    max-width: 80ch;
+    margin-top: 0.35rem;
+    line-height: 1.5;
+}
+
+/* Card Surfaces according to Biocircuit Topological Hierarchy */
+.surface-card {
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.surface-cavity {
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-cavity);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-cavity);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.surface-canvas {
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-canvas);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-canvas);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-canvas);
+}
+
+.surface-die {
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-die);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
+}
+
+.surface-panel {
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-panel);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-panel);
+}
+
+.surface-package {
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-package);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-package);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-package);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Channel specific classes */
+.channel-alarm {
+    border-color: var(--cwbwbc-biocircuit-channel-alarm-glow-panel);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+}
+
+.channel-power {
+    border-color: var(--cwbwbc-biocircuit-channel-power-glow-panel);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+}
+
+.channel-clock {
+    border-color: var(--cwbwbc-biocircuit-channel-clock-glow-panel);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
+}
+
+.channel-signal {
+    border-color: var(--cwbwbc-biocircuit-channel-signal-glow-panel);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+/* Live PCB Board Simulator Canvas */
+.pcb-board-sim {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-cavity);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-cavity);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-block: 1rem;
+    position: relative;
+    overflow-x: auto;
+}
+
+.pcb-board-canvas {
+    position: relative;
+    box-sizing: border-box;
+    border: 2px dashed var(--cwbwbc-biocircuit-color-titanium-white-600);
+    border-radius: 6px;
+    background-color: var(--cwbwbc-biocircuit-channel-passive-substrate-canvas);
+    overflow: hidden;
+}
+
+[data-theme="light"] .pcb-board-canvas {
+    border-color: var(--cwbwbc-biocircuit-color-silicon-black-400);
+}
+
+.pcb-track-column {
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-die);
+    color: var(--cwbwbc-biocircuit-channel-signal-text-on-die);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-die);
+    border-radius: 4px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+    padding-inline: 2px;
+    box-sizing: border-box;
+}
+
+.pcb-track-column:hover {
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-signal-text-on-panel);
+    border-color: var(--accent-signal);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.35);
+    transform: translateY(-2px);
+    z-index: 5;
+}
+
+.pcb-clearance-bar {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(239, 68, 68, 0.2),
+        rgba(239, 68, 68, 0.2) 6px,
+        rgba(239, 68, 68, 0.08) 6px,
+        rgba(239, 68, 68, 0.08) 12px
+    );
+    border-inline: 1px dashed var(--accent-alarm);
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--accent-alarm);
+    z-index: 4;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+/* Palette Swatches Grid */
+.palette-swatches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.palette-card {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-die);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-die);
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.palette-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.palette-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+}
+
+.palette-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-panel);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-panel);
+}
+
+.palette-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    min-height: 2.2rem;
+    line-height: 1.4;
+}
+
+.swatch-steps-row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 2px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.swatch-step-cell {
+    height: 48px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s ease, z-index 0.15s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2px;
+}
+
+.swatch-step-cell:hover {
+    transform: scale(1.15);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+}
+
+.swatch-anchor-indicator {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 4px #000;
+    margin-bottom: 2px;
+}
+
+/* Matrix Table */
+.matrix-table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-cavity);
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    text-align: left;
+}
+
+.matrix-table th,
+.matrix-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+    border-right: 1px solid var(--cwbwbc-biocircuit-channel-passive-glow-cavity);
+}
+
+.matrix-table th {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-die);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-die);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+/* Interactive Component Demo Elements */
+.demo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid transparent;
+}
+
+.demo-btn-passive {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-passive-text-on-panel);
+    border-color: var(--cwbwbc-biocircuit-channel-passive-glow-panel);
+}
+
+.demo-btn-passive:hover {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-package);
+    border-color: var(--cwbwbc-biocircuit-channel-passive-glow-package);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.demo-btn-signal {
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-signal-text-on-panel);
+    border-color: var(--cwbwbc-biocircuit-channel-signal-glow-panel);
+}
+
+.demo-btn-signal:hover {
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-package);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    transform: translateY(-1px);
+}
+
+.demo-btn-alarm {
+    background: var(--cwbwbc-biocircuit-channel-alarm-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-alarm-text-on-panel);
+    border-color: var(--cwbwbc-biocircuit-channel-alarm-glow-panel);
+}
+
+.demo-btn-alarm:hover {
+    background: var(--cwbwbc-biocircuit-channel-alarm-substrate-package);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+}
+
+.demo-btn-power {
+    background: var(--cwbwbc-biocircuit-channel-power-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-power-text-on-panel);
+    border-color: var(--cwbwbc-biocircuit-channel-power-glow-panel);
+}
+
+.demo-btn-power:hover {
+    background: var(--cwbwbc-biocircuit-channel-power-substrate-package);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    transform: translateY(-1px);
+}
+
+.demo-btn-clock {
+    background: var(--cwbwbc-biocircuit-channel-clock-substrate-panel);
+    color: var(--cwbwbc-biocircuit-channel-clock-text-on-panel);
+    border-color: var(--cwbwbc-biocircuit-channel-clock-glow-panel);
+}
+
+.demo-btn-clock:hover {
+    background: var(--cwbwbc-biocircuit-channel-clock-substrate-package);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Diagnostic Console Terminal */
+.terminal-window {
+    background: #030406;
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-cavity);
+    border-radius: 8px;
+    padding: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--cwbwbc-biocircuit-color-titanium-white-200);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    position: relative;
+}
+
+[data-theme="light"] .terminal-window {
+    background: #0d131a;
+    color: #e2e8f0;
+}
+
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-subtle);
+}
+
+.terminal-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.terminal-line {
+    display: flex;
+    gap: 0.75rem;
+    line-height: 1.4;
+}
+
+.terminal-ts {
+    color: var(--cwbwbc-biocircuit-color-titanium-white-600);
+    user-select: none;
+}
+
+.terminal-msg {
+    color: var(--cwbwbc-biocircuit-color-electric-cyan-300);
+}
+
+/* Toast alert notification */
+.toast-notice {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--cwbwbc-biocircuit-channel-signal-substrate-package);
+    color: var(--cwbwbc-biocircuit-channel-signal-text-on-package);
+    border: 1px solid var(--cwbwbc-biocircuit-channel-signal-glow-package);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    animation: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--cwbwbc-biocircuit-channel-passive-substrate-cavity);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cwbwbc-biocircuit-channel-passive-glow-panel);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-signal);
+}
