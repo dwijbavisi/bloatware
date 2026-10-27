@@ -4,12 +4,13 @@
  * @fileoverview Biocircuit Emitters Build Orchestrator.
  *
  * Coordinates the execution of all emitter scripts in scripts/emitters/
- * to compile intermediate primitive design tokens and stylesheets into build/.
+ * to compile intermediate primitive and semantic design tokens, stylesheets, and
+ * theme scripts into build/ following the source tokens taxonomy.
  *
  * Scope Invariants
  * ================
  * - Executes emitter modules located in scripts/emitters/.
- * - Does not touch dist/, Style Dictionary, or semantic theme files.
+ * - Populates build/ with primitives and semantic theme artifacts.
  *
  * @module scripts/build-orchestrator
  * @license GPL-3.0-or-later
@@ -21,6 +22,7 @@ import path from 'node:path';
 
 import { writeColorPalette } from './emitters/color.palette.js';
 import { writeLayoutCss } from './emitters/layout.css.js';
+import { writeThemes } from './emitters/themes.js';
 
 /**
  * Execution report summarizing orchestrator results.
@@ -61,14 +63,19 @@ export async function runEmitters(): Promise<OrchestratorReport> {
     const executed: string[] = [];
 
     // 1. Color Palette Emitter
-    console.log('  [1/2] Running color palette emitter...');
+    console.log('  [1/3] Running color palette emitter...');
     writeColorPalette();
     executed.push('scripts/emitters/color.palette.ts');
 
     // 2. Layout Stylesheet Emitter
-    console.log('  [2/2] Running layout stylesheet emitter...');
+    console.log('  [2/3] Running layout stylesheet emitter...');
     writeLayoutCss();
     executed.push('scripts/emitters/layout.css.ts');
+
+    // 3. Style Dictionary Themes Emitter (theme-dark & theme-light)
+    console.log('  [3/3] Running Style Dictionary themes emitter...');
+    await writeThemes();
+    executed.push('scripts/emitters/themes.ts');
 
     const durationMs = Math.round(performance.now() - startTime);
     console.log(`[build] All emitters executed successfully in ${durationMs}ms!`);

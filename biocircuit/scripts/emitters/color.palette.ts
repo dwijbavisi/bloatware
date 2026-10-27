@@ -5,7 +5,7 @@
  *
  * Uses the decoupled Biocircuit Color Engine and the common reusable
  * JsonDocumentBuilder utility to compute 54-step primitive color scales
- * from the 6 base colors and emit build/tokens/color.palette.json.
+ * from the 6 base colors and emit build/tokens/primitives/color.palette.json.
  *
  * @module scripts/emitters/color.palette
  * @license GPL-3.0-or-later
@@ -15,13 +15,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createColorEngine } from '../../src/scripts/color.engine.js';
-import { DEFAULT_COLOR_CONFIG, type ColorTokenDocument } from '../../src/scripts/color.tokens.js';
+import { createColorEngine } from '../../src/scripts/primitives/color.engine.js';
+import { DEFAULT_COLOR_CONFIG, type ColorTokenDocument } from '../../src/scripts/primitives/color.tokens.js';
 import { JsonDocumentBuilder } from '../common/emitters.json.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
-const OUTPUT_FILE = path.join(ROOT_DIR, 'build', 'tokens', 'color.palette.json');
+const OUTPUT_FILE = path.join(ROOT_DIR, 'build', 'tokens', 'primitives', 'color.palette.json');
 
 /**
  * Builds the complete 54-token W3C DTCG color palette document using the pure Color Engine.
@@ -52,7 +52,7 @@ export function buildColorPaletteDocument(): JsonDocumentBuilder<ColorTokenDocum
 }
 
 /**
- * Writes the 54-color palette token document to build/tokens/color.palette.json.
+ * Writes the 54-color palette token document to build/tokens/primitives/color.palette.json.
  *
  * Notes
  * -----

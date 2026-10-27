@@ -11,7 +11,7 @@
  * @author Dwij Bavisi <dwij.bavisi@crabwire.net>
  */
 
-export * from './scripts/layout.engine.js';
-export * from './scripts/layout.tokens.js';
-export * from './scripts/color.engine.js';
-export * from './scripts/color.tokens.js';
+export * from './scripts/primitives/layout.engine.js';
+export * from './scripts/primitives/layout.tokens.js';
+export * from './scripts/primitives/color.engine.js';
+export * from './scripts/primitives/color.tokens.js';
