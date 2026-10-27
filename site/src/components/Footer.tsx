@@ -11,7 +11,7 @@ export interface FooterProps {
 }
 
 /**
- * Renders the global site footer across all pages.
+ * Renders the global site footer across all pages with Biocircuit telemetry metadata.
  *
  * @param props - Component props.
  * @returns The `<footer>` element.
@@ -20,10 +20,13 @@ export interface FooterProps {
  */
 export function Footer({ currentRoute }: FooterProps): React.JSX.Element {
     return (
-        <footer className="site-footer">
+        <footer className="site-footer cwbwbc-board">
             <div className="inner">
                 <div className="footer-content">
-                    <div className="footer-brand">bloatware-site</div>
+                    <div className="footer-brand">
+                        <span className="brand-dot" aria-hidden="true" />
+                        <span>bloatware-site</span>
+                    </div>
                     <div className="footer-links">
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/articles/")}>Articles</a>
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/pages/")}>Pages</a>
