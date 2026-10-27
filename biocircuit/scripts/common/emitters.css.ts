@@ -139,6 +139,7 @@ export interface CssDocumentOptions {
  */
 export class CssDocumentBuilder {
     private header: string | null = null;
+    private imports: string[] = [];
     private layerOrder: string[] = [];
     private nodes: CssNode[] = [];
     private readonly indentSize: number;
@@ -170,6 +171,58 @@ export class CssDocumentBuilder {
      */
     setHeader(header: string): this {
         this.header = header.trim();
+        return this;
+    }
+
+    /**
+     * Declares a stylesheet @import directive.
+     *
+     * Parameters
+     * ----------
+     * @param {string} url
+     *   Target stylesheet specifier or url (e.g. "'./layout.css'").
+     *
+     * Returns
+     * -------
+     * @returns {this}
+     *   Current builder instance for fluent chaining.
+     *
+     * Examples
+     * --------
+     * ```ts
+     * builder.addImport("'./layout.css'");
+     * // Emits: @import './layout.css';
+     * ```
+     */
+    addImport(url: string): this {
+        const cleaned = url.trim().replace(/^@import\s+/, '').replace(/;$/, '');
+        this.imports.push(`@import ${cleaned};`);
+        return this;
+    }
+
+    /**
+     * Declares multiple stylesheet @import directives in sequence.
+     *
+     * Parameters
+     * ----------
+     * @param {readonly string[]} urls
+     *   List of target stylesheet specifiers or urls.
+     *
+     * Returns
+     * -------
+     * @returns {this}
+     *   Current builder instance for fluent chaining.
+     *
+     * Examples
+     * --------
+     * ```ts
+     * builder.addImports(["'./layout.css'", "'./theme-light.css'"]);
+     * ```
+     */
+    addImports(urls: readonly string[]): this {
+        for (const url of urls) {
+            this.addImport(url);
+        }
         return this;
     }
 
@@ -392,6 +445,10 @@ export class CssDocumentBuilder {
 
         if (this.header) {
             sections.push(`/**\n${this.header.split('\n').map(l => ` * ${l}`).join('\n')}\n */`);
+        }
+
+        if (this.imports.length > 0) {
+            sections.push(this.imports.join('\n'));
         }
 
         if (this.layerOrder.length > 0) {
