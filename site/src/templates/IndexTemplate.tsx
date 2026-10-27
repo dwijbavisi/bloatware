@@ -41,7 +41,7 @@ export function IndexTemplate({ recentArticles, pages = [], introNodes }: IndexT
                 <div className="section-header">
                     <h2>Recent Articles</h2>
                     <a href={relativeRouteHref("/", "/articles/")} className="section-more">
-                        All articles →
+                        All articles -&gt;
                     </a>
                 </div>
                 <ul className="article-list">
@@ -63,7 +63,7 @@ export function IndexTemplate({ recentArticles, pages = [], introNodes }: IndexT
                         <div className="section-header">
                             <h2>Pages</h2>
                             <a href={relativeRouteHref("/", "/pages/")} className="section-more">
-                                All pages →
+                                All pages -&gt;
                             </a>
                         </div>
                         <ul className="article-list">

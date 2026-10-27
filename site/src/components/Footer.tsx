@@ -24,8 +24,7 @@ export function Footer({ currentRoute }: FooterProps): React.JSX.Element {
             <div className="inner">
                 <div className="footer-content">
                     <div className="footer-brand">
-                        <span className="brand-dot" aria-hidden="true" />
-                        <span>bloatware-site</span>
+                        bloatware-site
                     </div>
                     <div className="footer-links">
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/articles/")}>Articles</a>

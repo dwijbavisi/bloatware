@@ -51,7 +51,7 @@ export function SeriesNav({ series, currentRoute }: SeriesProps): React.JSX.Elem
                         className="series-nav-card series-nav-prev"
                         rel="prev"
                     >
-                        <span className="series-nav-direction">← Previous Part</span>
+                        <span className="series-nav-direction">&lt;- Previous Part</span>
                         <span className="series-nav-card-title">{series.prev.partTitle}</span>
                     </a>
                 ) : (
@@ -64,7 +64,7 @@ export function SeriesNav({ series, currentRoute }: SeriesProps): React.JSX.Elem
                         className="series-nav-card series-nav-next"
                         rel="next"
                     >
-                        <span className="series-nav-direction">Next Part →</span>
+                        <span className="series-nav-direction">Next Part -&gt</span>
                         <span className="series-nav-card-title">{series.next.partTitle}</span>
                     </a>
                 ) : (

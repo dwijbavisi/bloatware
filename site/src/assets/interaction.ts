@@ -74,6 +74,48 @@ register("dismiss-outside", (el) => {
 });
 
 /**
+ * Built-in: mobile-menu-toggle
+ * Toggles responsive mobile navigation drawer and handles outside/escape dismissal.
+ */
+register("mobile-menu-toggle", (el) => {
+    if (!(el instanceof HTMLElement)) return;
+    const header = el.closest(".site-header");
+    if (!header) return;
+
+    const toggle = (force?: boolean) => {
+        const isOpen = force !== undefined ? force : !header.classList.contains("mobile-nav-active");
+        header.classList.toggle("mobile-nav-active", isOpen);
+        el.setAttribute("aria-expanded", String(isOpen));
+    };
+
+    el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggle();
+    });
+
+    // Close when clicking nav links
+    header.querySelectorAll(".header-nav a").forEach((link) => {
+        link.addEventListener("click", () => {
+            toggle(false);
+        });
+    });
+
+    // Close on click outside
+    document.addEventListener("click", (e) => {
+        if (header.classList.contains("mobile-nav-active") && !header.contains(e.target as Node)) {
+            toggle(false);
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && header.classList.contains("mobile-nav-active")) {
+            toggle(false);
+        }
+    });
+});
+
+/**
  * Built-in: theme-toggle
  * Switches between Biocircuit dark and light color themes, persisting user choice to localStorage.
  */
