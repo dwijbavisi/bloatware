@@ -33,7 +33,7 @@ export function ZettelDetailTemplate({ item }: ZettelDetailTemplateProps): React
         >
             <div className="zettel-detail-nav">
                 <a className="back-link" href={relativeRouteHref(item.route, "/zettelkasten/")}>
-                    ← All Notes
+                    &lt;- All Notes
                 </a>
             </div>
             <article className="prose">
