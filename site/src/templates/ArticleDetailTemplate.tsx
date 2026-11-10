@@ -31,6 +31,7 @@ export function ArticleDetailTemplate({ item }: ArticleDetailTemplateProps): Rea
             title={`${item.title} | bloatware-site`}
             pageTitle={item.title}
             currentRoute={item.route}
+            description={(item.metadata.description as string | undefined) || item.metadata.summary || item.summary}
             showPageTitle={false}
             toc={toc}
         >

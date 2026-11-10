@@ -33,7 +33,12 @@ export function ArticleIndexTemplate({ items }: ArticleIndexTemplateProps): Reac
     const years = [...byYear.keys()].sort((a, b) => b.localeCompare(a));
 
     return (
-        <CoreLayout title="Articles | bloatware-site" pageTitle="Articles" currentRoute="/articles/">
+        <CoreLayout
+            title="Articles | bloatware-site"
+            pageTitle="Articles"
+            currentRoute="/articles/"
+            description="Articles and essays on philosophy, technology, systems, and self-inquiry."
+        >
             {years.map((year) => (
                 <section key={year} className="year-group">
                     <h2 className="year-label">{year}</h2>

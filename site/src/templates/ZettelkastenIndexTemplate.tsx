@@ -25,6 +25,7 @@ export function ZettelkastenIndexTemplate({ items }: ZettelkastenIndexTemplatePr
             title="Zettelkasten | bloatware-site"
             pageTitle="Zettelkasten"
             currentRoute="/zettelkasten/"
+            description="An unorganized slip-box of short notes, reading excerpts, working models, and conceptual fragments."
         >
             <div className="zettelkasten-header prose">
                 <p className="zettelkasten-desc">

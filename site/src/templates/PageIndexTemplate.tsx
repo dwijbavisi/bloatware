@@ -109,7 +109,12 @@ export interface PageIndexTemplateProps {
 export function PageIndexTemplate({ items }: PageIndexTemplateProps): React.JSX.Element {
     const tree = buildPageTree(items);
     return (
-        <CoreLayout title="Pages | bloatware-site" pageTitle="Pages" currentRoute="/pages/">
+        <CoreLayout
+            title="Pages | bloatware-site"
+            pageTitle="Pages"
+            currentRoute="/pages/"
+            description="Hierarchical documentation, systems architecture, ideas, and engineering notes."
+        >
             {renderTree(tree, "/pages/")}
         </CoreLayout>
     );

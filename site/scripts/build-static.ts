@@ -50,9 +50,17 @@ async function run(): Promise<void> {
     const sitemapEntries: SitemapRouteEntry[] = [];
     const routeMap = await generateAllRoutes(sitemapEntries);
 
+    log.info('Reading bundled styles for inlining to eliminate render-blocking...');
+    const cssPath = path.resolve(ASSETS_DIR, 'styles.css');
+    const cssContent = await fs.readFile(cssPath, 'utf8');
+
     log.info('Writing HTML files to disk...');
     for (const [route, html] of routeMap.entries()) {
-        await writeRoute(route, html);
+        const optimizedHtml = html.replace(
+            /<link rel="stylesheet" href="[^"]*assets\/styles\.css"\s*\/?>/g,
+            `<style>${cssContent}</style>`
+        );
+        await writeRoute(route, optimizedHtml);
     }
 
     log.info('Writing sitemap.xml and robots.txt...');
