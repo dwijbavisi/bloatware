@@ -4,6 +4,7 @@ import esbuild from 'esbuild';
 import { Logger } from '../modules/logger';
 import profiler from '../modules/profiler';
 import { generateAllRoutes } from './builder';
+import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap';
 
 const ROOT = process.cwd();
 const DIST = path.resolve(ROOT, 'dist');
@@ -46,12 +47,20 @@ async function run(): Promise<void> {
         minify: true,
     });
 
-    const routeMap = await generateAllRoutes();
+    const sitemapEntries: SitemapRouteEntry[] = [];
+    const routeMap = await generateAllRoutes(sitemapEntries);
 
     log.info('Writing HTML files to disk...');
     for (const [route, html] of routeMap.entries()) {
         await writeRoute(route, html);
     }
+
+    log.info('Writing sitemap.xml and robots.txt...');
+    const sitemapXml = generateSitemapXml(sitemapEntries);
+    await fs.writeFile(path.join(DIST, 'sitemap.xml'), sitemapXml, 'utf8');
+
+    const robotsTxt = generateRobotsTxt();
+    await fs.writeFile(path.join(DIST, 'robots.txt'), robotsTxt, 'utf8');
 
     log.info('Writing route-manifest.json...');
     const durationMs = profiler.timeEnd('build', 'Total build execution time') ?? 0;

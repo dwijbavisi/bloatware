@@ -44,6 +44,8 @@ export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = tru
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>{title}</title>
+                {!isNotFound && <link rel="canonical" href={`https://bloatware.crabwire.net${currentRoute === '/' ? '/' : currentRoute.replace(/\/+$/, '') + '/'}`} />}
+                {isNotFound && <meta name="robots" content="noindex, nofollow" />}
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `(function(){try{var t=localStorage.getItem('biocircuit-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`
