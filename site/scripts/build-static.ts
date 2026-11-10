@@ -4,6 +4,7 @@ import esbuild from 'esbuild';
 import { Logger } from '../modules/logger';
 import profiler from '../modules/profiler';
 import { generateAllRoutes } from './builder';
+import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap';
 
 const ROOT = process.cwd();
 const DIST = path.resolve(ROOT, 'dist');
@@ -46,12 +47,28 @@ async function run(): Promise<void> {
         minify: true,
     });
 
-    const routeMap = await generateAllRoutes();
+    const sitemapEntries: SitemapRouteEntry[] = [];
+    const routeMap = await generateAllRoutes(sitemapEntries);
+
+    log.info('Reading bundled styles for inlining to eliminate render-blocking...');
+    const cssPath = path.resolve(ASSETS_DIR, 'styles.css');
+    const cssContent = await fs.readFile(cssPath, 'utf8');
 
     log.info('Writing HTML files to disk...');
     for (const [route, html] of routeMap.entries()) {
-        await writeRoute(route, html);
+        const optimizedHtml = html.replace(
+            /<link rel="stylesheet" href="[^"]*assets\/styles\.css"\s*\/?>/g,
+            `<style>${cssContent}</style>`
+        );
+        await writeRoute(route, optimizedHtml);
     }
+
+    log.info('Writing sitemap.xml and robots.txt...');
+    const sitemapXml = generateSitemapXml(sitemapEntries);
+    await fs.writeFile(path.join(DIST, 'sitemap.xml'), sitemapXml, 'utf8');
+
+    const robotsTxt = generateRobotsTxt();
+    await fs.writeFile(path.join(DIST, 'robots.txt'), robotsTxt, 'utf8');
 
     log.info('Writing route-manifest.json...');
     const durationMs = profiler.timeEnd('build', 'Total build execution time') ?? 0;
@@ -64,6 +81,7 @@ async function run(): Promise<void> {
     };
 
     await fs.writeFile(path.join(DIST, 'route-manifest.json'), JSON.stringify(routeManifest, null, 2), 'utf8');
+    await fs.writeFile(path.join(DIST, 'CNAME'), 'bloatware.crabwire.net\n', 'utf8');
 
     log.info(`Build successful. Generated ${routeMap.size} routes in ${routeManifest.durationMs}ms.`);
 }

@@ -30,7 +30,13 @@ export interface IndexTemplateProps {
  */
 export function IndexTemplate({ recentArticles, pages = [], introNodes }: IndexTemplateProps): React.JSX.Element {
     return (
-        <CoreLayout title="bloatware-site" pageTitle="Index" currentRoute="/" showPageTitle={false}>
+        <CoreLayout
+            title="bloatware-site"
+            pageTitle="Index"
+            currentRoute="/"
+            description="Just a spot for my thoughts on the world and the ideas I follow - Project bloatware."
+            showPageTitle={false}
+        >
             {introNodes && introNodes.length > 0 && (
                 <section className="intro prose">
                     <MarkdownRenderer nodes={introNodes} />

@@ -19,6 +19,7 @@ export interface CoreLayoutProps {
     title: string;
     pageTitle: string;
     currentRoute: string;
+    description?: string;
     showPageTitle?: boolean;
     isNotFound?: boolean;
     toc?: TocItem[];
@@ -37,13 +38,28 @@ export interface CoreLayoutProps {
  *     <p>Content</p>
  * </CoreLayout>
  */
-export function CoreLayout({ title, pageTitle, currentRoute, showPageTitle = true, isNotFound = false, toc, children }: CoreLayoutProps): React.JSX.Element {
+export function CoreLayout({ title, pageTitle, currentRoute, description, showPageTitle = true, isNotFound = false, toc, children }: CoreLayoutProps): React.JSX.Element {
+    const siteOrigin = 'https://bloatware.crabwire.net';
+    const canonicalPath = currentRoute === '/' ? '/' : currentRoute.replace(/\/+$/, '') + '/';
+    const canonicalUrl = `${siteOrigin}${canonicalPath}`;
+    const defaultDescription = 'Project bloatware - Just a spot for my thoughts on the world and the ideas I follow.';
+    const metaDescription = (description || defaultDescription).replace(/\s+/g, ' ').trim();
     return (
         <html lang="en">
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>{title}</title>
+                <meta name="description" content={metaDescription} />
+                {!isNotFound && <link rel="canonical" href={canonicalUrl} />}
+                {isNotFound && <meta name="robots" content="noindex, nofollow" />}
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={metaDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={metaDescription} />
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `(function(){try{var t=localStorage.getItem('biocircuit-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`

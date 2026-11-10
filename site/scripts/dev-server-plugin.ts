@@ -1,8 +1,10 @@
 import { type Plugin, type ViteDevServer } from 'vite';
 import path from 'node:path';
+import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap';
 
 export function devServerPlugin(): Plugin {
     let routeMap = new Map<string, string>();
+    let sitemapEntries: SitemapRouteEntry[] = [];
     let isBuilding = false;
 
     async function rebuildRoutes(server: ViteDevServer) {
@@ -12,7 +14,8 @@ export function devServerPlugin(): Plugin {
             console.log('[Vite SSG] Rebuilding routes in memory...');
             const builderPath = path.resolve(process.cwd(), 'scripts/builder.ts');
             const builder = await server.ssrLoadModule(builderPath);
-            routeMap = await builder.generateAllRoutes();
+            sitemapEntries = [];
+            routeMap = await builder.generateAllRoutes(sitemapEntries);
             console.log(`[Vite SSG] Successfully generated ${routeMap.size} routes.`);
         } catch (e) {
             console.error('[Vite SSG] Error rebuilding routes:', e);
@@ -42,7 +45,20 @@ export function devServerPlugin(): Plugin {
                 }
 
                 try {
-                    let route = req.url.split('?')[0];
+                    const rawUrl = req.url.split('?')[0];
+                    if (rawUrl === '/sitemap.xml') {
+                        res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+                        res.statusCode = 200;
+                        res.end(generateSitemapXml(sitemapEntries));
+                        return;
+                    }
+                    if (rawUrl === '/robots.txt') {
+                        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                        res.statusCode = 200;
+                        res.end(generateRobotsTxt());
+                        return;
+                    }
+                    let route = rawUrl;
                     
                     // Normalize SSG explicit index.html requests
                     if (route.endsWith('/index.html')) {

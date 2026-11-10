@@ -15,6 +15,7 @@ export function NotFoundTemplate(): React.JSX.Element {
             title="404: Signal Lost | bloatware-site"
             pageTitle="404: Signal Lost"
             currentRoute="/"
+            description="The requested coordinates do not correspond to any known node in this topology."
             isNotFound={true}
         >
             <div className="prose error-page">

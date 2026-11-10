@@ -19,6 +19,7 @@ import { PageDetailTemplate } from '../src/templates/PageDetailTemplate';
 import { ZettelkastenIndexTemplate } from '../src/templates/ZettelkastenIndexTemplate';
 import { ZettelDetailTemplate } from '../src/templates/ZettelDetailTemplate';
 import { NotFoundTemplate } from '../src/templates/NotFoundTemplate';
+import type { SitemapRouteEntry } from './sitemap';
 
 import { enrichSeries } from '../src/lib/series';
 
@@ -38,7 +39,7 @@ async function* combinedContentStream() {
     yield* loadContentGenerator('zettel', zettelDir);
 }
 
-export async function generateAllRoutes(): Promise<Map<string, string>> {
+export async function generateAllRoutes(sitemapCollector?: SitemapRouteEntry[]): Promise<Map<string, string>> {
     profiler.time('generate-routes');
     log.info('Generating all routes in memory...');
 
@@ -100,6 +101,16 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
 
         const html = documentFromElement(template);
         routeMap.set(record.route, html);
+        if (sitemapCollector) {
+            const lastmod = record.metadata.sortDate ?? record.date;
+            const priority = record.kind === 'article' ? '0.8' : record.kind === 'page' ? '0.7' : '0.6';
+            sitemapCollector.push({
+                route: record.route,
+                lastmod,
+                priority,
+                changefreq: 'monthly'
+            });
+        }
         pageCount++;
     }
 
@@ -146,6 +157,15 @@ export async function generateAllRoutes(): Promise<Map<string, string>> {
         React.createElement(NotFoundTemplate)
     );
     routeMap.set('/404.html', notFoundHtml);
+
+    if (sitemapCollector) {
+        sitemapCollector.unshift(
+            { route: '/', priority: '1.0', changefreq: 'daily' },
+            { route: '/articles/', priority: '0.8', changefreq: 'daily' },
+            { route: '/pages/', priority: '0.8', changefreq: 'weekly' },
+            { route: '/zettelkasten/', priority: '0.7', changefreq: 'weekly' }
+        );
+    }
 
     pageCount += 5;
 

@@ -28,6 +28,7 @@ export function ZettelDetailTemplate({ item }: ZettelDetailTemplateProps): React
             title={`${item.title} | Zettelkasten | bloatware-site`}
             pageTitle={item.title}
             currentRoute={item.route}
+            description={(item.metadata.description as string | undefined) || item.metadata.summary || item.summary}
             showPageTitle={false}
             toc={toc}
         >
