@@ -64,6 +64,7 @@ async function run(): Promise<void> {
     };
 
     await fs.writeFile(path.join(DIST, 'route-manifest.json'), JSON.stringify(routeManifest, null, 2), 'utf8');
+    await fs.writeFile(path.join(DIST, 'CNAME'), 'bloatware.crabwire.net\n', 'utf8');
 
     log.info(`Build successful. Generated ${routeMap.size} routes in ${routeManifest.durationMs}ms.`);
 }

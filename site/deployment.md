@@ -25,6 +25,12 @@ The workflow is defined in `.github/workflows/deploy.yml` and runs two jobs:
 2. Ensure the Pages source is enabled for GitHub Actions.
 3. Push to `main` and verify the workflow succeeds.
 
+## Custom Domain
+
+- Published URL: `https://bloatware.crabwire.net`
+- Managed via GitHub Pages custom domain configuration with a `CNAME` record pointing to GitHub Pages.
+- The build script (`site/scripts/build-static.ts`) automatically generates `site/dist/CNAME` to maintain the custom domain binding across deployments.
+
 ## Notes
 
 - Current scope deploys to GitHub Pages only.
