@@ -96,8 +96,8 @@ export async function generateAllRoutes(sitemapCollector?: SitemapRouteEntry[]):
         const template = record.kind === 'article'
             ? React.createElement(ArticleDetailTemplate, { item: resolvedRecord })
             : record.kind === 'zettel'
-            ? React.createElement(ZettelDetailTemplate, { item: resolvedRecord })
-            : React.createElement(PageDetailTemplate, { item: resolvedRecord });
+                ? React.createElement(ZettelDetailTemplate, { item: resolvedRecord })
+                : React.createElement(PageDetailTemplate, { item: resolvedRecord });
 
         const html = documentFromElement(template);
         routeMap.set(record.route, html);
@@ -160,8 +160,8 @@ export async function generateAllRoutes(sitemapCollector?: SitemapRouteEntry[]):
 
     if (sitemapCollector) {
         sitemapCollector.unshift(
-            { route: '/', priority: '1.0', changefreq: 'daily' },
-            { route: '/articles/', priority: '0.8', changefreq: 'daily' },
+            { route: '/', priority: '1.0', changefreq: 'weekly' },
+            { route: '/articles/', priority: '0.8', changefreq: 'weekly' },
             { route: '/pages/', priority: '0.8', changefreq: 'weekly' },
             { route: '/zettelkasten/', priority: '0.7', changefreq: 'weekly' }
         );
