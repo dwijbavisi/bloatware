@@ -1,23 +1,20 @@
-# Deployment
+# Deployment Strategy
 
-This project deploys automatically to GitHub Pages from the `main` branch.
+This document outlines the hosting environment, domain architecture, CI/CD pipeline, and automation routines for deploying `bloatware`.
 
-## Workflow
+## Infrastructure & Hosting
 
-The workflow is defined in `.github/workflows/deploy.yml` and runs two jobs:
+- **Hosting Provider**: GitHub Pages
+- **Environment**: Static site hosted directly from build artifacts
+- **Base URL / Path**: Custom root domain `https://bloatware.crabwire.net`
 
-1. `build`
-- Installs dependencies in `site/`
-- Runs `npm run build`
-- Uploads `site/dist` as the Pages artifact
+## CI/CD Pipeline (`.github/workflows/deploy.yml`)
 
-2. `deploy-pages`
-- Deploys the artifact to GitHub Pages (`gh-pages`)
+The deployment process is automated using GitHub Actions.
 
-## Trigger
-
-- Automatic: every push to `main`
-- Manual: via `workflow_dispatch`
+- **Trigger Events**:
+  - Push to `main` branch
+  - Manual: via `workflow_dispatch`
 
 ## One-Time Repository Setup
 
@@ -33,7 +30,6 @@ The workflow is defined in `.github/workflows/deploy.yml` and runs two jobs:
   - `site/dist/CNAME`: Maintains custom domain binding across deployments.
   - `site/dist/sitemap.xml`: Full XML sitemap conforming to sitemaps.org 0.9 with `lastmod`, `priority`, and `changefreq`.
   - `site/dist/robots.txt`: Directs search engine crawlers (Googlebot, etc.) to `https://bloatware.crabwire.net/sitemap.xml`.
-  - Canonical link tags (`<link rel="canonical" href="..." />`) on every HTML page via `CoreLayout.tsx` to satisfy Search Console canonical declarations and prevent duplicate content (e.g. `/index.html` vs `/`).
 
 ## Notes
 
