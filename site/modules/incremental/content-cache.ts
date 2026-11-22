@@ -17,7 +17,10 @@ async function gatherMarkdownFiles(dir: string): Promise<string[]> {
     let entries;
     try {
         entries = await fs.readdir(dir, { withFileTypes: true });
-    } catch {
+    } catch (err: any) {
+        if (err?.code !== 'ENOENT') {
+            log.warn(`Failed reading content directory ${dir}:`, err);
+        }
         return results;
     }
 
@@ -64,6 +67,8 @@ export async function syncContentCache(
 
     const currentFiles = new Map<string, { kind: ContentKind | 'readme'; absolutePath: string; sourcePath: string }>();
 
+    log.debug(`Scanning content directories for changes (existing cached items: ${Object.keys(existingItems).length})...`);
+
     // 1. Gather all content files
     for (const { kind, dir } of contentDirs) {
         const files = await gatherMarkdownFiles(dir);
@@ -85,14 +90,19 @@ export async function syncContentCache(
                 sourcePath: 'readMe.md'
             });
         }
-    } catch {
-        // readMe.md not found
+    } catch (err: any) {
+        if (err?.code !== 'ENOENT') {
+            log.warn(`Failed reading root readMe.md at ${readMePath}:`, err);
+        }
     }
+
+    log.debug(`Discovered ${currentFiles.size} content files on disk.`);
 
     // 3. Detect deleted files
     for (const key of Object.keys(existingItems)) {
         if (!currentFiles.has(key)) {
             deletedPaths.push(key);
+            log.debug(`[content:deleted] ${key}`);
         }
     }
 
@@ -102,7 +112,8 @@ export async function syncContentCache(
         let fileStat;
         try {
             fileStat = await fs.stat(info.absolutePath);
-        } catch {
+        } catch (err: any) {
+            log.warn(`Cannot stat content file "${info.sourcePath}" (${info.absolutePath}):`, err);
             continue;
         }
 
@@ -112,17 +123,22 @@ export async function syncContentCache(
         if (cached && cached.mtimeMs === mtimeMs) {
             contentMap.set(key, cached);
             unchangedPaths.push(key);
+            log.debug(`[content:unchanged] ${key} (mtime matched)`);
             continue;
         }
 
         // Compute hash if mtime differs or no cache
         const contentHash = await hashFile(info.absolutePath);
+        if (!contentHash) {
+            log.warn(`Empty content hash computed for "${info.sourcePath}" (${info.absolutePath}). File may be empty or unreadable.`);
+        }
 
         if (cached && cached.contentHash === contentHash) {
             // Content didn't change despite mtime touch
             const updated = { ...cached, mtimeMs };
             contentMap.set(key, updated);
             unchangedPaths.push(key);
+            log.debug(`[content:unchanged] ${key} (content hash matched: ${contentHash.slice(0, 8)})`);
             continue;
         }
 
@@ -132,7 +148,9 @@ export async function syncContentCache(
             const { ast, metadata, diagnostics } = parseMarkdown(fileText);
 
             if (diagnostics.length > 0) {
-                log.warn(`[${info.sourcePath}] Parsed with ${diagnostics.length} warnings.`);
+                log.warn(
+                    `[${info.sourcePath}] Parsed with ${diagnostics.length} diagnostic warnings:\n  - ${diagnostics.map(d => `${d.message} (line ${d.line ?? '?'})`).join('\n  - ')}`
+                );
             }
 
             const searchData = info.kind !== 'readme' ? extractHeadingsAndContent(ast) : undefined;
@@ -152,11 +170,17 @@ export async function syncContentCache(
 
             if (cached) {
                 modifiedPaths.push(key);
+                log.debug(`[content:modified] ${key} (hash: ${cached.contentHash.slice(0, 8)} -> ${contentHash.slice(0, 8)})`);
             } else {
                 addedPaths.push(key);
+                log.debug(`[content:added] ${key} (hash: ${contentHash.slice(0, 8)})`);
             }
         } catch (err) {
-            log.error(`Failed to parse markdown for ${info.sourcePath}:`, err instanceof Error ? err : new Error(String(err)));
+            const errorObj = err instanceof Error ? err : new Error(String(err));
+            log.error(`Failed to read or parse markdown for "${info.sourcePath}" (${info.absolutePath}):`, {
+                message: errorObj.message,
+                stack: errorObj.stack
+            });
         }
     }
 

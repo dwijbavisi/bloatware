@@ -31,6 +31,7 @@ export interface RouteCacheItem {
 export interface BuildManifest {
     version: number;
     codeHash: string;
+    codeFileHashes?: Record<string, string>;
     assetHashes: Record<string, string>;
     contentItems: Record<string, ContentCacheItem>;
     routeItems: Record<string, RouteCacheItem>;

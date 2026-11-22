@@ -20,19 +20,32 @@ import type {
 } from './md-parser';
 
 /**
- * Splits a standard web route into segments, ignoring empty parts and root slash.
+ * Splits a standard web route into directory segments and optional filename,
+ * ignoring empty parts and root slash.
  *
- * @param route - The canonical route (e.g., "/articles/2026/03/the-fuel-of-intent/")
- * @returns Array of non-empty route segments.
+ * @param route - The canonical route (e.g., "/articles/2026/03/the-fuel-of-intent/" or "/404.html")
+ * @returns Object containing segments array and optional filename.
  * @example
- * splitRoute("/articles/my-post/")
- * // Returns: ["articles", "my-post"]
+ * splitRoute("/articles/my-post/index.html")
+ * // Returns: { segments: ["articles", "my-post"], filename: "index.html" }
  */
-function splitRoute(route: string): string[] {
-    if (route === '/') {
-        return [];
+function splitRoute(route: string): { segments: string[]; filename?: string } {
+    let clean = route.replace(/^\/+|\/+$/g, '');
+    let filename: string | undefined = undefined;
+
+    if (clean.toLowerCase().endsWith('.html')) {
+        const lastSlash = clean.lastIndexOf('/');
+        if (lastSlash === -1) {
+            filename = clean;
+            clean = '';
+        } else {
+            filename = clean.slice(lastSlash + 1);
+            clean = clean.slice(0, lastSlash);
+        }
     }
-    return route.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+
+    const segments = clean ? clean.split('/').filter(Boolean) : [];
+    return { segments, filename };
 }
 
 /**
@@ -48,8 +61,8 @@ function splitRoute(route: string): string[] {
  * // Returns: "../b/index.html"
  */
 export function relativeRouteHref(fromRoute: string, toRoute: string): string {
-    const from = splitRoute(fromRoute);
-    const to = splitRoute(toRoute);
+    const from = splitRoute(fromRoute).segments;
+    const { segments: to, filename } = splitRoute(toRoute);
 
     let common = 0;
     while (common < from.length && common < to.length && from[common] === to[common]) {
@@ -58,16 +71,17 @@ export function relativeRouteHref(fromRoute: string, toRoute: string): string {
 
     const upCount = from.length - common;
     const down = to.slice(common);
+    const targetFile = filename || 'index.html';
 
     if (upCount === 0 && down.length === 0) {
-        return './index.html';
+        return `./${targetFile}`;
     }
 
     const upPart = upCount > 0 ? '../'.repeat(upCount) : '';
     const downPart = down.length > 0 ? `${down.join('/')}/` : '';
     const base = `${upPart}${downPart}` || './';
 
-    return `${base}index.html`;
+    return `${base}${targetFile}`;
 }
 
 /**
@@ -190,7 +204,7 @@ export function resolveLinks(ast: BlockNode[], route: string): BlockNode[] {
  * // Returns: "../../../../style.css"
  */
 export function relativeAssetHref(fromRoute: string, assetName: string): string {
-    const from = splitRoute(fromRoute);
+    const from = splitRoute(fromRoute).segments;
     const upPart = from.length > 0 ? '../'.repeat(from.length) : '';
     return `${upPart}${assetName}`;
 }

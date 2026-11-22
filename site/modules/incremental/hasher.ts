@@ -1,6 +1,9 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { Logger } from '../logger';
+
+const log = new Logger('incremental:hasher');
 
 /**
  * Computes SHA-256 hash of a string or buffer.
@@ -16,7 +19,12 @@ export async function hashFile(filePath: string): Promise<string> {
     try {
         const buffer = await fs.readFile(filePath);
         return sha256(buffer);
-    } catch {
+    } catch (err: any) {
+        if (err?.code === 'ENOENT') {
+            log.debug(`File not found for hashing: ${filePath}`);
+        } else {
+            log.warn(`Failed reading file for hashing: ${filePath} (${err?.message || err})`);
+        }
         return '';
     }
 }
@@ -35,7 +43,8 @@ export async function hashDirectory(
         let entries;
         try {
             entries = await fs.readdir(currentDir, { withFileTypes: true });
-        } catch {
+        } catch (err: any) {
+            log.warn(`Failed reading directory for hashing: ${currentDir} (${err?.message || err})`);
             return;
         }
 
@@ -66,11 +75,50 @@ export async function hashDirectory(
     return { hash, fileHashes };
 }
 
+export interface ProjectCodeHashResult {
+    hash: string;
+    fileHashes: Record<string, string>;
+}
+
+export interface CodeDiffResult {
+    modified: string[];
+    added: string[];
+    deleted: string[];
+}
+
+/**
+ * Compares two sets of code file hashes to pinpoint modified, added, and deleted files.
+ */
+export function diffCodeHashes(
+    prev: Record<string, string> = {},
+    curr: Record<string, string> = {}
+): CodeDiffResult {
+    const modified: string[] = [];
+    const added: string[] = [];
+    const deleted: string[] = [];
+
+    for (const [file, hash] of Object.entries(curr)) {
+        if (!prev[file]) {
+            added.push(file);
+        } else if (prev[file] !== hash) {
+            modified.push(file);
+        }
+    }
+
+    for (const file of Object.keys(prev)) {
+        if (!curr[file]) {
+            deleted.push(file);
+        }
+    }
+
+    return { modified, added, deleted };
+}
+
 /**
  * Computes a composite code hash across all source directories:
  * site/src, site/modules, site/scripts.
  */
-export async function computeProjectCodeHash(siteRoot: string): Promise<string> {
+export async function computeProjectCodeHash(siteRoot: string): Promise<ProjectCodeHashResult> {
     const srcDir = path.resolve(siteRoot, 'src');
     const modulesDir = path.resolve(siteRoot, 'modules');
     const scriptsDir = path.resolve(siteRoot, 'scripts');
@@ -81,5 +129,17 @@ export async function computeProjectCodeHash(siteRoot: string): Promise<string> 
         hashDirectory(scriptsDir)
     ]);
 
-    return sha256(`src:${srcHash.hash}|mod:${modHash.hash}|scr:${scrHash.hash}`);
+    const combinedFileHashes: Record<string, string> = {};
+    for (const [k, v] of Object.entries(srcHash.fileHashes)) {
+        combinedFileHashes[`src/${k}`] = v;
+    }
+    for (const [k, v] of Object.entries(modHash.fileHashes)) {
+        combinedFileHashes[`modules/${k}`] = v;
+    }
+    for (const [k, v] of Object.entries(scrHash.fileHashes)) {
+        combinedFileHashes[`scripts/${k}`] = v;
+    }
+
+    const hash = sha256(`src:${srcHash.hash}|mod:${modHash.hash}|scr:${scrHash.hash}`);
+    return { hash, fileHashes: combinedFileHashes };
 }

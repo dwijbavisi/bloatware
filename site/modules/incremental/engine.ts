@@ -21,7 +21,7 @@ import { ZettelkastenIndexTemplate } from '../../src/templates/ZettelkastenIndex
 import { ZettelDetailTemplate } from '../../src/templates/ZettelDetailTemplate';
 import { NotFoundTemplate } from '../../src/templates/NotFoundTemplate';
 
-import { sha256, hashFile, computeProjectCodeHash } from './hasher';
+import { sha256, hashFile, computeProjectCodeHash, diffCodeHashes } from './hasher';
 import { syncContentCache, contentCacheToRawRecords } from './content-cache';
 import type {
     BuildManifest,
@@ -51,14 +51,33 @@ async function* arrayToGenerator<T>(items: T[]): AsyncGenerator<T> {
 export async function loadBuildManifest(cacheFilePath: string): Promise<BuildManifest | null> {
     try {
         const text = await fs.readFile(cacheFilePath, 'utf8');
-        const parsed = JSON.parse(text) as BuildManifest;
-        if (parsed.version === CACHE_VERSION) {
-            return parsed;
+        try {
+            const parsed = JSON.parse(text) as BuildManifest;
+            if (parsed.version === CACHE_VERSION) {
+                log.info(
+                    `Loaded build cache from ${cacheFilePath} (${Object.keys(parsed.routeItems || {}).length} routes, ${Object.keys(parsed.contentItems || {}).length} content items, timestamp: ${parsed.timestamp}).`
+                );
+                return parsed;
+            } else {
+                log.warn(
+                    `Cache invalidated: Manifest version mismatch at ${cacheFilePath} (found version ${parsed.version}, expected ${CACHE_VERSION}). Performing full rebuild.`
+                );
+                return null;
+            }
+        } catch (jsonErr: any) {
+            log.warn(
+                `Cache corrupted: Failed to parse manifest JSON at ${cacheFilePath} (${jsonErr?.message || jsonErr}). Discarding cache.`
+            );
+            return null;
         }
-    } catch {
-        // Cache miss or read error
+    } catch (err: any) {
+        if (err?.code === 'ENOENT') {
+            log.info(`Cache miss: No existing build cache found at ${cacheFilePath}. Performing full build.`);
+        } else {
+            log.warn(`Cache read error at ${cacheFilePath} (${err?.message || err}). Performing full rebuild.`);
+        }
+        return null;
     }
-    return null;
 }
 
 /**
@@ -66,10 +85,19 @@ export async function loadBuildManifest(cacheFilePath: string): Promise<BuildMan
  */
 export async function saveBuildManifest(cacheFilePath: string, manifest: BuildManifest): Promise<void> {
     try {
+        const startTime = Date.now();
         await fs.mkdir(path.dirname(cacheFilePath), { recursive: true });
-        await fs.writeFile(cacheFilePath, JSON.stringify(manifest), 'utf8');
-    } catch (err) {
-        log.warn('Failed to save build manifest to disk:', err);
+        const jsonStr = JSON.stringify(manifest);
+        await fs.writeFile(cacheFilePath, jsonStr, 'utf8');
+        const duration = Date.now() - startTime;
+        log.info(
+            `Build manifest saved to ${cacheFilePath} (${(Buffer.byteLength(jsonStr) / 1024).toFixed(1)} KB, ${Object.keys(manifest.routeItems).length} routes) in ${duration}ms.`
+        );
+    } catch (err: any) {
+        log.error(`Failed to save build manifest to disk at ${cacheFilePath}:`, {
+            message: err?.message || String(err),
+            stack: err?.stack
+        });
     }
 }
 
@@ -99,15 +127,18 @@ export async function executeIncrementalBuild(
     const cacheDir = options.cacheDir || path.resolve(siteRoot, '.cache');
     const cacheFilePath = path.join(cacheDir, 'build-cache.json');
 
-    log.info('Evaluating incremental build state...');
+    log.info(`Evaluating incremental build state (siteRoot: ${siteRoot}, clean: ${Boolean(options.forceClean)})...`);
 
     let prevManifest: BuildManifest | null = null;
-    if (!options.forceClean) {
+    if (options.forceClean) {
+        log.info('Clean build requested: bypassing existing manifest cache.');
+    } else {
         prevManifest = await loadBuildManifest(cacheFilePath);
     }
 
     // 1. Compute Code & Asset Hashes
-    const codeHash = await computeProjectCodeHash(siteRoot);
+    const codeResult = await computeProjectCodeHash(siteRoot);
+    const codeHash = codeResult.hash;
     const stylesPath = path.resolve(siteRoot, 'src/assets/styles.css');
     const interactionPath = path.resolve(siteRoot, 'src/assets/interaction.ts');
     const [stylesHash, interactionHash] = await Promise.all([
@@ -120,19 +151,54 @@ export async function executeIncrementalBuild(
     };
 
     const codeChanged = !prevManifest || prevManifest.codeHash !== codeHash;
-    const assetsChanged = !prevManifest ||
-        prevManifest.assetHashes.styles !== stylesHash ||
-        prevManifest.assetHashes.interaction !== interactionHash;
+    const stylesChanged = !prevManifest || prevManifest.assetHashes.styles !== stylesHash;
+    const interactionChanged = !prevManifest || prevManifest.assetHashes.interaction !== interactionHash;
+    const assetsChanged = stylesChanged || interactionChanged;
 
     if (codeChanged) {
-        log.info('Source code or templates modified: invalidating route renders.');
+        if (prevManifest?.codeFileHashes) {
+            const diff = diffCodeHashes(prevManifest.codeFileHashes, codeResult.fileHashes);
+            const totalChanges = diff.modified.length + diff.added.length + diff.deleted.length;
+            log.info(
+                `Source code or template changes detected (${totalChanges} files: ${diff.modified.length} modified, ${diff.added.length} added, ${diff.deleted.length} deleted). Invalidating cached route renders.`
+            );
+            if (diff.modified.length > 0) {
+                log.info(`Modified source files: ${diff.modified.slice(0, 10).join(', ')}${diff.modified.length > 10 ? '...' : ''}`);
+            }
+            if (diff.added.length > 0) {
+                log.info(`Added source files: ${diff.added.slice(0, 10).join(', ')}${diff.added.length > 10 ? '...' : ''}`);
+            }
+            if (diff.deleted.length > 0) {
+                log.info(`Deleted source files: ${diff.deleted.slice(0, 10).join(', ')}${diff.deleted.length > 10 ? '...' : ''}`);
+            }
+        } else {
+            log.info('Source code modified: invalidating route renders.');
+        }
+    } else {
+        log.info('Source code unchanged (code hash matched).');
+    }
+
+    if (assetsChanged) {
+        if (stylesChanged) log.info(`Styles asset modified (${stylesPath}).`);
+        if (interactionChanged) log.info(`Interaction script asset modified (${interactionPath}).`);
     }
 
     // 2. Sync Content Cache (ASTs and metadata)
     const scanResult = await syncContentCache(siteRoot, prevManifest?.contentItems || {});
     const contentChangedFiles = scanResult.addedPaths.length + scanResult.modifiedPaths.length + scanResult.deletedPaths.length;
 
-    log.info(`Content scan: ${scanResult.unchangedPaths.length} unchanged, ${scanResult.modifiedPaths.length} modified, ${scanResult.addedPaths.length} added, ${scanResult.deletedPaths.length} deleted.`);
+    log.info(
+        `Content scan completed: ${scanResult.unchangedPaths.length} unchanged, ${scanResult.modifiedPaths.length} modified, ${scanResult.addedPaths.length} added, ${scanResult.deletedPaths.length} deleted.`
+    );
+    if (scanResult.modifiedPaths.length > 0) {
+        log.info(`Modified content files: ${scanResult.modifiedPaths.slice(0, 10).join(', ')}${scanResult.modifiedPaths.length > 10 ? '...' : ''}`);
+    }
+    if (scanResult.addedPaths.length > 0) {
+        log.info(`Added content files: ${scanResult.addedPaths.slice(0, 10).join(', ')}${scanResult.addedPaths.length > 10 ? '...' : ''}`);
+    }
+    if (scanResult.deletedPaths.length > 0) {
+        log.info(`Deleted content files: ${scanResult.deletedPaths.slice(0, 10).join(', ')}${scanResult.deletedPaths.length > 10 ? '...' : ''}`);
+    }
 
     // 3. Reconstruct Route Hierarchy from Content
     const rawRecords = contentCacheToRawRecords(scanResult.contentMap);
@@ -188,24 +254,46 @@ export async function executeIncrementalBuild(
         let html: string;
         let htmlHash: string;
 
+        let rebuildReason = '';
+        if (codeChanged) {
+            rebuildReason = 'code_or_template_changed';
+        } else if (!cachedRoute) {
+            rebuildReason = 'new_route';
+        } else if (!cachedRoute.html) {
+            rebuildReason = 'cached_html_missing';
+        } else if (cachedRoute.dependencyHash !== depHash) {
+            rebuildReason = 'content_or_dependency_changed';
+        }
+
         // Check if we can reuse cached HTML
-        if (!codeChanged && cachedRoute && cachedRoute.dependencyHash === depHash && cachedRoute.html) {
+        if (!rebuildReason && cachedRoute) {
             html = cachedRoute.html;
             htmlHash = cachedRoute.htmlHash;
+            log.debug(`[route:cached] ${record.route}`);
         } else {
             // Needs rendering
-            const resolvedAst = resolveLinks(record.ast, record.route);
-            const resolvedRecord: ContentRecord = { ...record, ast: resolvedAst };
+            try {
+                const resolvedAst = resolveLinks(record.ast, record.route);
+                const resolvedRecord: ContentRecord = { ...record, ast: resolvedAst };
 
-            const template = record.kind === 'article'
-                ? React.createElement(ArticleDetailTemplate, { item: resolvedRecord })
-                : record.kind === 'zettel'
-                    ? React.createElement(ZettelDetailTemplate, { item: resolvedRecord })
-                    : React.createElement(PageDetailTemplate, { item: resolvedRecord });
+                const template = record.kind === 'article'
+                    ? React.createElement(ArticleDetailTemplate, { item: resolvedRecord })
+                    : record.kind === 'zettel'
+                        ? React.createElement(ZettelDetailTemplate, { item: resolvedRecord })
+                        : React.createElement(PageDetailTemplate, { item: resolvedRecord });
 
-            html = documentFromElement(template);
-            htmlHash = sha256(html);
-            changedRoutes.add(record.route);
+                html = documentFromElement(template);
+                htmlHash = sha256(html);
+                changedRoutes.add(record.route);
+                log.debug(`[route:rebuilt] ${record.route} (reason: ${rebuildReason})`);
+            } catch (err: any) {
+                const errorObj = err instanceof Error ? err : new Error(String(err));
+                log.error(
+                    `Fatal error rendering route "${record.route}" for content "${record.sourcePath}" (${record.id}):`,
+                    { message: errorObj.message, stack: errorObj.stack }
+                );
+                throw errorObj;
+            }
         }
 
         routeMap.set(record.route, html);
@@ -275,16 +363,38 @@ export async function executeIncrementalBuild(
         const depHash = sha256(depString);
         const cached = prevRouteItems[route];
 
+        let rebuildReason = '';
+        if (codeChanged) {
+            rebuildReason = 'code_or_template_changed';
+        } else if (!cached) {
+            rebuildReason = 'new_collection_route';
+        } else if (!cached.html) {
+            rebuildReason = 'cached_html_missing';
+        } else if (cached.dependencyHash !== depHash) {
+            rebuildReason = 'collection_items_changed';
+        }
+
         let html: string;
         let htmlHash: string;
 
-        if (!codeChanged && cached && cached.dependencyHash === depHash && cached.html) {
+        if (!rebuildReason && cached) {
             html = cached.html;
             htmlHash = cached.htmlHash;
+            log.debug(`[collection:cached] ${route}`);
         } else {
-            html = documentFromElement(element);
-            htmlHash = sha256(html);
-            changedRoutes.add(route);
+            try {
+                html = documentFromElement(element);
+                htmlHash = sha256(html);
+                changedRoutes.add(route);
+                log.debug(`[collection:rebuilt] ${route} (reason: ${rebuildReason})`);
+            } catch (err: any) {
+                const errorObj = err instanceof Error ? err : new Error(String(err));
+                log.error(`Fatal error rendering collection route "${route}":`, {
+                    message: errorObj.message,
+                    stack: errorObj.stack
+                });
+                throw errorObj;
+            }
         }
 
         routeMap.set(route, html);
@@ -356,6 +466,9 @@ export async function executeIncrementalBuild(
             }
         }
     }
+    if (deletedRoutes.size > 0) {
+        log.info(`Detected ${deletedRoutes.size} deleted routes: ${Array.from(deletedRoutes).join(', ')}`);
+    }
 
     const durationMs = profiler.timeEnd('incremental-build', 'Incremental build evaluation') ?? 0;
 
@@ -370,6 +483,10 @@ export async function executeIncrementalBuild(
         contentChangedFiles
     };
 
+    log.info(
+        `Incremental build evaluation finished in ${durationMs.toFixed(1)}ms (${routeMap.size} total routes: ${changedRoutes.size} rebuilt, ${stats.cachedRoutes} cached, ${deletedRoutes.size} deleted).`
+    );
+
     // Save updated manifest
     const updatedContentItems: Record<string, ContentCacheItem> = {};
     for (const [k, v] of scanResult.contentMap.entries()) {
@@ -379,6 +496,7 @@ export async function executeIncrementalBuild(
     const newManifest: BuildManifest = {
         version: CACHE_VERSION,
         codeHash,
+        codeFileHashes: codeResult.fileHashes,
         assetHashes,
         contentItems: updatedContentItems,
         routeItems: newRouteItems,
