@@ -5,6 +5,7 @@ import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from '.
 export function devServerPlugin(): Plugin {
     let routeMap = new Map<string, string>();
     let sitemapEntries: SitemapRouteEntry[] = [];
+    let searchEntries: unknown[] = [];
     let isBuilding = false;
 
     async function rebuildRoutes(server: ViteDevServer) {
@@ -15,7 +16,8 @@ export function devServerPlugin(): Plugin {
             const builderPath = path.resolve(process.cwd(), 'scripts/builder.ts');
             const builder = await server.ssrLoadModule(builderPath);
             sitemapEntries = [];
-            routeMap = await builder.generateAllRoutes(sitemapEntries);
+            searchEntries = [];
+            routeMap = await builder.generateAllRoutes(sitemapEntries, searchEntries);
             console.log(`[Vite SSG] Successfully generated ${routeMap.size} routes.`);
         } catch (e) {
             console.error('[Vite SSG] Error rebuilding routes:', e);
@@ -39,11 +41,6 @@ export function devServerPlugin(): Plugin {
             server.middlewares.use(async (req, res, next) => {
                 if (!req.url) return next();
 
-                // Skip static assets
-                if (req.url.match(/\.(css|js|ts|tsx|png|jpg|jpeg|svg|json|ico)$/)) {
-                    return next();
-                }
-
                 try {
                     const rawUrl = req.url.split('?')[0];
                     if (rawUrl === '/sitemap.xml') {
@@ -57,6 +54,17 @@ export function devServerPlugin(): Plugin {
                         res.statusCode = 200;
                         res.end(generateRobotsTxt());
                         return;
+                    }
+                    if (rawUrl === '/search-index.json') {
+                        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                        res.statusCode = 200;
+                        res.end(JSON.stringify(searchEntries));
+                        return;
+                    }
+
+                    // Skip static assets
+                    if (req.url.match(/\.(css|js|ts|tsx|png|jpg|jpeg|svg|json|ico)$/)) {
+                        return next();
                     }
                     let route = rawUrl;
                     
@@ -75,7 +83,10 @@ export function devServerPlugin(): Plugin {
                         // Rewrite assets to point to Vite's dev server src/assets
                         html = html
                             .replace(/href="([^"]*)assets\/styles\.css"/g, 'href="/src/assets/styles.css"')
-                            .replace(/src="([^"]*)assets\/interaction\.js"/g, 'src="/src/assets/interaction.ts"');
+                            .replace(
+                                /<script\b[^>]*src="[^"]*assets\/interaction\.js"[^>]*><\/script>/g,
+                                '<script type="module" src="/src/assets/interaction.ts"></script>'
+                            );
 
                         // Inject Vite's HMR scripts
                         const transformedHtml = await server.transformIndexHtml(req.url, html);

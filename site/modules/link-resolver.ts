@@ -1,4 +1,19 @@
-import path from 'node:path';
+/**
+ * Normalizes and resolves a relative POSIX path against a base directory.
+ */
+function posixResolve(baseDir: string, relativePath: string): string {
+    const stack = baseDir.split('/').filter(Boolean);
+    const parts = relativePath.split('/').filter(Boolean);
+    for (const p of parts) {
+        if (p === '.') continue;
+        if (p === '..') {
+            if (stack.length > 0) stack.pop();
+        } else {
+            stack.push(p);
+        }
+    }
+    return '/' + stack.join('/');
+}
 import type {
     BlockNode,
     InlineNode
@@ -85,7 +100,7 @@ function resolveMdLinkHref(href: string, fromRoute: string): string {
     const fromDir = fromRoute.replace(/\/$/, '').split('/').slice(0, -1).join('/') + '/';
 
     // Resolve the raw href relative to that directory, strip .md, and append slash
-    const resolved = path.posix.resolve(fromDir, pathPart.replace(/\.md$/i, ''));
+    const resolved = posixResolve(fromDir, pathPart.replace(/\.md$/i, ''));
     const targetRoute = resolved + '/';
 
     return `${relativeRouteHref(fromRoute, targetRoute)}${fragment}`;

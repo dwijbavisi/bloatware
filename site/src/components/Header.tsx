@@ -34,6 +34,19 @@ export function Header({ currentRoute, toc }: HeaderProps): React.JSX.Element {
                     <TableOfContents toc={toc} />
                     <button
                         type="button"
+                        className="search-toggle"
+                        data-action="open-search"
+                        aria-label="Open search command palette"
+                        title="Search (⌘K or /)"
+                    >
+                        <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span className="search-shortcut">⌘K</span>
+                    </button>
+                    <button
+                        type="button"
                         className="theme-toggle"
                         data-interaction="theme-toggle"
                         aria-label="Toggle color theme"

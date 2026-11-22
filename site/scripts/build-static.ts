@@ -5,6 +5,7 @@ import { Logger } from '../modules/logger';
 import profiler from '../modules/profiler';
 import { generateAllRoutes } from './builder';
 import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap';
+import type { SearchEntry } from '../modules/search-index';
 
 const ROOT = process.cwd();
 const DIST = path.resolve(ROOT, 'dist');
@@ -48,7 +49,8 @@ async function run(): Promise<void> {
     });
 
     const sitemapEntries: SitemapRouteEntry[] = [];
-    const routeMap = await generateAllRoutes(sitemapEntries);
+    const searchEntries: SearchEntry[] = [];
+    const routeMap = await generateAllRoutes(sitemapEntries, searchEntries);
 
     log.info('Reading bundled styles for inlining to eliminate render-blocking...');
     const cssPath = path.resolve(ASSETS_DIR, 'styles.css');
@@ -69,6 +71,13 @@ async function run(): Promise<void> {
 
     const robotsTxt = generateRobotsTxt();
     await fs.writeFile(path.join(DIST, 'robots.txt'), robotsTxt, 'utf8');
+
+    log.info('Writing search-index.json...');
+    await fs.writeFile(
+        path.join(DIST, 'search-index.json'),
+        JSON.stringify(searchEntries),
+        'utf8'
+    );
 
     log.info('Writing route-manifest.json...');
     const durationMs = profiler.timeEnd('build', 'Total build execution time') ?? 0;

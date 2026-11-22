@@ -20,6 +20,7 @@ import { ZettelkastenIndexTemplate } from '../src/templates/ZettelkastenIndexTem
 import { ZettelDetailTemplate } from '../src/templates/ZettelDetailTemplate';
 import { NotFoundTemplate } from '../src/templates/NotFoundTemplate';
 import type { SitemapRouteEntry } from './sitemap';
+import { buildSearchIndex, type SearchEntry } from '../modules/search-index';
 
 import { enrichSeries } from '../src/lib/series';
 
@@ -39,7 +40,10 @@ async function* combinedContentStream() {
     yield* loadContentGenerator('zettel', zettelDir);
 }
 
-export async function generateAllRoutes(sitemapCollector?: SitemapRouteEntry[]): Promise<Map<string, string>> {
+export async function generateAllRoutes(
+    sitemapCollector?: SitemapRouteEntry[],
+    searchCollector?: SearchEntry[]
+): Promise<Map<string, string>> {
     profiler.time('generate-routes');
     log.info('Generating all routes in memory...');
 
@@ -69,6 +73,11 @@ export async function generateAllRoutes(sitemapCollector?: SitemapRouteEntry[]):
     // Detect and enrich articles with series info
     const articleRecords = allRecords.filter(r => r.kind === 'article');
     enrichSeries(articleRecords);
+
+    if (searchCollector) {
+        const searchItems = buildSearchIndex(allRecords);
+        searchCollector.push(...searchItems);
+    }
 
     for (const record of allRecords) {
         log.info(`Rendering route: ${record.route}`);
