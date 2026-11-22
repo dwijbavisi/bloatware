@@ -216,4 +216,108 @@ export class SearchEngine {
         matches.sort((a, b) => b.score - a.score);
         return matches.slice(0, limit);
     }
+
+    /**
+     * Recommends closest matching articles for a given query (e.g. 404 URL coordinate).
+     * Unlike strict search which requires all tokens, recommendation uses fuzzy token scoring
+     * and prioritizes articles to suggest the most relevant content even with partial or mistyped paths.
+     *
+     * @param rawQuery - Input query or URL path.
+     * @param limit - Maximum suggestions to return (default 5).
+     */
+    public recommendClosest(rawQuery: string, limit = 5): SearchMatch[] {
+        if (!this.loaded || this.entries.length === 0) {
+            return [];
+        }
+
+        const q = rawQuery.trim().toLowerCase();
+        const tokens = q.split(/\s+/).filter(t => t.length > 0);
+
+        if (tokens.length === 0) {
+            // If empty, return latest articles
+            const articles = this.entries
+                .filter(e => e.kind === 'article')
+                .sort((a, b) => {
+                    if (a.date && b.date) return a.date < b.date ? 1 : -1;
+                    return a.title.localeCompare(b.title);
+                });
+            return articles.slice(0, limit).map((item) => ({
+                item,
+                score: 1,
+                titleHtml: escapeHtml(item.title),
+                snippet: generateSnippet(item.summary || item.content, [])
+            }));
+        }
+
+        const matches: SearchMatch[] = [];
+
+        for (const item of this.entries) {
+            const titleLower = item.title.toLowerCase();
+            const summaryLower = (item.summary || '').toLowerCase();
+            const contentLower = item.content.toLowerCase();
+            const headingsLower = item.headings.map(h => h.toLowerCase());
+
+            let score = 0;
+            let matchedTokens = 0;
+            const matchedTokenList: string[] = [];
+
+            for (const t of tokens) {
+                const inTitle = titleLower.includes(t);
+                const inHeading = headingsLower.some(h => h.includes(t));
+                const inSummary = summaryLower.includes(t);
+                const inContent = contentLower.includes(t);
+
+                if (inTitle || inHeading || inSummary || inContent) {
+                    matchedTokens++;
+                    matchedTokenList.push(t);
+                }
+
+                if (inTitle) score += 60;
+                if (inHeading) score += 35;
+                if (inSummary) score += 20;
+                if (inContent) score += 10;
+            }
+
+            // Must match at least one token
+            if (matchedTokens === 0) {
+                continue;
+            }
+
+            // Bonus for ratio of tokens matched
+            score += Math.round((matchedTokens / tokens.length) * 120);
+
+            // Strong bonus for articles to prioritize article recommendations
+            if (item.kind === 'article') {
+                score += 45;
+            }
+
+            // Phrase match bonuses
+            if (titleLower.includes(q)) {
+                score += 100;
+            } else if (summaryLower.includes(q)) {
+                score += 50;
+            }
+
+            // Recency tiebreaker
+            if (item.date) {
+                const year = parseInt(item.date.slice(0, 4), 10);
+                if (!isNaN(year)) {
+                    score += Math.min(5, Math.max(0, year - 2020));
+                }
+            }
+
+            const snippet = generateSnippet(item.content || item.summary || '', matchedTokenList);
+            const titleHtml = highlightMatches(item.title, matchedTokenList);
+
+            matches.push({
+                item,
+                score,
+                titleHtml,
+                snippet
+            });
+        }
+
+        matches.sort((a, b) => b.score - a.score);
+        return matches.slice(0, limit);
+    }
 }

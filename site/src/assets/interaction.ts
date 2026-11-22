@@ -361,6 +361,100 @@ register("command-palette", (el) => {
 });
 
 /**
+ * Built-in: not-found-suggestions
+ * On the 404 page, automatically extracts the requested URL path as a read-only query,
+ * fetches the search index, and presents closest-matching article recommendations.
+ */
+register("not-found-suggestions", (el) => {
+    if (!(el instanceof HTMLElement)) return;
+
+    const queryDisplay = el.querySelector<HTMLElement>("[data-target='query-display']");
+    const statusEl = el.querySelector<HTMLElement>("[data-target='status']");
+    const listEl = el.querySelector<HTMLUListElement>("[data-target='suggestions-list']");
+
+    if (!listEl) return;
+
+    // 1. Derive search query from actual browser pathname
+    const rawPath = window.location.pathname;
+    const pathWithoutBase = rawPath.replace(/^\/bloatware\/?/, '/');
+    let decoded = '';
+    try {
+        decoded = decodeURIComponent(pathWithoutBase);
+    } catch {
+        decoded = pathWithoutBase;
+    }
+
+    // Strip .html and index.html
+    const normalizedPath = decoded.replace(/\/index\.html\/?$/i, '').replace(/\.html\/?$/i, '');
+
+    // Display the searched coordinate in the read-only pill
+    if (queryDisplay) {
+        queryDisplay.textContent = rawPath || '/';
+        queryDisplay.setAttribute('title', `Coordinate: ${rawPath}`);
+    }
+
+    // Extract search query tokens (removing slashes, hyphens, and underscores)
+    const searchQuery = normalizedPath
+        .replace(/[\/\-_.]+/g, ' ')
+        .trim();
+
+    const engine = new SearchEngine();
+    const currentRoute = document.documentElement.dataset.route || "/";
+
+    const runRecommendation = async () => {
+        if (statusEl) statusEl.textContent = "Scanning index signals…";
+
+        try {
+            const indexUrl = relativeAssetHref(currentRoute, "search-index.json");
+            const res = await fetch(indexUrl);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            engine.setIndex(data);
+
+            const recommendations = engine.recommendClosest(searchQuery, 5);
+
+            if (recommendations.length === 0) {
+                if (statusEl) statusEl.textContent = "No direct coordinate matches.";
+                listEl.innerHTML = `
+                    <li class="error-suggestion-empty">
+                        <p>No related articles match this specific coordinate path.</p>
+                        <p class="error-suggestion-empty-sub">Use the navigation options below to explore the archives.</p>
+                    </li>
+                `;
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.textContent = `${recommendations.length} recommended article${recommendations.length === 1 ? '' : 's'}`;
+            }
+
+            listEl.innerHTML = recommendations
+                .map((match) => {
+                    const targetHref = relativeRouteHref(currentRoute, match.item.route);
+                    return `
+                        <li class="error-suggestion-card">
+                            <a href="${targetHref}" class="error-suggestion-link">
+                                <div class="error-suggestion-card-header">
+                                    <span class="command-palette-badge kind-${match.item.kind}">${match.item.kind}</span>
+                                    <h4 class="error-suggestion-title">${match.titleHtml || escapeHtml(match.item.title)}</h4>
+                                    ${match.item.date ? `<span class="error-suggestion-date">${match.item.date}</span>` : ''}
+                                </div>
+                                ${match.snippet ? `<p class="error-suggestion-snippet">${match.snippet}</p>` : ''}
+                            </a>
+                        </li>
+                    `;
+                })
+                .join("");
+        } catch (err) {
+            console.error("404 recommendation failed to load search index:", err);
+            if (statusEl) statusEl.textContent = "Recommendation service unavailable.";
+        }
+    };
+
+    runRecommendation();
+});
+
+/**
  * Auto-initialization
  * Automatically runs the init function when the DOM is completely loaded.
  */
