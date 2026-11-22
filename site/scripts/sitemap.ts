@@ -1,3 +1,5 @@
+import { toCanonicalFullPath } from '../modules/link-resolver';
+
 /**
  * Types and utilities for generating sitemap.xml and robots.txt.
  */
@@ -55,7 +57,7 @@ export function generateSitemapXml(
     const urls = entries
         .filter(entry => entry.route !== '/404.html' && entry.route !== '/404')
         .map(entry => {
-            const path = entry.route.startsWith('/') ? entry.route : `/${entry.route}`;
+            const path = toCanonicalFullPath(entry.route);
             const loc = `${cleanOrigin}${path}`;
             const tags: string[] = [
                 `    <loc>${loc}</loc>`

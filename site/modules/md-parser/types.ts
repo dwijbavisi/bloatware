@@ -317,6 +317,9 @@ export interface DocumentMetadata {
     published?: string;
     conceived?: string;
     sortDate?: string; // Formatted YYYY-MM-DD for chronological sorting
+    description?: string;
+    summary?: string;
+    [key: string]: unknown;
 }
 
 /**

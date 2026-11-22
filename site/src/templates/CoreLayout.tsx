@@ -1,5 +1,5 @@
 import React from 'react';
-import { relativeAssetHref } from '../../modules/link-resolver';
+import { relativeAssetHref, toCanonicalFullPath } from '../../modules/link-resolver';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import type { TocItem } from '../lib/toc';
@@ -40,6 +40,8 @@ export interface CoreLayoutProps {
  */
 export function CoreLayout({ title, pageTitle, currentRoute, description, showPageTitle = true, isNotFound = false, toc, children }: CoreLayoutProps): React.JSX.Element {
     const siteOrigin = 'https://bloatware.crabwire.net';
+    const canonicalPath = toCanonicalFullPath(currentRoute);
+    const canonicalUrl = `${siteOrigin}${canonicalPath}`;
     const pageUrl = currentRoute === '/' ? `${siteOrigin}/` : `${siteOrigin}${currentRoute}`;
     const defaultDescription = 'Project bloatware - Just a spot for my thoughts on the world and the ideas I follow.';
     const metaDescription = (description || defaultDescription).replace(/\s+/g, ' ').trim();
@@ -50,10 +52,11 @@ export function CoreLayout({ title, pageTitle, currentRoute, description, showPa
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>{title}</title>
                 <meta name="description" content={metaDescription} />
+                {!isNotFound && <link rel="canonical" href={canonicalUrl} />}
                 {isNotFound && <meta name="robots" content="noindex, nofollow" />}
                 <meta property="og:title" content={title} />
                 <meta property="og:description" content={metaDescription} />
-                <meta property="og:url" content={pageUrl} />
+                <meta property="og:url" content={isNotFound ? pageUrl : canonicalUrl} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content={title} />

@@ -179,3 +179,30 @@ export function relativeAssetHref(fromRoute: string, assetName: string): string 
     const upPart = from.length > 0 ? '../'.repeat(from.length) : '';
     return `${upPart}${assetName}`;
 }
+
+/**
+ * Resolves a route or path to its full canonical path including index.html.
+ *
+ * @param route - The site route (e.g. "/", "/articles/", "/articles/my-post/")
+ * @returns The full canonical path (e.g. "/index.html", "/articles/index.html", "/articles/my-post/index.html")
+ * @example
+ * toCanonicalFullPath("/")
+ * // Returns: "/index.html"
+ * toCanonicalFullPath("/articles/")
+ * // Returns: "/articles/index.html"
+ */
+export function toCanonicalFullPath(route: string): string {
+    const clean = route.startsWith('/') ? route : `/${route}`;
+    if (clean === '/' || clean === '') {
+        return '/index.html';
+    }
+    if (clean.endsWith('/index.html')) {
+        return clean;
+    }
+    if (clean.endsWith('.html')) {
+        return clean;
+    }
+    const normalized = clean.endsWith('/') ? clean : `${clean}/`;
+    return `${normalized}index.html`;
+}
+
