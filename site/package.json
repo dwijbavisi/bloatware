@@ -6,6 +6,7 @@
     "scripts": {
         "dev": "vite",
         "build": "npm run build:static",
+        "build:clean": "tsx scripts/build-static.ts --clean",
         "build:static": "tsx scripts/build-static.ts",
         "preview": "vite preview"
     },

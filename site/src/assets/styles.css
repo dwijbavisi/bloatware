@@ -208,6 +208,16 @@ main.inner {
     flex-shrink: 0;
 }
 
+/* No-Script / JavaScript Requirement Fallbacks */
+.no-js .search-toggle,
+.no-js .command-palette,
+.no-js #command-palette,
+html:not(.js) .search-toggle,
+html:not(.js) .command-palette,
+html:not(.js) #command-palette {
+    display: none !important;
+}
+
 /* Action Buttons & Minimum Touch Targets (44px) */
 .search-toggle,
 .theme-toggle,

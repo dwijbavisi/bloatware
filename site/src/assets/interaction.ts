@@ -251,7 +251,7 @@ register("command-palette", (el) => {
                         <a href="${targetHref}" class="command-palette-item-link">
                             <div class="command-palette-item-top">
                                 <span class="command-palette-badge kind-${match.item.kind}">${match.item.kind}</span>
-                                <span class="command-palette-item-title">${escapeHtml(match.item.title)}</span>
+                                <span class="command-palette-item-title">${match.titleHtml || escapeHtml(match.item.title)}</span>
                                 ${match.item.date ? `<span class="command-palette-item-date">${match.item.date}</span>` : ''}
                             </div>
                             ${match.snippet ? `<div class="command-palette-item-snippet">${match.snippet}</div>` : ''}

@@ -15,6 +15,12 @@ The deployment process is automated using GitHub Actions.
 - **Trigger Events**:
   - Push to `main` branch
   - Manual: via `workflow_dispatch`
+  - Automated: via `repository_dispatch` (`content-updated`)
+
+- **Incremental CI Caching**:
+  - Caches `site/.cache` (Level 1 ASTs & Level 2 route metadata) and `site/dist` (pre-built assets and HTML).
+  - Keyed on `bloatware-build-${{ runner.os }}-${{ github.sha }}-${{ steps.hf-sha.outputs.sha }}` with fallback restore keys.
+  - Enables GitHub Actions to run differential builds (<300ms) on content updates and skip markdown re-parsing on UI changes.
 
 ## One-Time Repository Setup
 

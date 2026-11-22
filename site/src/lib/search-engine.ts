@@ -3,6 +3,7 @@ import type { SearchEntry } from '../../modules/search-index';
 export interface SearchMatch {
     item: SearchEntry;
     score: number;
+    titleHtml: string;
     snippet: string;
 }
 
@@ -16,13 +17,47 @@ function escapeRegex(str: string): string {
 /**
  * Escapes HTML characters in a string to avoid injection.
  */
-function escapeHtml(str: string): string {
+export function escapeHtml(str: string): string {
     return str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+/**
+ * Safely highlights matching search tokens in an HTML-escaped string.
+ * Uses a single-pass combined regex to guarantee that injected <mark> tags are never re-matched.
+ */
+export function highlightMatches(rawText: string, tokens: string[]): string {
+    if (!rawText) return '';
+    const escaped = escapeHtml(rawText);
+    if (!tokens || tokens.length === 0) return escaped;
+
+    // Filter, deduplicate, and sort tokens length-descending (longer phrases match first)
+    const uniqueTokens = Array.from(
+        new Set(
+            tokens
+                .map(t => t.trim().toLowerCase())
+                .filter(t => t.length > 0)
+        )
+    ).sort((a, b) => b.length - a.length);
+
+    if (uniqueTokens.length === 0) return escaped;
+
+    // For single-character tokens, enforce word boundary \b to avoid highlighting
+    // random letters in the middle of unrelated words (e.g. 'm' inside 'volume')
+    const patterns = uniqueTokens.map(t => {
+        const escapedToken = escapeRegex(escapeHtml(t));
+        if (t.length === 1) {
+            return `\\b${escapedToken}`;
+        }
+        return escapedToken;
+    });
+
+    const unifiedRegex = new RegExp(`(${patterns.join('|')})`, 'gi');
+    return escaped.replace(unifiedRegex, '<mark class="search-highlight">$1</mark>');
 }
 
 /**
@@ -36,10 +71,12 @@ function generateSnippet(text: string, tokens: string[], maxLen = 130): string {
 
     const lower = text.toLowerCase();
     let bestIdx = -1;
-    for (const t of tokens) {
+    const sortedTokens = [...tokens].sort((a, b) => b.length - a.length);
+    for (const t of sortedTokens) {
         const idx = lower.indexOf(t);
-        if (idx !== -1 && (bestIdx === -1 || idx < bestIdx)) {
+        if (idx !== -1) {
             bestIdx = idx;
+            break;
         }
     }
 
@@ -47,23 +84,14 @@ function generateSnippet(text: string, tokens: string[], maxLen = 130): string {
         return escapeHtml(text.slice(0, maxLen)) + (text.length > maxLen ? '…' : '');
     }
 
-    const start = Math.max(0, bestIdx - 40);
+    const start = Math.max(0, bestIdx - 30);
     const end = Math.min(text.length, start + maxLen);
     let excerpt = text.slice(start, end);
 
     if (start > 0) excerpt = '…' + excerpt;
     if (end < text.length) excerpt = excerpt + '…';
 
-    let escaped = escapeHtml(excerpt);
-
-    // Highlight all token matches in the snippet
-    for (const t of tokens) {
-        if (!t) continue;
-        const re = new RegExp(`(${escapeRegex(escapeHtml(t))})`, 'gi');
-        escaped = escaped.replace(re, '<mark class="search-highlight">$1</mark>');
-    }
-
-    return escaped;
+    return highlightMatches(excerpt, tokens);
 }
 
 /**
@@ -106,6 +134,7 @@ export class SearchEngine {
             return sorted.slice(0, limit).map((item) => ({
                 item,
                 score: 1,
+                titleHtml: escapeHtml(item.title),
                 snippet: generateSnippet(item.summary || item.content, [])
             }));
         }
@@ -174,10 +203,12 @@ export class SearchEngine {
             }
 
             const snippet = generateSnippet(item.content || item.summary || '', tokens);
+            const titleHtml = highlightMatches(item.title, tokens);
 
             matches.push({
                 item,
                 score,
+                titleHtml,
                 snippet
             });
         }

@@ -1,24 +1,29 @@
 import { type Plugin, type ViteDevServer } from 'vite';
 import path from 'node:path';
 import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap';
+import type { SearchEntry } from '../modules/search-index';
 
 export function devServerPlugin(): Plugin {
     let routeMap = new Map<string, string>();
     let sitemapEntries: SitemapRouteEntry[] = [];
-    let searchEntries: unknown[] = [];
+    let searchEntries: SearchEntry[] = [];
     let isBuilding = false;
 
     async function rebuildRoutes(server: ViteDevServer) {
         if (isBuilding) return;
         isBuilding = true;
         try {
-            console.log('[Vite SSG] Rebuilding routes in memory...');
             const builderPath = path.resolve(process.cwd(), 'scripts/builder.ts');
             const builder = await server.ssrLoadModule(builderPath);
-            sitemapEntries = [];
-            searchEntries = [];
-            routeMap = await builder.generateAllRoutes(sitemapEntries, searchEntries);
-            console.log(`[Vite SSG] Successfully generated ${routeMap.size} routes.`);
+            const buildResult = await builder.executeIncrementalBuild({ rootDir: process.cwd() });
+
+            routeMap = buildResult.routeMap;
+            sitemapEntries = buildResult.sitemapEntries;
+            searchEntries = buildResult.searchEntries;
+
+            console.log(
+                `[Vite SSG] Ready. ${routeMap.size} routes (${buildResult.stats.rebuiltRoutes} rebuilt, ${buildResult.stats.cachedRoutes} cached) in ${buildResult.stats.durationMs}ms.`
+            );
         } catch (e) {
             console.error('[Vite SSG] Error rebuilding routes:', e);
         } finally {
@@ -28,33 +33,36 @@ export function devServerPlugin(): Plugin {
 
     return {
         name: 'vite-plugin-ssg-dev',
-        
+
         async configureServer(server) {
-            // Watch the content directory and markdown files
+            // Watch content directory and root readme
             server.watcher.add(path.resolve(process.cwd(), '../content'));
             server.watcher.add(path.resolve(process.cwd(), '../readMe.md'));
 
-            // Perform initial build
+            // Initial incremental warmup
             await rebuildRoutes(server);
 
-            // Add middleware to intercept HTML requests BEFORE Vite's defaults
+            // Intercept SSG HTML, search index, and sitemap requests BEFORE Vite default fallbacks
             server.middlewares.use(async (req, res, next) => {
                 if (!req.url) return next();
 
                 try {
                     const rawUrl = req.url.split('?')[0];
+
                     if (rawUrl === '/sitemap.xml') {
                         res.setHeader('Content-Type', 'application/xml; charset=utf-8');
                         res.statusCode = 200;
                         res.end(generateSitemapXml(sitemapEntries));
                         return;
                     }
+
                     if (rawUrl === '/robots.txt') {
                         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
                         res.statusCode = 200;
                         res.end(generateRobotsTxt());
                         return;
                     }
+
                     if (rawUrl === '/search-index.json') {
                         res.setHeader('Content-Type', 'application/json; charset=utf-8');
                         res.statusCode = 200;
@@ -66,8 +74,9 @@ export function devServerPlugin(): Plugin {
                     if (req.url.match(/\.(css|js|ts|tsx|png|jpg|jpeg|svg|json|ico)$/)) {
                         return next();
                     }
+
                     let route = rawUrl;
-                    
+
                     // Normalize SSG explicit index.html requests
                     if (route.endsWith('/index.html')) {
                         route = route.slice(0, -10);
@@ -79,7 +88,7 @@ export function devServerPlugin(): Plugin {
 
                     if (routeMap.has(route)) {
                         let html = routeMap.get(route)!;
-                        
+
                         // Rewrite assets to point to Vite's dev server src/assets
                         html = html
                             .replace(/href="([^"]*)assets\/styles\.css"/g, 'href="/src/assets/styles.css"')
@@ -90,14 +99,13 @@ export function devServerPlugin(): Plugin {
 
                         // Inject Vite's HMR scripts
                         const transformedHtml = await server.transformIndexHtml(req.url, html);
-                        
+
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'text/html');
                         res.end(transformedHtml);
                         return;
                     } else if (req.headers.accept?.includes('text/html')) {
-                        // If it's an HTML request but not in our map, don't let Vite serve the SPA index.html
-                        // Let the user know it's a 404 from SSG.
+                        // 404 from SSG
                         res.statusCode = 404;
                         res.setHeader('Content-Type', 'text/html');
                         res.end(`<h1>404 Not Found in SSG</h1><p>Route: ${route}</p>`);
@@ -110,16 +118,20 @@ export function devServerPlugin(): Plugin {
                     res.end((e as Error).message);
                     return;
                 }
-                
+
                 next();
             });
         },
 
         async handleHotUpdate({ file, server }) {
-            // Rebuild map if any relevant file changes
+            // CSS changes are handled natively by Vite HMR without re-running SSG
+            if (file.endsWith('.css')) {
+                return;
+            }
+
             if (file.endsWith('.md') || file.endsWith('.tsx') || file.endsWith('.ts')) {
                 await rebuildRoutes(server);
-                
+
                 server.ws.send({
                     type: 'full-reload',
                     path: '*'
