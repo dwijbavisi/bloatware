@@ -1,8 +1,8 @@
 import { type Plugin, type ViteDevServer } from 'vite';
 import path from 'node:path';
-import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap';
-import type { SearchEntry } from '../modules/search-index';
-import { Logger } from '../modules/logger';
+import { generateSitemapXml, generateRobotsTxt, type SitemapRouteEntry } from './sitemap.js';
+import type { SearchEntry } from '../modules/search-index/index.js';
+import { Logger } from '../modules/logger.js';
 
 const log = new Logger('vite-ssg');
 

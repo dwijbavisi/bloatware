@@ -1,4 +1,4 @@
-import { toCanonicalFullPath } from '../modules/link-resolver';
+import { toCanonicalFullPath } from '../modules/link-resolver.js';
 
 /**
  * Types and utilities for generating sitemap.xml and robots.txt.

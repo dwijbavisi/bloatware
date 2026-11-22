@@ -17,7 +17,7 @@ function posixResolve(baseDir: string, relativePath: string): string {
 import type {
     BlockNode,
     InlineNode
-} from './md-parser';
+} from './md-parser/index.js';
 
 /**
  * Splits a standard web route into directory segments and optional filename,
