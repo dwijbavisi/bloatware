@@ -41,6 +41,24 @@ const enum LogLevel {
     silent = 'silent',
 }
 
+function getDefaultLogLevel(): LogLevel {
+    if (typeof process !== 'undefined' && process.env) {
+        const envLevel = process.env.LOG_LEVEL?.trim().toLowerCase();
+        if (envLevel === 'debug') return LogLevel.debug;
+        if (envLevel === 'info') return LogLevel.info;
+        if (envLevel === 'warn') return LogLevel.warn;
+        if (envLevel === 'error') return LogLevel.error;
+        if (envLevel === 'silent') return LogLevel.silent;
+        if (
+            process.env.DEBUG ||
+            (Array.isArray(process.argv) && (process.argv.includes('--verbose') || process.argv.includes('--debug')))
+        ) {
+            return LogLevel.debug;
+        }
+    }
+    return LogLevel.info;
+}
+
 /**
  * Configuration options for the logger instance.
  */
@@ -67,7 +85,7 @@ class Logger {
      * Configuration options for the logger instance.
      */
     protected _options: LoggerOptions & { level: LogLevel } = {
-        level: LogLevel.info
+        level: getDefaultLogLevel()
     };
 
     /**
@@ -79,7 +97,7 @@ class Logger {
     constructor(namespace?: string, options?: LoggerOptions) {
         if (namespace)
             this._namespace = String(namespace);
-        this._options = { ...this._options, ...(options ?? {}) };
+        this._options = { level: getDefaultLogLevel(), ...(options ?? {}) };
     }
 
     /**

@@ -15,6 +15,12 @@ The deployment process is automated using GitHub Actions.
 - **Trigger Events**:
   - Push to `main` branch
   - Manual: via `workflow_dispatch`
+  - Automated: via `repository_dispatch` (`content-updated`)
+
+- **Incremental CI Caching**:
+  - Caches `site/.cache` (Level 1 ASTs & Level 2 route metadata) and `site/dist` (pre-built assets and HTML).
+  - Keyed on `bloatware-build-${{ runner.os }}-${{ github.sha }}-${{ steps.hf-sha.outputs.sha }}` with fallback restore keys.
+  - Enables GitHub Actions to run differential builds (<300ms) on content updates and skip markdown re-parsing on UI changes.
 
 ## One-Time Repository Setup
 
@@ -30,6 +36,7 @@ The deployment process is automated using GitHub Actions.
   - `site/dist/CNAME`: Maintains custom domain binding across deployments.
   - `site/dist/sitemap.xml`: Full XML sitemap conforming to sitemaps.org 0.9 with `lastmod`, `priority`, and `changefreq`.
   - `site/dist/robots.txt`: Directs search engine crawlers (Googlebot, etc.) to `https://bloatware.crabwire.net/sitemap.xml`.
+  - `site/dist/search-index.json`: Precomputed full-content search index for the client-side command palette.
   - Canonical link tags (`<link rel="canonical" href="..." />`) on every HTML page via `CoreLayout.tsx` pointing to full paths including `index.html` (matching the full path URLs in `sitemap.xml`).
 
 ## Notes

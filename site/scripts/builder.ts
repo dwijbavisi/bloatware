@@ -1,176 +1,31 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-
-import { loadContentGenerator } from '../modules/discovery';
-import { buildRouteHierarchy } from '../modules/router';
-import type { ChildRecord, ContentRecord } from '../modules/router/types';
-import { resolveLinks } from '../modules/link-resolver';
-import { parseMarkdown, type BlockNode } from '../modules/md-parser';
-import { Logger } from '../modules/logger';
-import profiler from '../modules/profiler';
-
-import { IndexTemplate } from '../src/templates/IndexTemplate';
-import { ArticleIndexTemplate } from '../src/templates/ArticleIndexTemplate';
-import { ArticleDetailTemplate } from '../src/templates/ArticleDetailTemplate';
-import { PageIndexTemplate } from '../src/templates/PageIndexTemplate';
-import { PageDetailTemplate } from '../src/templates/PageDetailTemplate';
-import { ZettelkastenIndexTemplate } from '../src/templates/ZettelkastenIndexTemplate';
-import { ZettelDetailTemplate } from '../src/templates/ZettelDetailTemplate';
-import { NotFoundTemplate } from '../src/templates/NotFoundTemplate';
 import type { SitemapRouteEntry } from './sitemap';
+import type { SearchEntry } from '../modules/search-index';
+import {
+    executeIncrementalBuild,
+    type IncrementalBuildOptions,
+    type IncrementalBuildResult
+} from '../modules/incremental';
 
-import { enrichSeries } from '../src/lib/series';
+export { executeIncrementalBuild, type IncrementalBuildOptions, type IncrementalBuildResult };
 
-const ROOT = process.cwd();
-const log = new Logger('builder');
-
-function documentFromElement(element: React.ReactElement): string {
-    return `<!doctype html>\n${renderToStaticMarkup(element)}`;
-}
-
-async function* combinedContentStream() {
-    const articlesDir = path.resolve(ROOT, '../content/articles');
-    const pagesDir = path.resolve(ROOT, '../content/pages');
-    const zettelDir = path.resolve(ROOT, '../content/zettelkasten');
-    yield* loadContentGenerator('article', articlesDir);
-    yield* loadContentGenerator('page', pagesDir);
-    yield* loadContentGenerator('zettel', zettelDir);
-}
-
-export async function generateAllRoutes(sitemapCollector?: SitemapRouteEntry[]): Promise<Map<string, string>> {
-    profiler.time('generate-routes');
-    log.info('Generating all routes in memory...');
-
-    const routeMap = new Map<string, string>();
-
-    const readMePath = path.resolve(ROOT, '../readMe.md');
-    let introNodes: BlockNode[] = [];
-    try {
-        const readMeText = await fs.readFile(readMePath, 'utf8');
-        const parsed = parseMarkdown(readMeText);
-        introNodes = parsed.ast;
-    } catch (err) {
-        log.warn('Could not read or parse readMe.md for homepage.', err);
-    }
-
-    const allArticles: ChildRecord[] = [];
-    const allPages: ChildRecord[] = [];
-    const allZettels: ChildRecord[] = [];
-    let pageCount = 0;
-
-    const routedStream = buildRouteHierarchy(combinedContentStream());
-    const allRecords: ContentRecord[] = [];
-    for await (const record of routedStream) {
-        allRecords.push(record);
-    }
-
-    // Detect and enrich articles with series info
-    const articleRecords = allRecords.filter(r => r.kind === 'article');
-    enrichSeries(articleRecords);
-
-    for (const record of allRecords) {
-        log.info(`Rendering route: ${record.route}`);
-
-        const footprint: ChildRecord = {
-            id: record.id,
-            title: record.title,
-            route: record.route,
-            canonicalPath: record.canonicalPath,
-            summary: record.summary,
-            date: record.metadata.sortDate ?? record.date
-        };
-
-        if (record.kind === 'article') {
-            allArticles.push(footprint);
-        } else if (record.kind === 'zettel') {
-            allZettels.push(footprint);
-        } else {
-            allPages.push(footprint);
-        }
-
-        const resolvedAst = resolveLinks(record.ast, record.route);
-        const resolvedRecord: ContentRecord = { ...record, ast: resolvedAst };
-
-        const template = record.kind === 'article'
-            ? React.createElement(ArticleDetailTemplate, { item: resolvedRecord })
-            : record.kind === 'zettel'
-                ? React.createElement(ZettelDetailTemplate, { item: resolvedRecord })
-                : React.createElement(PageDetailTemplate, { item: resolvedRecord });
-
-        const html = documentFromElement(template);
-        routeMap.set(record.route, html);
-        if (sitemapCollector) {
-            const lastmod = record.metadata.sortDate ?? record.date;
-            const priority = record.kind === 'article' ? '0.8' : record.kind === 'page' ? '0.7' : '0.6';
-            sitemapCollector.push({
-                route: record.route,
-                lastmod,
-                priority,
-                changefreq: 'monthly'
-            });
-        }
-        pageCount++;
-    }
-
-    allArticles.sort((a, b) => {
-        if (a.date && b.date) return a.date < b.date ? 1 : -1;
-        return a.title.localeCompare(b.title);
-    });
-
-    allPages.sort((a, b) => {
-        if (a.date && b.date) return a.date < b.date ? 1 : -1;
-        return a.title.localeCompare(b.title);
-    });
-
-    allZettels.sort((a, b) => {
-        if (a.date && b.date) return a.date < b.date ? 1 : -1;
-        return a.title.localeCompare(b.title);
-    });
-
-    const homeHtml = documentFromElement(
-        React.createElement(IndexTemplate, {
-            recentArticles: allArticles.slice(0, 6),
-            pages: allPages.slice(0, 6),
-            introNodes
-        })
-    );
-    routeMap.set('/', homeHtml);
-
-    const articlesHtml = documentFromElement(
-        React.createElement(ArticleIndexTemplate, { items: allArticles })
-    );
-    routeMap.set('/articles/', articlesHtml);
-
-    const pagesHtml = documentFromElement(
-        React.createElement(PageIndexTemplate, { items: allPages })
-    );
-    routeMap.set('/pages/', pagesHtml);
-
-    const zettelkastenHtml = documentFromElement(
-        React.createElement(ZettelkastenIndexTemplate, { items: allZettels })
-    );
-    routeMap.set('/zettelkasten/', zettelkastenHtml);
-
-    const notFoundHtml = documentFromElement(
-        React.createElement(NotFoundTemplate)
-    );
-    routeMap.set('/404.html', notFoundHtml);
+/**
+ * Builds or incrementally updates all routes in memory, populating optional
+ * sitemap and search index collectors.
+ */
+export async function generateAllRoutes(
+    sitemapCollector?: SitemapRouteEntry[],
+    searchCollector?: SearchEntry[],
+    options?: IncrementalBuildOptions
+): Promise<Map<string, string>> {
+    const result = await executeIncrementalBuild(options);
 
     if (sitemapCollector) {
-        sitemapCollector.unshift(
-            { route: '/', priority: '1.0', changefreq: 'weekly' },
-            { route: '/articles/', priority: '0.8', changefreq: 'weekly' },
-            { route: '/pages/', priority: '0.8', changefreq: 'weekly' },
-            { route: '/zettelkasten/', priority: '0.7', changefreq: 'weekly' }
-        );
+        sitemapCollector.push(...result.sitemapEntries);
     }
 
-    pageCount += 5;
+    if (searchCollector) {
+        searchCollector.push(...result.searchEntries);
+    }
 
-    const durationMs = profiler.timeEnd('generate-routes', 'Memory generation time') ?? 0;
-    log.info(`Generated ${pageCount} routes in memory in ${durationMs}ms.`);
-
-    return routeMap;
+    return result.routeMap;
 }

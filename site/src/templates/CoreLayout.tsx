@@ -2,6 +2,7 @@ import React from 'react';
 import { relativeAssetHref, toCanonicalFullPath } from '../../modules/link-resolver';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
+import { SearchModal } from '../components/SearchModal';
 import type { TocItem } from '../lib/toc';
 
 /**
@@ -46,7 +47,7 @@ export function CoreLayout({ title, pageTitle, currentRoute, description, showPa
     const defaultDescription = 'Project bloatware - Just a spot for my thoughts on the world and the ideas I follow.';
     const metaDescription = (description || defaultDescription).replace(/\s+/g, ' ').trim();
     return (
-        <html lang="en">
+        <html lang="en" data-route={currentRoute} className="no-js">
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -63,9 +64,16 @@ export function CoreLayout({ title, pageTitle, currentRoute, description, showPa
                 <meta name="twitter:description" content={metaDescription} />
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: `(function(){try{var t=localStorage.getItem('biocircuit-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`
+                        __html: `document.documentElement.classList.replace('no-js','js');(function(){try{var t=localStorage.getItem('biocircuit-theme');if(t){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`
                     }}
                 />
+                <noscript>
+                    <style
+                        dangerouslySetInnerHTML={{
+                            __html: `.search-toggle, .command-palette, #command-palette { display: none !important; }`
+                        }}
+                    />
+                </noscript>
                 {isNotFound && (
                     <script
                         dangerouslySetInnerHTML={{
@@ -83,6 +91,7 @@ export function CoreLayout({ title, pageTitle, currentRoute, description, showPa
                     {children}
                 </main>
                 <Footer currentRoute={currentRoute} />
+                <SearchModal />
             </body>
         </html>
     );
