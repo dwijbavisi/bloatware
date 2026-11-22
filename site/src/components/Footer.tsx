@@ -1,5 +1,5 @@
 import React from 'react';
-import { relativeRouteHref } from '../../modules/link-resolver';
+import { relativeRouteHref, relativeAssetHref } from '../../modules/link-resolver';
 
 /**
  * Props for the Footer component.
@@ -30,6 +30,7 @@ export function Footer({ currentRoute }: FooterProps): React.JSX.Element {
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/articles/")}>Articles</a>
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/pages/")}>Pages</a>
                         <a className="footer-link" href={relativeRouteHref(currentRoute, "/zettelkasten/")}>Zettelkasten</a>
+                        <a className="footer-link" href={relativeAssetHref(currentRoute, "sitemap.xml")}>Sitemap</a>
                         <a
                             className="footer-link"
                             href="https://github.com/dwijbavisi/bloatware"
