@@ -92,6 +92,12 @@ export function CoreLayout({ title, pageTitle, currentRoute, description, showPa
                 </main>
                 <Footer currentRoute={currentRoute} />
                 <SearchModal />
+                {/* <!-- Cloudflare Web Analytics --> */}
+                <script
+                    type='module'
+                    src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91f3ace56c644336a078f1484853e720"}'>
+                </script>
+                {/* <!-- End Cloudflare Web Analytics --> */}
             </body>
         </html>
     );
